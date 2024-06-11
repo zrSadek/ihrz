@@ -19,15 +19,29 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import fs from 'node:fs';
-import path from 'path';
 import logger from '../../logger.js';
+import fs from 'node:fs';
 
-let filePath = path.join(process.cwd(), 'src', 'core', 'bash', 'history', '.bash_history')
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+let filePath = `${process.cwd()}/src/files/.bash_history`
 
 export default function () {
   fs.readFile(filePath, 'utf-8', (err, data) => {
     if (err) throw err;
-    logger.legacy("\n" + data + "\n[Press Enter]");
+    
+    let lines = data.trim().split('\n');
+    let maxNumberLength = lines.length.toString().length;
+    
+    let formattedHistory = lines.map((line, index) => {
+      let number = (index + 1).toString().padStart(maxNumberLength, ' ');
+      return `${number}  ${line.trim()}`;
+    }).join('\n');
+    
+    logger.legacy("\n" + formattedHistory + "\n[Press Enter]");
   });
 };

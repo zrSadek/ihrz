@@ -29,6 +29,7 @@ import {
     ChatInputCommandInteraction,
     StringSelectMenuInteraction,
     ApplicationCommandType,
+    ColorResolvable,
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData';
@@ -47,7 +48,7 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         const categories: CategoryData[] = [];
 
@@ -74,27 +75,74 @@ export const command: Command = {
 
         categories.sort((a, b) => a.name.localeCompare(b.name));
 
-        let select = new StringSelectMenuBuilder().setCustomId('help-menu').setPlaceholder('Make a selection!');
+        let select = new StringSelectMenuBuilder().setCustomId('help-menu').setPlaceholder(data.help_select_menu);
+        let select_2 = new StringSelectMenuBuilder().setCustomId('help-menu-2').setPlaceholder(data.help_select_menu);
+
+        select.addOptions(new StringSelectMenuOptionBuilder()
+            .setLabel(data.help_back_to_menu)
+            .setDescription(data.help_back_to_menu_desc)
+            .setValue("back")
+            .setEmoji("⬅️"));
+
+        select_2.addOptions(new StringSelectMenuOptionBuilder()
+            .setLabel(data.help_back_to_menu)
+            .setDescription(data.help_back_to_menu_desc)
+            .setValue("back")
+            .setEmoji("⬅️"));
+
+        let i = 0;
+        let toAddInAnotherSelect: CategoryData[] = [];
 
         categories.forEach((category, index) => {
+            i++
+            if (i >= categories.length / 2) return toAddInAnotherSelect.push(category);
             select.addOptions(new StringSelectMenuOptionBuilder()
                 .setLabel(category.name)
+                .setDescription(data.help_select_menu_fields_desc
+                    .replace("${categories[index].value.length}", categories[index].value.length.toString())
+                )
                 .setValue(index.toString())
                 .setEmoji(category.emoji));
         });
 
+        toAddInAnotherSelect.forEach((category, index) => {
+            select_2.addOptions(new StringSelectMenuOptionBuilder()
+                .setLabel(category.name)
+                .setDescription(data.help_select_menu_fields_desc
+                    .replace("${categories[index].value.length}", categories[index].value.length.toString())
+                )
+                .setValue(index.toString())
+                .setEmoji(category.emoji));
+        })
         let row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
+        let row_2 = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select_2);
 
-        let embed = new EmbedBuilder()
+        let og_embed = new EmbedBuilder()
             .setColor('#001eff')
-            .setDescription(data.help_tip_embed)
+            .setDescription(data.help_tip_embed
+                .replaceAll('${client.user?.username}', interaction.client.user?.username)
+                .replaceAll('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
+                .replaceAll('${categories.length}', categories.length.toString())
+                .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
+                .replaceAll('${client.content.filter(c => c.messageCmd === false).length}', client.content.filter(c => c.messageCmd === false).length.toString())
+                .replaceAll('${client.iHorizon_Emojis.icon.Crown_Logo}', client.iHorizon_Emojis.icon.Crown_Logo)
+                .replaceAll('${config.owner.ownerid1}', client.config.owner.ownerid1)
+                .replaceAll('${config.owner.ownerid2}', client.config.owner.ownerid2)
+                .replaceAll('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
+                .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
+            )
             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
             .setThumbnail("attachment://icon.png")
             .setTimestamp();
 
+        let embed = new EmbedBuilder()
+            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setThumbnail("attachment://icon.png");
+
         let response = await interaction.reply({
-            embeds: [embed],
-            components: [row],
+            embeds: [og_embed],
+            components: [row, row_2],
             files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
 
@@ -110,17 +158,22 @@ export const command: Command = {
 
             await i.deferUpdate();
 
+            if (i.values[0] === "back") {
+                await response.edit({ embeds: [og_embed], components: [row, row_2] });
+                return;
+            }
+
             embed
                 .setTitle(`${categories[i.values[0] as unknown as number].emoji}・${categories[i.values[0] as unknown as number].name}`)
                 .setDescription(categories[i.values[0] as unknown as number].description)
-                .setColor(categories[i.values[0] as unknown as number].color as any);
+                .setColor(categories[i.values[0] as unknown as number].color as ColorResolvable);
 
             embed.setFields({ name: ' ', value: ' ' });
 
-            let categoryColor = categories[i.values[0] as unknown as number].color as any;
-            let commandGroups: any[][] = [];
+            let categoryColor = categories[i.values[0] as unknown as number].color;
+            let commandGroups: { name: string, value: string, inline: boolean }[][] = [];
             let embeds: EmbedBuilder[] = [];
-            let currentGroup: any[] = [];
+            let currentGroup: { name: string, value: string, inline: boolean }[] = [];
 
             categories[i.values[0] as unknown as number].value.forEach(async (element, index) => {
                 let cmdPrefix = (element.messageCmd) ? `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**` : `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
@@ -145,7 +198,7 @@ export const command: Command = {
             });
 
             for (const group of commandGroups) {
-                let newEmbed = new EmbedBuilder().setColor(categoryColor);
+                let newEmbed = new EmbedBuilder().setColor(categoryColor as ColorResolvable);
 
                 if (embeds.length === 0) {
                     newEmbed
@@ -173,7 +226,10 @@ export const command: Command = {
 
         collector.on('end', async i => {
             await response.edit({
-                components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(true))]
+                components: [
+                    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(true)),
+                    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select_2.setDisabled(true))
+                ]
             });
 
             return;

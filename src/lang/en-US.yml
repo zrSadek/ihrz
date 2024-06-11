@@ -6,7 +6,6 @@
 
 # /add
 add_disabled_command: "You can't use this commands because an Administrator disabled the ticket commands !"
-add_incorect_syntax: "Incorrect Syntax ! **Correct Usage:** `.add <member>`"
 add_command_work: "Successfully added ${member.tag} to your ticket!"
 add_command_error: "error occurred, please try again"
 
@@ -84,6 +83,10 @@ setticketcategory_disabled_command: "You can't use this commands because an Admi
 setticketcategory_not_a_category: "The channel specified is not an Category, please try again."
 setticketcategory_command_work: "<@${interaction.user.id}>, you have set the Category for ticket channel to `${category.name}` !"
 
+# /ticket log-channel
+ticket_logchannel_embed_title: "Ticket Logs Channel"
+ticket_logchannel_embed_desc: "${interaction.user}, you have been set the Ticket Module's Channel logs to ${channel}!"
+
 
 # Ranks commands
 # /level, /setxpchannels, /disablexp
@@ -121,6 +124,13 @@ level_embed_fields2_name: ":money_with_wings:・__Experience:__"
 level_embed_fields2_value: "`${level}`"
 level_embed_description: "`${expNeededForLevelUp}` **experience points needed for the next level!**"
 
+# /ranks leaderboard
+ranks_leaderboard_embed_title: "${interaction.guild?.name}'s Levels Leaderboard"
+ranks_leaderboard_top_txt: "Top #${i}"
+ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
+ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Level**: `${a.level || '0'}`\n🔱 ➥ **XP Total**: `${a.xptotal}`"
+ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Level: ${a.level || '0'}\n🔱 ➥ XP Total: ${a.xptotal}"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -141,6 +151,9 @@ blacklist_bot_lol: "Can't blacklist myself x)"
 blacklist_command_work: "${member.user.username} is now blacklisted"
 blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} Is now blacklisted, Can't ban this member here, missing permission?"
 blacklist_already_blacklisted: "${member.user.username} is already blacklisted !"
+blacklist_no_one_blacklist: "${client.iHorizon_Emojis.icon.No_Logo} No one blacklisted found!"
+blacklist_var_no_reason: "No reason found"
+blacklist_embed_title: "Blacklist - Page ${i / usersPerPage + 1}"
 
 # /unblacklist
 unblacklist_not_owner: "You are not owner of the iHorizon Projects. You can't use this command."
@@ -208,7 +221,7 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 status_be_bot_dev: ":x: | **You have to be the bot developer to do this!**"
 
 # /help
-help_tip_embed: "💡 __**Tip**__: __iHorizon is now multilingual, many bugs are fixed__.\n**Change now the iHorizon language with**: ```/setserverlang```Thank you to use iHorizon !\nContact creator: `Kisakay`.\nThis is a list of commands you can use."
+help_tip_embed: "```${client.user?.username} ・ Help Menu```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** available Command's Categories\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** available Slash Commands\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **Created by** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Do you know ? ・ Tips```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} is an **100% multilangual**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setserverlang language:Japanese`"
 help_mod_fields: "Moderation"
 help_ranks_fields: "Ranks"
 help_fun_fields: "Fun"
@@ -256,17 +269,29 @@ help_pfps_fields: "PFPS"
 help_pfps_dsc: "Sending random user avatar in channel!"
 help_voicedashboard_fields: "VoiceDashboard"
 help_voicedashboard_dsc: "Create an custom temporary voice channel with interface!"
+help_select_menu: "Make a selection!"
+help_select_menu_fields_desc: "${categories[index].value.length} Commands"
+help_back_to_menu: "Main menu"
+help_back_to_menu_desc: "Go back to initial menu"
+help_confession_dsc: "Do you have a confession to make? Very well, no matter how sordid it is, iHorizon is here for you!"
+help_confession_fields: "Confession"
+help_antispam_dsc: "Borring of spamming ? Noice! iHorizon is here, to moderate somes spamming!"
+help_antispam_fields: "AntiSpam"
 
 # /say
 say_footer_msg: "\n\nSent from `/say` by ${interaction.user}"
 
 # /ping
 ping_down_msg: "**DOWN**"
-ping_embed_desc: "**Network** : `${await network}` ms\n**Discord API** : `${await API}` ms"
+ping_embed_desc: "# Pong! ${interaction.client.user.username}'s Network Stats:\n\n**[Discord Website Ping]** >> `${_net03}` ms.\n**[Cloudflare Ping]** >> `${_net02}` ms.\n**[Google Ping]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.icon.Crown_Logo} **[iHorizon Website Ping]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Websocket Ping]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.icon.iHorizon_Pointer} **[Average]** >> (avg)`${averagePing}` ms."
 
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
+
+# Fun Var
+fun_var_down_api: "Error: The API is down!"
+fun_var_good_sentence: "Please, send a good sentence!"
 
 # /cats
 cats_embed_title: "Miauw :cat:"
@@ -449,12 +474,20 @@ setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> deleted 
 setrankroles_logs_embed_title_disable: "Set RankRole"
 setrankroles_command_work_disable: "<@${interaction.user.id}>, you have deleted the rank role !"
 setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} The command has encountered an error! Please try again later."
+setrankroles_command_work_with_nicknames: "Now when you ping me `@iHorizon` i will add the following roles: <@&${argsid}> **Only if the user have** `${nicknames}` in them username or globalName"
 
 # /snipe
 snipe_no_previous_message_deleted: "No message deleted in this channel !"
 
 # /userinfo
 userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} Wait please..."
+userinfo_embed_fields_1_name: "Badge"
+userinfo_embed_fields_2_name: "Username"
+userinfo_embed_fields_3_name: "DisplayName"
+userinfo_embed_fields_4_name: "Creation Date"
+userinfo_embed_fields_5_name: "Nitro Status"
+userinfo_var_notfound: "`Not found`"
+userinfo_button_label: "User Profil"
 
 # /renew
 renew_channel_send_success: "${interaction.user} channel re-created !"
@@ -466,6 +499,7 @@ prevnames_embed_title: "List of all ${user.username}'s nickname"
 prevnames_undetected: "No Data founded!"
 prevnames_not_admin: "You don't have the `ADMINISTRATOR` permission to execute this command!"
 prevnames_data_erased: "Your previous usernames have been completely deleted upon your request!"
+prevnames_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}"
 
 # /blockbot
 blockbot_not_owner: ":x: **You are not the Owner of the server !**"
@@ -501,9 +535,21 @@ derank_msg_failed: "An error occurred while removing roles."
 
 # /action unban all
 action_unban_all_embed_desc: "## Unban all guild members\n${client.iHorizon_Emojis.icon.Yes_Logo} | I have successfully remove the ban of `${unbanned_members.length}` member(s) in the guild!\n${client.iHorizon_Emojis.icon.No_Logo} | I can't unban `${cannot_unban}` member(s) !"
+action_unban_all_no_banned_members: "There are no banned members."
 
 # /action unban undo
 action_unban_undo_embed_desc: "## Undo the unban-all\n${client.iHorizon_Emojis.icon.Yes_Logo} | I have successfully banned `${banned_members.length}` member(s) in the guild!\n${client.iHorizon_Emojis.icon.No_Logo} | I can't unban `${cannot_ban}` member(s) !"
+
+# /vc
+vc_embed_desc: "## Voice States\n`${voiceStates?.size}` member(s) is in voice channel :\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## Member States\n`${membersStates?.size}` member(s) are in the guild :\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## Boost States\n`${interaction.guild?.premiumSubscriptionCount}` boost(s) in the guild,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_fields_1_name: "・Member Count"
+vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} members```"
+vc_embed_fields_2_name: "・Channel Count"
+vc_embed_fields_2_value: "```py\n${textChannelSize} text channel(s)\n${voiceChannelSize} voice channel(s)```"
+
+# /massmove
+massmove_results: "${interaction.user}, iHorizon has moved members between voice channels.\n\n**${movedCount}** member(s) were successfully moved from ${fromChannel} to ${toChannel}.\n**${errorCount}** member(s) could not be moved (see the server logs for details)."
+massmove_too_much_member: "Too many members, can't do it due to possible rate limiting!"
 
 
 # Guild Config commands
@@ -602,6 +648,11 @@ setjoindm_command_error_on_disable: "Error: missing permissions or channel doesn
 setjoindm_already_disable: "The join dm message is already disable !"
 setjoindm_not_setup_ls: "They are no join dm setup here !"
 setjoindm_command_work_ls: "The join dm message is: \n```${already_off}```"
+setjoindm_help_embed_title: "Set JoinDM Message Help!"
+setjoindm_help_embed_desc: "{memberUsername} => The member username\n{memberMention} => Mention the member\n{memberCount} => Guild's member count\n{guildName} => The guild's name\n{createdAt} => Account creation in dd/mm/yyyy"
+setjoindm_buttom_set_name: "Set Message"
+setjoindm_buttom_delete_name: "Delete DM Message"
+setjoindm_awaiting_response: "Wrote the new custom JoinDM Message in the channel."
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | You must be an administrator of this server to request this commands!"
@@ -616,23 +667,40 @@ setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the join message !"
 setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully deleted custom join message."
 setjoinmessage_command_work_ls: "The join message is:"
+setjoinmessage_help_embed_fields_custom_name: "Custom Message"
+setjoinmessage_help_embed_fields_custom_name_empy: "No Set!"
+setjoinmessage_help_embed_fields_default_name_empy: "Default Message"
+setjoinmessage_help_embed_desc: "{memberUsername} => The member username\n{memberMention} => Mention the member\n{inviterUsername} => The inviter's name\n{inviterMention} => Mention the inviter\n{memberCount} => Guild's member count\n{invitesCount} => Invites number of the inviter\n{guildName} => The guild's name\n{createdAt} => Account creation in dd/mm/yyyy"
+setjoinmessage_button_set_name: "Set message"
+setjoinmessage_buttom_del_name: "Default Message"
+setjoinmessage_awaiting_response: "Wrote the new custom Join Message."
 
 # /setjoinroles
+setjoinroles_var_none: "None"
+setjoinroles_var_perm_admin: "Administrator"
+setjoinroles_var_perm_manage_guild: "Manage Guild"
+setjoinroles_var_perm_manage_role: "Manage Roles"
+setjoinroles_var_perm_use_mention: "Use @everyone @here and ping roles"
+setjoinroles_var_perm_ban_members: "Ban Members"
+setjoinroles_var_perm_kick_members: "Kick Members"
+setjoinroles_var_perm_manage_webhooks: "Manage webhooks"
+setjoinroles_var_perm_manage_channels: "Manage channels"
+setjoinroles_var_perm_manage_expression: "Manage emojis, stickers and soundboard"
+setjoinroles_var_perm_view_monetization_analytics: "View creator monetization and analytics"
+setjoinroles_var_perm_issue: "I do not have permission to manage roles."
+setjoinroles_var_timesup: "Time expired for role selection."
+setjoinroles_warn_dangerous_perm: "The following roles have dangerous permissions. Do you really want to assign them?"
+setjoinroles_warn_title: "Warning!"
+setjoinroles_timesup_button: "Time's up!"
+setjoinroles_action_canceled: "Action canceled"
+setjoinroles_too_highter_roles: "The following roles have a higher position compared to mine."
 setjoinroles_not_admin: ":x: | You must be an administrator of this server to request this commands!"
-setjoinroles_help_embed_title: "/setjoinroles Help !"
-setjoinroles_help_embed_description: "/setjoinroles <Power on /Power off/Show the message set> <role id>"
+setjoinroles_help_embed_title: "JoinRoles Module"
+setjoinroles_help_embed_description: "Here are all the roles I give to the new member"
+setjoinroles_help_embed_fields_1_name: "All registered roles"
 setjoinroles_logs_embed_title_on_enable: "SetJoinRoles Logs"
 setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> set the join roles !"
 setjoinroles_already_on_enable: "The join roles is already config with this role !"
-setjoinroles_command_work_enable: "You have successfully set the join roles to <@&${roleid}> !"
-setjoinroles_command_error_on_enable: "Error: missing permissions or role doesn't exist"
-setjoinroles_logs_embed_title_on_disable: "SetJoinRoles Logs"
-setjoinroles_logs_embed_description_on_disable: "<@${interaction.user.id}> delete the join roles !"
-setjoinroles_dont_need_command_on_disable: "You don't have a join roles configured, is useless !"
-setjoinroles_command_work_on_disable: "You have successfully delete the join roles !"
-setjoinroles_command_error_on_disable: "error?"
-setjoinroles_command_any_set_ls: "This guild don't have a join roles set."
-setjoinroles_command_work_ls: "The join roles set is <@&${roles}>"
 
 # /setleavemessage
 setleavemessage_not_admin: ":x: | You must be an administrator of this server to request this commands!"
@@ -647,6 +715,7 @@ setleavemessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> deleted the leave message !"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully deleted custom leave message."
 setleavemessage_command_work_ls: "The leave message is:"
+setleavemessage_awaiting_response: "Wrote the new custom Leave Message."
 
 # /setup
 setup_not_admin: ":x: | You must be an administrator of this server !"
@@ -661,6 +730,7 @@ setlogschannel_already_this_channel: "This server has already this channel for l
 setlogschannel_already_deleted: "This server already don't have `SERVER_LOGS` !"
 setlogschannel_command_error: "error?"
 setlogschannel_command_work: "You have successfully setup the `${typeOfLogs}` in <#${argsid.id}> !"
+setlogschannel_utils_command_work: "You have successfully setup the `${typeOfLogs}` in ${argsid.id} !"
 setlogschannel_command_work_on_delete: "You have successfully delete all of `SERVER_LOGS` in **${interaction.guild.name}**"
 setlogschannel_logs_embed_title: "Set ServerLogs"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> set `${typeOfLogs}` to <#${argsid.id}>"
@@ -671,6 +741,22 @@ setlogschannel_var_mods: "Moderation Logs"
 setlogschannel_var_voice: "Voice Logs"
 setlogschannel_var_msg: "Messages Logs"
 setlogschannel_var_boost: "Boost Logs"
+setlogschannel_var_tickets: "Ticket Logs"
+setlogschannel_var_antispam: "AntiSpam Logs"
+
+# /join-ghostping add
+joinghostping_add_already_set: "The channel ${channel} is already set!"
+joinghostping_add_sent_to_channel: "From now on, when a member joins the guild, I'll send a ghost message **here**."
+joinghostping_add_ok_embed_title: "Join GhostPing Module"
+joinghostping_add_ok_embed_desc: "I'll now send a ghost message in this channel whenever a member joins the guild!"
+joinghostping_add_ok_embed_fields_name: "All registered channels"
+joinghostping_add_logs_embed_title: "Join GhostPing Logs"
+joinghostping_add_logs_embed_desc: "${interaction.user} has added ${channel} to the Join GhostPing Module!"
+
+# /join-ghostping remove
+joinghostping_remove_isnt_set: "The channel ${channel} isn't set !"
+joinghostping_remove_ok_embed_desc: "The channels have been deleted from the Join GhostPing Module!"
+joinghostping_remove_logs_embed_desc: "${interaction.user} have delete ${channel} of the Join GhostPing Module !"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **false**.\nNow user can send mentions in their message.\nAutoMod x iHorizon have been disabled on your server!"
@@ -683,6 +769,15 @@ automod_block_pub_command_off: "${interaction.user}, you have set the `Pub AutoM
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, you have set the `Spam AutoMod Rule` to **true**.\nNow user can't spam.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
 automod_block_spam_command_off: "${interaction.user}, you have set the `Spam AutoMod Rule` to **false**.\nNow user can spam.\nAutoMod x iHorizon have been disabled on your server!"
+
+# /guildconfig block too-new-account
+too_new_account_dont_specified_time_on_enable: "You did not specify a time. To enable this module, a minimum account age is required!"
+too_new_account_invalid_time_on_enable: "The time you entered is not valid! **Example of valid time**: `3h; 30m; 4w; 4y` -> 3 hours; 30 minutes; 4 weeks; 4 years"
+too_new_account_logEmbed_title: "TooNewAccount Module"
+too_new_account_logEmbed_desc_on_enable: "${interaction.user} has enabled the TooNewAccount module. Accounts now require a minimum of ${beautifulTime} age!"
+too_new_account_command_work_on_enable: "${interaction.user}, new members joining **${interaction.guild?.name}** with accounts younger than `${beautifulTime}` will now be kicked."
+too_new_account_logEmbed_desc_on_disable: "${interaction.user} has disabled the module!"
+too_new_account_command_work_on_disable: "${interaction.user}, the module has been successfully disabled. New member account creation dates will no longer be checked."
 
 
 # Member Count commands
@@ -719,10 +814,16 @@ loop_command_work: "{mode} | Updated loop mode"
 # /nowplaying
 nowplaying_no_queue: "There is not playing anything"
 nowplaying_message_embed_title: "Now playing"
+nowplaying_resume_button: "${interaction.user} **resume** the music!"
+nowplaying_pause_button: "${interaction.user} **pause** the music!"
+nowplaying_lyrics_button: "The lyrics for this song were not found"
+nowplaying_stop_buttom: "${interaction.user} **stop** the music!"
 
 # /pause
 pause_no_queue: "${client.iHorizon_Emojis.icon.Warning_Icon} - You're not in a voice channel !"
 pause_nothing_playing: "There is nothing playing"
+pause_var_paused: "paused"
+pause_var_err: "something went wrong"
 
 # /resume
 resume_nothing_playing: "There is nothing playing"
@@ -749,6 +850,16 @@ queue_embed_footer_text: "Page {index} | Total {track} tracks"
 shuffle_no_queue: "I am not in a voice channel"
 shuffle_no_enought: "There aren't **enough tracks** in queue to **shuffle**"
 shuffle_command_work: "I have **shuffled** the queue"
+
+# /music history
+history_no_entries: "There is no entry into this competition."
+history_embed_title: "${interaction.guild?.name} Music's History | Page ${i / usersPerPage + 1}"
+history_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}"
+
+# /music lyrics
+lyrics_embed_title_unknown: "Unknown title"
+lyrics_embed_author_name_unknown: "Unknown author"
+lyrics_not_found: "No lyrics found"
 
 
 # Giveaway commands
@@ -795,6 +906,7 @@ gw_getdata_embed_fields_isEnded: "Is Ended ?"
 gw_getdata_embed_fields_isValid: "Is Valid ?"
 gw_getdata_embed_fields_time: "End at"
 gw_getdata_embed_fields_entriesAmount: "Entries Amount"
+gw_getdata_embed_fields_winners: "Winner(s)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (use `/gw list-entries giveaway-id:${giveawayId}` for more info)"
 gw_getdata_yes: "`Yes`"
 gw_getdata_no: "`No`"
@@ -998,7 +1110,7 @@ embed_interaction_not_for_you: "This interaction is not for you"
 embed_first_message: "What do you want to do?"
 embed_save_message: "<@${interaction.user.id}>, **You have decided to save the Embed configuration!**```Embed ID: ${await saveEmbed()}```"
 embed_cancel_message: "<@${interaction.user.id}>, **You have decided to abandon the Embed configuration!**"
-embed_send_message: "<@${interaction.user.id}>, **In which channel should I send this embed?** (*With the channel ID*)"
+embed_send_message: "<@${interaction.user.id}>, **In which channel should I send this embed?**"
 embed_timeout_getbtn: "<@${interaction.user.id}>, **You took too long to respond, I'm aborting the ongoing operation!**"
 embed_choose_0: "What message do you want to include in your Embed?"
 embed_choose_1: "What title do you want to include in your Embed?"
@@ -1016,6 +1128,17 @@ embed_choose_12: "What color do you want to include in your Embed? **www.color-h
 embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | Invalid color! Please check **www.color-hex.com**"
 embed_choose_13: "The color of the Embed has been successfully deleted!"
 embed_send_embed_work: "<@${interaction.user.id}>, **You have successfully sent the Embed to the <#${message.content}> channel!**"
+
+# /rolesaver
+rolesaver_embed_title: "RoleSaver Module"
+rolesaver_embed_desc: "When guild members leave the server, their roles are saved in the database. Now when they join, iHorizon gives them their roles back."
+rolesaver_embed_fields_1_name: "Enable"
+rolesaver_embed_fields_2_name: "Re-Gave Admin Roles"
+rolesaver_embed_fields_3_name: "Timeout"
+rolesaver_on_off_already_set: "The module is already disable!"
+rolesaver_on_off_embed_title: "RoleSaver Module"
+rolesaver_on_off_embed_desc: " When guild members leave the server, their roles are not saved in the database. Now, iHorizon no longer restores the old roles to members when they come back in the server."
+rolesaver_on_off_embed_fields_1_name: "Enable"
 
 
 # Suggestion commands
@@ -1247,7 +1370,72 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, your are not authorized to u
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, you are not authorized to use this command !"
 tempvoice_staff_desc_embed: "## TempVoice Staff Role\nThe <@&${targetedRole?.id}> can now enter in the channel moderate!\n"
 
+
+# Confessionn Module
+# /cooldown, /disable, /channel
+
+# /confession channel
+confession_channel_command_work: "The confession panel have been sent to ${channel?.toString()}"
+confession_channel_panel_embed_desc: "# **Anonymous Confessions**\n\nClick the button below to open the confession form. You can write what you need to confess. If you wish, you can choose to make your confession private.\n\n## **Make a Confession**\n\n*Note: To make your confession private, write the corresponding option in the form.*"
+confession_channel_log_embed_title: "SetChannel Confession Module"
+confession_channel_log_embed_desc: "${interaction.user} have set the channel to ${channel}"
+
+# /confession cooldown
+confession_coolodwn_command_work: "${interaction.user.toString()}, the Confession's cooldown time is now to **${client.timeCalculator.to_beautiful_string(time)}** !"
+confession_cooldown_log_embed_title: "SetCooldown Confession Module"
+confession_cooldown_log_embed_desc: "${interaction.user} have set the timeout to `${client.timeCalculator.to_beautiful_string(time)}`"
+
+# /confession disable
+confession_disable_command_work_on: "The confession module is now enabled."
+confession_disable_command_work_off: "The confession module is now disabled."
+confession_log_embed_title_on_enable: "Confession Enable/Disable"
+confession_log_embed_desc_on_enable: "${interaction.user} have enabled the Confession Module !"
+confession_log_embed_desc_on_disabled: "${interaction.user} have disabled the Confession Module !"
+
+
+# AntiSpam Module
+# /antispam manage
+
+# /antispam manage
+antispam_manage_embed_title: "AntiSpam Module Configurations"
+antispam_manage_choices_1_label: "Enable module"
+antispam_manage_choices_1_desc: "Enable or disable the antispam module"
+antispam_manage_choices_2_label: "Ignore Bots"
+antispam_manage_choices_2_desc: "Ignore the spamming of bot in the guild"
+antispam_manage_choices_3_label: "Punishment type"
+antispam_manage_choices_3_desc: "What's type of sanction i will give to user"
+antispam_manage_choices_4_label: "Punishment Time"
+antispam_manage_choices_4_desc: "How long the sanction are"
+antispam_manage_choices_5_label: "Punishment Time Multiplier"
+antispam_manage_choices_5_desc: "If the duration of the sanction multiplied for each punishment"
+antispam_manage_choices_6_label: "Remove messages"
+antispam_manage_choices_6_desc: "Delete the spam message"
+antispam_manage_choices_7_label: "Max interval messages"
+antispam_manage_choices_7_desc: "Max interval between message for considerating that like spam"
+antispam_manage_choices_8_label: "Max duplicates messages"
+antispam_manage_choices_8_desc: "Amount of max duplicates message before sanction"
+antispam_manage_choices_9_label: "Max duplicates interval"
+antispam_manage_choices_9_desc: "The interval between duplicates mesasge for flag user"
+antispam_manage_choices_10_label: "Max Similar Messages"
+antispam_manage_choices_10_desc: "Amount of max similar message before sanction"
+antispam_manage_choices_11_label: "Interval Between Warn"
+antispam_manage_choices_11_desc: "The interval between warn message"
+antispam_manage_choices_12_label: "Threshold before warning"
+antispam_manage_choices_12_desc: "The threshold before warning message"
+antispam_manage_select_menu_punish_mute_label: "Mute Members"
+antispam_manage_modal_title: "AntiSpam Modal"
+antispam_manage_button_label: "Save config"
+
+# /antispam bypass-roles
+antispan_bypassroles_embed_desc: "All of the roles bellow can bypass the antispam module"
+
 # -----------------------------/ \-----------------------------
+# Confession Module Events
+confession_module_modal_title: "Send a confession"
+confession_module_modal_components1_label: "What do you want to confess ?"
+confession_module_modal_components1_placeholder: "Mmhh"
+confession_module_modal_components2_label: "Is this a private ?"
+
 # Music Player Events
 
 event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Now playing `${track.title}` into **${queue.channel.name}** ..."
@@ -1263,12 +1451,12 @@ event_channel_create_message_embed_title: "Successfully setup !"
 event_channel_create_message_embed_description: "The bot has been set up perfectly. You don't need to do anything (zen) anymore.\n\nAll moderation logs related to iHorizon will be displayed here"
 
 # Welcome Message Events
-event_welcomer_inviter: "➕・<@${member.id}> join the guild. Invited by **${inviter.tag}** (**${fetched}** invites). Account created at: **${member.user.createdAt.toLocaleDateString()}**. Happy to see you on **${member.guild.name}**"
-event_welcomer_default: "➕・<@${member.id}> join the guild. Account created at: **${member.user.createdAt.toLocaleDateString()}**. Happy to see you on **${member.guild.name}**"
+event_welcomer_inviter: "{memberMention} (account create at {createdAt}) join the guild. They were invited by **{inviterUsername}** (**{invitesCount}** Invites), we are now {memberCount} in {guildName}"
+event_welcomer_default: "{memberMention} (account create at {createdAt}) join the guild. We are now {memberCount} in {guildName}"
 
 # Goodbye Message Events
-event_goodbye_inviter: "➖・<@${member.id}> just left the guild. Was Invited by **${inviter.tag}** (**${fetched}** invites). Goodbye, from **${member.guild.name}**."
-event_goodbye_default: "➖・<@${member.id}> just left the guild. Goodbye, from **${member.guild.name}**."
+event_goodbye_inviter: "{memberUsername} (account create at {createdAt}) leave the guild. They were invited by **{inviterUsername}** (**{invitesCount}** Invites), we are now {memberCount} in {guildName}"
+event_goodbye_default: "{memberUsername} (account create at {createdAt}) leave the guild. We are now {memberCount} in {guildName}"
 
 # XP Level Events
 event_xp_level_earn: "**GG**, <@${message.author.id}> you are +1, for xp level (Level : **${newLevel}**)"
@@ -1277,6 +1465,12 @@ event_xp_level_earn: "**GG**, <@${message.author.id}> you are +1, for xp level (
 event_ticket_embed_description: "Hi ${user.username}, welcome to your ticket! Please be patient, we will be with you shortly. If you would like to close this ticket please run `/ticket close`"
 event_ticket_add_member: "${interaction.user}, you have **added** ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')} to the ticket ${interaction.channel} !"
 event_ticket_del_member: "${interaction.user}, you have **removed** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} to the ticket ${interaction.channel} !"
+event_ticket_button_name: "Create Ticket"
+event_ticket_category_awaiting_response: "What's category [${x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer}] >> ${x.name}"
+event_ticket_reason_awaiting_response: "${interaction.user.toString()} should the user need to put reason before creating ticket ?"
+event_ticket_create_reason_modal_title: "What´s the reason of your ticket"
+event_ticket_create_reason_modal_fields_1_label: "Ticket´s reason"
+event_ticket_reason_embed_desc: "# Ticket Reason\n```${reason}```"
 
 # interactionCreate Events:
 iC_event_cooldown: "Cooldown, please wait a bit between commands !"
@@ -1295,6 +1489,8 @@ ticket_module_remove_question: "Who is the user you want to remove from your tic
 
 # Server Logs
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **banned** <@${firstEntry.target.id}>"
+event_srvLogs_banAdd_fields_name: "Reason"
+event_srvLogs_banAdd_fields_value: "```{reason}```"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **revoked the ban** on ${firstEntry.target.username}"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **kicked** <@${firstEntry.target.id}>"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> removed the ${removedRoles} role from ${oldMember.user.username}"
@@ -1404,5 +1600,25 @@ temporary_voice_transfer_trust_placeholder: "Selected users will be trusted to j
 temporary_voice_transfer_unblocked_placeholder: "Selected users will be unblocked to join"
 
 temporary_voice_transfer_untrust_placeholder: "Selected users will be untrusted for joining"
+
+# Protection Module
+# Event message
+
+protection_avoid_channel_delete: "**PROTECT MODE ON**\n<@${channel.guild.ownerId}>, the channel are recreated, <@${firstEntry.executorId}> attempt to delete the channel!"
+
+# AntiSpam Module
+# Event message
+
+# Base warning message
+antispam_base_warn_message: "Warning ${mentionedMembers}, you are spamming and may be punished."
+
+# Additional warning messages based on punishment type
+antispam_more_ban_msg: " If you continue, you will be banned from the server."
+antispam_more_mute_msg: " If you continue, you will be muted."
+antispam_more_kick_msg: " If you continue, you will be kicked from the server."
+
+# Embed Logs of AntiSpam
+antispam_log_embed_title: "[AntiSpam] New ${actionType}"
+antispam_log_embed_desc: "${client.user?.toString()} have **${actionType}** ${user.toString()}"
 
 # -----------------------------\ /-----------------------------

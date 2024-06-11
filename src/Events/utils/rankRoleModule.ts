@@ -21,6 +21,8 @@
 
 import { Client, EmbedBuilder, PermissionsBitField, ChannelType, Message, ClientUser } from 'discord.js';
 import { BotEvent } from '../../../types/event';
+import { DatabaseStructure } from '../../core/database_structure';
+import { LanguageData } from '../../../types/languageData';
 
 export const event: BotEvent = {
     name: "messageCreate",
@@ -28,18 +30,28 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let data = await client.functions.getLanguageData(message.guild.id);
+        let data = await client.functions.getLanguageData(message.guild.id) as LanguageData;
 
         if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot
             || message.author.id === client.user?.id || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)
             || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.ManageRoles) || message.content !== `<@${client.user?.id}>`) return;
 
-        let dbGet = await client.db.get(`${message.guild.id}.GUILD.RANK_ROLES.roles`);
-        let fetch = message.guild.roles.cache.find((role) => role.id === dbGet);
+        let dbGet = await client.db.get(`${message.guild.id}.GUILD.RANK_ROLES`) as DatabaseStructure.DbGuildObject['RANK_ROLES'];
+
+        if (!dbGet || !dbGet.roles) return;
+
+        let fetch = message.guild.roles.cache.find((role) => role.id === dbGet.roles);
 
         if (fetch) {
             let target = message.guild.members.cache.get(message.author.id);
-            if (target?.roles.cache.has(fetch.id)) { return; };
+            if (target?.roles.cache.has(fetch.id)) return;
+
+            if (dbGet.nicknames) {
+                let includeUsername = message.author.username.includes(dbGet.nicknames);
+                let includeGlobalname = message.author.globalName ? message.author.globalName.includes(dbGet.nicknames) : false;
+
+                if (!includeUsername && !includeGlobalname) return;
+            }
 
             let embed = new EmbedBuilder()
                 .setDescription(data.event_rank_role
@@ -54,7 +66,6 @@ export const event: BotEvent = {
                 embeds: [embed],
                 files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
             }).catch(() => { });
-            return;
-        };
+        }
     },
 };

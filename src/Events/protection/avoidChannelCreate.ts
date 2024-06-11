@@ -30,19 +30,20 @@ export const event: BotEvent = {
         if (!data) return;
 
         if (data.createchannel && data.createchannel.mode === 'allowlist') {
+
             let fetchedLogs = await channel.guild.fetchAuditLogs({
                 type: AuditLogEvent.ChannelCreate,
                 limit: 1,
             });
-            var firstEntry = fetchedLogs.entries.first();
-            if (firstEntry?.targetId !== channel.id) return;
-            if (firstEntry.executorId === client.user?.id) return;
+
+            let firstEntry = fetchedLogs.entries.first();
+            if (firstEntry?.targetId !== channel.id || firstEntry.executorId === client.user?.id || !firstEntry.executorId) return;
 
             let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
             if (!baseData) {
-                channel.delete();
-                let user = await channel.guild.members.cache.get(firstEntry?.executorId as string);
+                await channel.delete();
+                let user = channel.guild.members.cache.get(firstEntry?.executorId);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':
@@ -51,7 +52,7 @@ export const event: BotEvent = {
                         user?.guild.roles.cache.forEach((element) => {
                             if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
                                 user.roles.remove(element.id);
-                            };
+                            }
                         });
                         break;
                     case 'simply+ban':
@@ -59,8 +60,8 @@ export const event: BotEvent = {
                         break;
                     default:
                         return;
-                };
-            };
+                }
+            }
         }
     },
 };

@@ -25,25 +25,23 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { ClusterMethod, OwnIhrzCluster } from '../../../core/functions/apiUrlParser.js';
-import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Custom_iHorizon } from '../../../../types/ownihrz';
 
-import config from '../../../files/config.js';
 import logger from '../../../core/logger.js';
-import path from 'path';
+
+const OWNIHRZ = new OwnIHRZ();
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let cluster = interaction.options.getString("cluster");
-        let id = interaction.options.getString('id');
+        let cluster = parseInt(interaction.options.getString("cluster")!);
+        let id = interaction.options.getString('id')!;
 
-        var table_1 = client.db.table("TEMP");
-        let allData = await table_1.get(`OWNIHRZ`);
+        var table = client.db.table("TEMP");
+        let allData = await table.get(`OWNIHRZ`);
 
         function getData() {
             for (let ownerId in allData) {
@@ -60,27 +58,25 @@ export default {
             return;
         };
 
-        id_2.AdminKey = config.api?.apiToken!;
-        id_2.Code = id as string;
+        id_2.AdminKey = client.config.api?.apiToken!;
+        id_2.Code = id;
         id_2.Lavalink = {
-            NodeHost: config.lavalink.nodes[0].host,
-            NodeAuth: config.lavalink.nodes[0].authorization,
+            NodeHost: client.config.lavalink.nodes[0].host,
+            NodePort: client.config.lavalink.nodes[0].port,
+            NodeAuth: client.config.lavalink.nodes[0].authorization,
         };
 
-        if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
+        await OWNIHRZ.Active_Intents(id_2.Auth).catch(() => { })
+
+        if ((interaction.user.id !== client.config.owner.ownerid1) && (interaction.user.id !== client.config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };
 
-        let bot_1 = (await axios.get(`https://discord.com/api/v10/applications/@me`, {
-            headers: {
-                Authorization: `Bot ${id_2.Auth}`
-            }
-        }).catch(() => { }))?.data || 404;
+        let bot_1 = (await OWNIHRZ.Get_Bot(id_2.Auth).catch(() => { }))?.data || 404
 
-        if (bot_1 === 404) {
+        if (!bot_1.bot) {
             await interaction.reply({ content: data.mybot_manage_accept_token_error });
-            await table_1.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
             return;
         } else {
 
@@ -108,55 +104,15 @@ export default {
                 files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
             });
 
-            if (cluster) {
-                try {
-                    axios.post(OwnIhrzCluster(cluster as unknown as number, ClusterMethod.CreateContainer) as string, id_2, { headers: { 'Accept': 'application/json' } })
-                        .then(async (response: AxiosResponse) => {
-                            if (cluster) {
-                                var table_1 = client.db.table('OWNIHRZ');
-
-                                await table_1.set(`CLUSTER.${id_2.OwnerOne}.${id_2.Code}`,
-                                    {
-                                        Path: (path.resolve(process.cwd(), 'ownihrz', id_2.Code)) as string,
-                                        Auth: id_2.Auth,
-                                        port: 0,
-                                        Cluster: cluster,
-                                        ExpireIn: id_2.ExpireIn,
-                                        Bot: id_2.Bot,
-                                        Code: id_2.Code,
-                                    }
-                                );
-                            }
-                        })
-                        .catch(error => {
-                            logger.err(error)
-                        });
-                } catch (error: any) {
-                    return logger.err(error)
-                };
-
-            } else {
-                return new OwnIHRZ().Create({
-                    Auth: id_2.Auth,
-                    OwnerOne: id_2.OwnerOne,
-                    OwnerTwo: id_2.OwnerTwo,
-                    Bot: {
-                        Id: id_2.Bot.Id,
-                        Name: id_2.Bot.Name,
-                        Public: id_2.Bot.Public
-                    },
-                    ExpireIn: id_2.ExpireIn,
-                    Code: id_2.Code,
-                    AdminKey: '',
-                    Lavalink: {
-                        NodeHost: config.lavalink.nodes[0].host,
-                        NodeAuth: config.lavalink.nodes[0].authorization,
-                    }
+            try {
+                OWNIHRZ.Create_Container(client.config, cluster, id_2).then(async () => {
+                    await table.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
                 });
 
+            } catch (error: any) {
+                return logger.err(error)
             };
 
-            await table_1.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
             return;
         };
     },

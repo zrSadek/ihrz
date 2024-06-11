@@ -28,8 +28,8 @@ const config: ConfigData = {
         token: "The bot token",
         // The Discord Bot Token
 
-        botPresence: true
-        // If the bot have Bot Activity Presence
+        phonePresence: false
+        // If the bot have Phone Bot Activity Presence
     },
 
     lavalink: {
@@ -71,10 +71,9 @@ const config: ConfigData = {
         reportChannelID: "The Discord Channel's ID for logs when bugs/message are reported",
         // The channel where the robot informs of a bug reported by a user of the bot.
 
-        cluster: {
-            0: "https://cluster0.domain.com",
-            1: "https://cluster1.domain.com"
-        },
+        cluster: [
+            "http://localhost:9030"
+        ],
         // The Clusters's URL for the OwnIHRZ-ClusterManager
 
         shutdownClusterWhenStop: false

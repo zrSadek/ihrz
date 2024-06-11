@@ -40,7 +40,7 @@ export default {
 
         try {
             let voiceChannel = (interaction.member as GuildMember).voice.channel;
-            let player = client.player.getPlayer(interaction.guild?.id as string);
+            let player = client.player.getPlayer(interaction.guildId as string);
 
             if (!player || !player.playing || !voiceChannel) {
                 await interaction.deleteReply();
@@ -50,7 +50,7 @@ export default {
 
             player.pause();
 
-            await interaction.editReply({ content: player.paused ? 'paused' : "something went wrong" });
+            await interaction.editReply({ content: player.paused ? data.pause_var_paused : data.pause_var_err });
             return;
         } catch (error: any) {
             logger.err(error);

@@ -60,7 +60,7 @@ export const command: Command = {
     category: 'utils',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let user = interaction.options.getUser("user") || interaction.user;
 
         // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
@@ -94,7 +94,12 @@ export const command: Command = {
                 .setColor("#000000")
                 .setTitle(pages[currentPage].title)
                 .setDescription(pages[currentPage].description)
-                .setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: "attachment://icon.png" })
+                .setFooter({
+                    text: data.prevnames_embed_footer_text
+                        .replace('${currentPage + 1}', (currentPage + 1).toString())
+                        .replace('${pages.length}', pages.length.toString()),
+                    iconURL: "attachment://icon.png"
+                })
                 .setTimestamp()
         };
 
@@ -109,7 +114,7 @@ export const command: Command = {
                 .setStyle(ButtonStyle.Secondary),
             new ButtonBuilder()
                 .setCustomId("trash-prevnames-embed")
-                .setLabel("🗑️")
+                .setLabel('🗑️')
                 .setStyle(ButtonStyle.Danger)
         );
 
@@ -120,8 +125,8 @@ export const command: Command = {
         });
 
         let collector = messageEmbed.createMessageComponentCollector({
-            filter: (i) => {
-                i.deferUpdate();
+            filter: async (i) => {
+                await i.deferUpdate();
                 return interaction.user.id === i.user.id;
             }, time: 60000
         });

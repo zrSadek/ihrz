@@ -29,6 +29,7 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'guildinfo',
@@ -42,7 +43,7 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let verlvl = {
             0: data.serverinfo_verlvl_NONE,
@@ -56,7 +57,7 @@ export const command: Command = {
             .setColor("#C3B2A1")
             .setAuthor({
                 name: data.serverinfo_embed_author
-                    .replace(/\${interaction\.guild\.name}/g, interaction.guild?.name)
+                    .replace(/\${interaction\.guild\.name}/g, interaction.guild?.name!)
                 , iconURL: interaction.guild?.iconURL() as string
             })
             .setDescription(data.serverinfo_embed_description
@@ -64,7 +65,7 @@ export const command: Command = {
             .addFields(
                 { name: data.serverinfo_embed_fields_name, value: `\`${interaction.guild?.name}\``, inline: true },
                 { name: data.serverinfo_embed_fields_members, value: `\`${interaction.guild?.memberCount}\``, inline: true },
-                { name: data.serverinfo_embed_fields_id, value: `\`${interaction.guild?.id}\``, inline: true },
+                { name: data.serverinfo_embed_fields_id, value: `\`${interaction.guildId}\``, inline: true },
                 { name: data.serverinfo_embed_fields_owner, value: `\<@${interaction.guild?.ownerId}>`, inline: true },
                 { name: data.serverinfo_embed_fields_verlvl, value: `\`${verlvl[interaction.guild?.verificationLevel as GuildVerificationLevel]}\``, inline: true },
                 { name: data.serverinfo_embed_fields_region, value: `\`${interaction.guild?.preferredLocale}\``, inline: true },
@@ -76,7 +77,7 @@ export const command: Command = {
             .setFooter({ text: `iHorizon`, iconURL: "attachment://icon.png" })
             .setTimestamp()
             .setThumbnail(interaction.guild?.iconURL() as string)
-            .setImage(`https://cdn.discordapp.com/icons/${interaction.guild?.id}/${interaction.guild?.banner}.png`);
+            .setImage(`https://cdn.discordapp.com/icons/${interaction.guildId}/${interaction.guild?.banner}.png`);
 
         await interaction.reply({
             embeds: [embeds],

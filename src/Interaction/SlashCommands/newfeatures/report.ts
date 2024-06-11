@@ -29,7 +29,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
-import config from '../../../files/config.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'report',
@@ -57,7 +57,7 @@ export const command: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
         
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         var sentences = interaction.options.getString("message-to-dev")
         let timeout = 18000000
@@ -87,7 +87,7 @@ export const command: Command = {
                 .setColor("#ff0000")
                 .setDescription(`**${interaction.user.globalName || interaction.user.username}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`)
 
-            await (client.channels.cache.get(config.core.reportChannelID) as BaseGuildTextChannel).send({ embeds: [embed] });
+            await (client.channels.cache.get(client.config.core.reportChannelID) as BaseGuildTextChannel).send({ embeds: [embed] });
 
             await client.db.set(`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`, Date.now());
             return;

@@ -34,7 +34,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import r from '../../../core/bash/commands/r';
 
 export const command: Command = {
 
@@ -49,14 +48,14 @@ export const command: Command = {
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
 
         let active: boolean;
 
         if (!permission) {
-            await interaction.reply({ content: `` });
+            await interaction.reply({ content: data.setup_not_admin });
             return;
         }
 

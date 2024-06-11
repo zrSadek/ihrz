@@ -19,36 +19,52 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import playerManager from "./modules/playerManager.js";
-import db from './functions/DatabaseModel.js';
+import { initializeDatabase, getDatabaseInstance } from './database.js';
+import commandsSync from './commandsSync.js';
 import bash from './bash/bash.js';
-
-import * as errorManager from './modules/errorManager.js';
 import logger from "./logger.js";
 
-import { Client, Collection, Snowflake } from "discord.js";
+import * as errorManager from './modules/errorManager.js';
+import playerManager from "./modules/playerManager.js";
 import { OwnIHRZ } from './modules/ownihrzManager.js';
 import emojis from './modules/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
-import { readdirSync } from "node:fs";
-import commandsSync from './commandsSync.js';
-import config from '../files/config.js';
-import { GiveawayManager } from 'discord-regiveaways';
-import { iHorizonTimeCalculator } from './functions/ms.js';
-import { LyricsManager } from './functions/lyrics-fetcher.js';
+import { ConfigData } from '../../types/configDatad.js';
 
+import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from "discord.js";
+import { GiveawayManager } from 'discord-regiveaways';
+import { readdirSync } from "node:fs";
 import backup from 'discord-rebackup';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fs from 'fs';
+
+import { LyricsManager } from './functions/lyrics-fetcher.js';
+import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
 
-backup.setStorageFolder(`${process.cwd()}/src/files/backups`);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-export default async (client: Client) => {
+const backups_folder = `${process.cwd()}/src/files/backups`;
+
+let global_config: ConfigData;
+
+if (!fs.existsSync(backups_folder)) {
+    fs.mkdirSync(backups_folder, { recursive: true });
+}
+
+backup.setStorageFolder(backups_folder);
+
+export async function main(client: Client) {
+    initConfig(client.config);
+
     logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray());
     logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray());
     logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray());
 
-    errorManager.uncaughtExceptionHandler();
+    errorManager.uncaughtExceptionHandler(client);
 
     client.giveawaysManager = new GiveawayManager(client, {
         storage: `${process.cwd()}/src/files/giveaways/`,
@@ -65,7 +81,7 @@ export default async (client: Client) => {
 
     process.on('SIGINT', async () => {
         client.destroy();
-        await new OwnIHRZ().QuitProgram();
+        await new OwnIHRZ().QuitProgram(client);
         process.exit();
     });
 
@@ -74,7 +90,8 @@ export default async (client: Client) => {
     bash(client);
     emojis(client);
 
-    client.db = db;
+    await initializeDatabase(client.config);
+    client.db = getDatabaseInstance();
     client.content = [];
     client.category = [];
     client.invites = new Collection();
@@ -82,7 +99,7 @@ export default async (client: Client) => {
     client.lyricsSearcher = new LyricsManager();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 
-    let handlerPath = `${process.cwd()}/dist/src/core/handlers`;
+    let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
     let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
 
     for (const file of handlerFiles) {
@@ -92,13 +109,36 @@ export default async (client: Client) => {
         }
     }
 
-    client.login(process.env.BOT_TOKEN || config.discord.token).then(() => {
+    if (client.config.discord.phonePresence) {
+
+        const { identifyProperties } = DefaultWebSocketManagerOptions;
+
+        Object.defineProperty(identifyProperties, 'browser', {
+            value: "Discord Android",
+            writable: true,
+            enumerable: true,
+            configurable: true
+        });
+    };
+
+    client.login(process.env.BOT_TOKEN || client.config.discord.token).then(() => {
         commandsSync(client).then(() => {
             logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta());
             logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta());
             logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta());
             logger.log(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`.magenta());
-            logger.log(`${config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta());
+            logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta());
         });
     });
+};
+
+export const initConfig = (config: ConfigData) => {
+    global_config = config
+};
+
+export const getConfig = (): ConfigData => {
+    if (!global_config) {
+        throw new Error('Configuration file has not been initialized. Call initConfig first.');
+    }
+    return global_config;
 };

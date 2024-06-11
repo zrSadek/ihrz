@@ -22,21 +22,37 @@
 import { Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
+import { DatabaseStructure } from '../../core/database_structure';
+import { LanguageData } from '../../../types/languageData';
+
+const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "guildMemberRemove",
     run: async (client: Client, member: GuildMember) => {
+        /**
+         * Why doing this?
+         * On iHorizon Production, we have some ~discord.js problems~ 👎
+         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
+         * As always, fuck discord.js
+         */
+        if (processedMembers.has(member.id)) return;
+        processedMembers.add(member.id);
+        setTimeout(() => processedMembers.delete(member.id), 7000);
 
-        let data = await client.functions.getLanguageData(member.guild.id);
+        let data = await client.functions.getLanguageData(member.guild.id) as LanguageData;
 
         try {
             let base = await client.db.get(`${member.guild.id}.USER.${member.user.id}.INVITES.BY`);
             let inviter = await client.users.fetch(base.inviter);
 
-            let check = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES`);
+            let check = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES`) as DatabaseStructure.InvitesUserData
 
             if (check) {
-                await client.db.sub(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`, 1);
+                if (check?.invites! >= 1) {
+                    await client.db.sub(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`, 1);
+                }
+
                 await client.db.add(`${member.guild.id}.USER.${inviter.id}.INVITES.leaves`, 1);
             };
 
@@ -52,20 +68,29 @@ export const event: BotEvent = {
 
                 (lChanManager as BaseGuildTextChannel).send({
                     content: data.event_goodbye_inviter
-                        .replace("${member.id}", member.id)
-                        .replace("${member.guild.name}", member.guild.name)
-                        .replace("${inviter.tag}", inviter.username)
-                        .replace("${fetched}", invitesAmount)
+                        .replaceAll("{memberUsername}", member.user.username)
+                        .replaceAll("{memberMention}", member.user.toString())
+                        .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
+                        .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                        .replaceAll('{guildName}', member.guild?.name!)
+                        .replaceAll('{inviterUsername}', inviter.username)
+                        .replaceAll('{inviterMention}', inviter.toString())
+                        .replaceAll('{invitesCount}', invitesAmount)
+                        .replaceAll("\\n", '\n')
                 });
                 return;
             };
 
             var joinMessageFormated = joinMessage
-                .replace("{user}", member.user.username)
-                .replace("{guild}", member.guild.name)
-                .replace("{membercount}", member.guild.memberCount)
-                .replace("{inviter}", inviter.username)
-                .replace("{invites}", invitesAmount);
+                .replaceAll("{memberUsername}", member.user.username)
+                .replaceAll("{memberMention}", member.user.toString())
+                .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
+                .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                .replaceAll('{guildName}', member.guild?.name!)
+                .replaceAll('{inviterUsername}', inviter.username)
+                .replaceAll('{inviterMention}', inviter.toString())
+                .replaceAll('{invitesCount}', invitesAmount)
+                .replaceAll("\\n", '\n');
 
             let lChanManager = member.guild.channels.cache.get(lChan) as BaseGuildTextChannel;
 
@@ -79,8 +104,13 @@ export const event: BotEvent = {
 
             (lChanManager as BaseGuildTextChannel).send({
                 content: data.event_goodbye_default
-                    .replace("${member.id}", member.id)
-                    .replace("${member.guild.name}", member.guild.name)
+                    .replaceAll("{memberUsername}", member.user.username)
+                    .replaceAll("{memberMention}", member.user.toString())
+                    .replaceAll('{memberCount}', member.guild?.memberCount.toString()!)
+                    .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                    .replaceAll('{guildName}', member.guild?.name!)
+                    .replaceAll('{invitesCount}', invitesAmount)
+                    .replaceAll("\\n", '\n')
             }).catch(() => { });
             return;
         }

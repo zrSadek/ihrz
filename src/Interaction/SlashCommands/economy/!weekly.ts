@@ -29,10 +29,10 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        
+
         let timeout = 604800000;
         let amount = 1000;
-        let weekly = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.weekly`);
+        let weekly = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.weekly`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -45,7 +45,7 @@ export default {
         if (weekly !== null && timeout - (Date.now() - weekly) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - weekly));
 
-            interaction.reply({
+            await interaction.reply({
                 content: data.weekly_cooldown_error
                     .replace(/\${time}/g, time)
             })
@@ -57,8 +57,8 @@ export default {
                 .addFields({ name: data.weekly_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` })
 
 
-            await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, amount);
-            await client.db.set(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.weekly`, Date.now());
+            await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, amount);
+            await client.db.set(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.weekly`, Date.now());
 
             await interaction.reply({ embeds: [embed] });
             return;

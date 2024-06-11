@@ -30,9 +30,9 @@ import {
     Guild,
     GuildMember,
     BaseGuildTextChannel,
+    User,
 } from 'discord.js';
 
-import { MetadataPlayer } from '../../../../types/metadaPlayer';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
@@ -56,7 +56,7 @@ export default {
         let btn = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(stop, pause, lyricsButton);
 
-        let player = client.player.getPlayer(interaction.guild?.id as string);
+        let player = client.player.getPlayer(interaction.guildId as string);
         let voiceChannel = (interaction.member as GuildMember).voice.channel;
 
         if (!player || !player.playing || !voiceChannel) {
@@ -70,10 +70,11 @@ export default {
         let embed = new EmbedBuilder()
             .setTitle(data.nowplaying_message_embed_title)
             .setDescription(`by: ${player.queue.current?.requester}\n**[${player.queue.current?.info.title}](${player.queue.current?.info?.uri})**, ${player.queue.current?.info?.author}`)
-            .setThumbnail(`${player.queue.current?.info?.artworkUrl}`)
             .addFields(
-                { name: '  ', value: progress?.replace(/ 0:00/g, 'LIVE') as string }
+                { name: '  ', value: progress?.replace(/ 0:00/g, 'LIVE')! }
             );
+
+        if (player.queue.current?.info?.artworkUrl) embed.setThumbnail(player.queue.current?.info?.artworkUrl);
 
         let response = await interaction.editReply({
             embeds: [embed],
@@ -81,7 +82,7 @@ export default {
         });
 
         var paused: boolean = false;
-        let collector = response.createMessageComponentCollector({ componentType: ComponentType.Button, time: 3_600_000 });
+        let collector = response.createMessageComponentCollector({ componentType: ComponentType.Button, time: 60_000 });
 
         try {
 
@@ -95,24 +96,24 @@ export default {
                     };
 
                     let channel = client.channels.cache.get(player.textChannelId as string);
-                    let requesterId = (player.queue.current?.requester as any).id
+                    let requesterId = (player.queue.current?.requester as User).id
 
                     if (i.user.id === requesterId) {
                         switch (i.customId) {
                             case "pause":
-                                i.deferUpdate();
+                                await i.deferUpdate();
                                 if (paused) {
                                     player.resume();
                                     paused = false;
-                                    (channel as BaseGuildTextChannel)?.send({ content: `${interaction.user} **resume** the music!` });
+                                    (channel as BaseGuildTextChannel)?.send({ content: data.nowplaying_resume_button.replace('${interaction.user}', interaction.user.toString()) });
                                 } else {
                                     player.pause();
                                     paused = true;
-                                    (channel as BaseGuildTextChannel)?.send({ content: `${interaction.user} **pause** the music!` });
+                                    (channel as BaseGuildTextChannel)?.send({ content: data.nowplaying_pause_button.replace('${interaction.user}', interaction.user.toString()) });
                                 }
                                 break;
                             case "lyrics":
-                                i.deferReply({ ephemeral: true });
+                                await i.deferReply({ ephemeral: true });
 
                                 var lyrics = await client.lyricsSearcher.search(
                                     player.queue.current?.info?.title as string +
@@ -122,7 +123,7 @@ export default {
                                 })
 
                                 if (!lyrics) {
-                                    i.reply({ content: 'The lyrics for this song were not found', ephemeral: true });
+                                    i.reply({ content: data.nowplaying_lyrics_button, ephemeral: true });
                                 } else {
                                     let trimmedLyrics = lyrics.lyrics.substring(0, 1997);
                                     let embed = new EmbedBuilder()
@@ -144,16 +145,23 @@ export default {
                                 };
                                 break;
                             case "stop":
-                                i.deferUpdate();
+                                await i.deferUpdate();
                                 player.destroy();
-                                (channel as BaseGuildTextChannel)?.send({ content: `${interaction.user} **stop** the music!` });
+                                (channel as BaseGuildTextChannel)?.send({ content: data.nowplaying_stop_buttom.replace('${interaction.user}', interaction.user.toString()) });
                                 break;
                         }
 
                     } else {
-                        await i.reply({ content: ':no_entry_sign:', ephemeral: true });
+                        await i.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
                     }
                 }
+            });
+
+            collector.on('end', async (i) => {
+                btn.components.forEach(x => {
+                    x.setDisabled(true)
+                })
+                await response.edit({ components: [] });
             });
         } catch {
             await interaction.channel?.send(client.iHorizon_Emojis.icon.Timer);

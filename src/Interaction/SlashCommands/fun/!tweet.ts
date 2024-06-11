@@ -36,9 +36,10 @@ import {
 } from 'discord.js'
 
 import { AxiosResponse, axios } from '../../../core/functions/axios.js';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
         let entry = interaction.options.getString('comment');
         let args: Array<string> = entry!.split(' ');
@@ -46,10 +47,9 @@ export default {
         let user: User = interaction.options.getUser('user') || interaction.user;
 
         if (args.length < 1) {
-            await interaction.editReply({ content: 'Please, send a good sentence!' });
+            await interaction.editReply({ content: data.fun_var_good_sentence });
             return;
         };
-
 
         let username = user.username;
         let displayname = user?.globalName;
@@ -66,7 +66,7 @@ export default {
             username = username.substring(0, 15);
         };
 
-        let link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 }) as string))}&username=${encodeURIComponent((username as string))}&comment=${encodeURIComponent(args.join(' '))}&displayname=${encodeURIComponent((displayname as string))}`;
+        let link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 })))}&username=${encodeURIComponent((username))}&comment=${encodeURIComponent(args.join(' '))}&displayname=${encodeURIComponent((displayname!))}`;
 
         let embed = new EmbedBuilder()
             .setColor('#000000')

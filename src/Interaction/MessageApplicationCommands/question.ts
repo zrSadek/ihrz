@@ -26,6 +26,7 @@ import {
     MessageContextMenuCommandInteraction,
 } from 'discord.js';
 import { AnotherCommand } from '../../../types/anotherCommand';
+import { LanguageData } from '../../../types/languageData';
 
 export const command: AnotherCommand = {
     name: "Pose a question!",
@@ -33,7 +34,7 @@ export const command: AnotherCommand = {
     thinking: false,
     run: async (client: Client, interaction: MessageContextMenuCommandInteraction) => {
 
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let question = interaction.options.getMessage("message")?.content || ".";
 
         let text = question?.split(" ");
@@ -51,8 +52,8 @@ export const command: AnotherCommand = {
             )
             .setColor("#ddd98b")
             .addFields(
-                { name: data.question_fields_input_embed, value: (question as string), inline: true },
-                { name: data.question_fields_output_embed, value: (reponses[Math.floor((Math.random() * reponses.length))] as string) }
+                { name: data.question_fields_input_embed, value: question, inline: true },
+                { name: data.question_fields_output_embed, value: reponses[Math.floor((Math.random() * reponses.length))] }
             )
             .setTimestamp();
 

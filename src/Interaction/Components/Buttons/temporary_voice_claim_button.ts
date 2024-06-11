@@ -31,10 +31,10 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     let member = interaction.member as GuildMember;
 
     let targetedChannel = (interaction.member as GuildMember).voice.channel;
-    let allChannel = await table.get(`CUSTOM_VOICE.${interaction.guild?.id}`);
+    let allChannel = await table.get(`CUSTOM_VOICE.${interaction.guildId}`);
 
-    if (!result || !allChannel) return interaction.deferUpdate();
-    if (result.channelId !== interaction.channelId) return interaction.deferUpdate();
+    if (!result || !allChannel) return await interaction.deferUpdate();
+    if (result.channelId !== interaction.channelId) return await interaction.deferUpdate();
 
     function getPreviousOwner(guild: Guild): GuildMember | undefined {
         var result = '';
@@ -50,7 +50,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     let previousOwner = getPreviousOwner(interaction.guild!);
 
     // Check if the previous owner is in their channel
-    if (targetedChannel?.members.get(previousOwner?.id!)) return interaction.deferUpdate();
+    if (targetedChannel?.members.get(previousOwner?.id!)) return await interaction.deferUpdate();
 
     if (!member.voice.channel) {
         await interaction.deferUpdate()
@@ -58,8 +58,8 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     } else {
 
         // change ownership now
-        await table.delete(`CUSTOM_VOICE.${interaction.guild?.id}.${previousOwner?.user.id}`);
-        await table.set(`CUSTOM_VOICE.${interaction.guild?.id}.${interaction?.user?.id}`, targetedChannel?.id)
+        await table.delete(`CUSTOM_VOICE.${interaction.guildId}.${previousOwner?.user.id}`);
+        await table.set(`CUSTOM_VOICE.${interaction.guildId}.${interaction?.user?.id}`, targetedChannel?.id)
 
         // change the voice channel name
         targetedChannel?.setName(`${interaction.user.displayName || interaction.user.username}'s Channel`);

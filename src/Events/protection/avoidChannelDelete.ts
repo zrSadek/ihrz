@@ -22,6 +22,7 @@
 import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel } from 'discord.js'
 
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData';
 
 export const event: BotEvent = {
     name: "channelDelete",
@@ -38,10 +39,11 @@ export const event: BotEvent = {
                 limit: 1,
             });
 
-            var firstEntry = fetchedLogs.entries.first();
+            let lang = await client.functions.getLanguageData(channel.guildId) as LanguageData;
 
-            if (firstEntry?.targetId !== channel.id) return;
-            if (firstEntry.executorId === client.user?.id) return;
+            let firstEntry = fetchedLogs.entries.first();
+
+            if (firstEntry?.targetId !== channel.id || firstEntry.executorId === client.user?.id || !firstEntry.executorId) return;
 
             let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${firstEntry.executorId}`);
 
@@ -55,9 +57,12 @@ export const event: BotEvent = {
                     rateLimitPerUser: (channel as BaseGuildTextChannel).rateLimitPerUser!,
                     position: channel.rawPosition,
                     reason: `Channel re-create by Protect (${firstEntry.executorId} break the rule!)`
-                }) as BaseGuildTextChannel).send(`**PROTECT MODE ON**\n<@${channel.guild.ownerId}>, the channel are recreated, <@${firstEntry.executorId}> attempt to delete the channel!`);
+                }) as BaseGuildTextChannel).send(lang.protection_avoid_channel_delete
+                    .replace('${channel.guild.ownerId}', channel.guild.ownerId)
+                    .replace('${firstEntry.executorId}', firstEntry.executorId)
+                );
 
-                let user = channel.guild.members.cache.get(firstEntry?.executorId as string);
+                let user = channel.guild.members.cache.get(firstEntry.executorId);
 
                 switch (data?.['SANCTION']) {
                     case 'simply':
@@ -66,7 +71,7 @@ export const event: BotEvent = {
                         user?.guild.roles.cache.forEach((element) => {
                             if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
                                 user.roles.remove(element.id);
-                            };
+                            }
                         });
                         break;
                     case 'simply+ban':
@@ -74,8 +79,8 @@ export const event: BotEvent = {
                         break;
                     default:
                         return;
-                };
-            };
+                }
+            }
         }
 
     },

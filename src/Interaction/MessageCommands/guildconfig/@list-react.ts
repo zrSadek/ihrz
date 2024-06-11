@@ -32,7 +32,7 @@ import {
 import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { DatabaseStucture } from '../../../core/database_structure.js';
+import { DatabaseStructure } from '../../../core/database_structure.js';
 
 export const command: Command = {
 
@@ -47,9 +47,9 @@ export const command: Command = {
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id as string) as LanguageData;
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
-        let all_specific_message: DatabaseStucture.DB_Guild_Object["REACT_MSG"] = await client.db.get(`${interaction.guildId}.GUILD.REACT_MSG`) || {};
+        let all_specific_message: DatabaseStructure.DbGuildObject["REACT_MSG"] = await client.db.get(`${interaction.guildId}.GUILD.REACT_MSG`) || {};
 
         let currentPage = 0;
 
@@ -60,10 +60,10 @@ export const command: Command = {
         });
 
         if (pages.length === 0) {
-            await interaction.reply({ content: "Aucune données as été trouvé, veuillez en ajouter avant." });
+            await interaction.reply({ content: 'Aucune données as été trouvé, veuillez en ajouter avant.' });
             return;
         }
-        
+
         let createEmbed = () => {
             return new EmbedBuilder()
                 .setColor("#000000")
@@ -90,8 +90,8 @@ export const command: Command = {
         });
 
         let collector = messageEmbed.createMessageComponentCollector({
-            filter: (i) => {
-                i.deferUpdate();
+            filter: async (i) => {
+                await i.deferUpdate();
                 return interaction.author.id === i.user.id;
             }, time: 60000
         });

@@ -26,8 +26,9 @@ import {
     ApplicationCommandType,
 } from 'discord.js';
 
+import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import config from '../../../files/config.js';
+import { getConfig } from '../../../core/core.js';
 
 export const command: Command = {
     name: "mybots",
@@ -70,6 +71,40 @@ export const command: Command = {
 
                     required: false
                 }
+            ],
+        },
+        {
+            name: "change-token",
+
+            description: "Change the token of your own iHorizon!",
+            description_localizations: {
+                "fr": "Changer le token de votre propre iHorizon"
+            },
+
+            type: 1,
+            options: [
+                {
+                    name: 'botid',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: 'Identifiant of your own iHorizon!',
+                    description_localizations: {
+                        "fr": "l'identifiant de votre propre iHorizon"
+                    },
+
+                    required: true
+                },
+                {
+                    name: 'new_discord_bot_token',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: 'The new token of your discord bot!',
+                    description_localizations: {
+                        "fr": "Le nouveau token de votre bot Discord"
+                    },
+
+                    required: true
+                },
             ],
         },
         {
@@ -121,11 +156,11 @@ export const command: Command = {
                             description_localizations: {
                                 "fr": "Le cluster où seras localisé l'ownihrz"
                             },
-                            choices: Object.entries(config.core.cluster).map(([key, value]) => ({
+                            choices: Object.entries(getConfig().core.cluster).map(([key, value]) => ({
                                 name: `Cluster #${key}`,
                                 value: key,
                             })),
-                            required: false
+                            required: true
                         }
                     ],
                 },
@@ -230,7 +265,7 @@ export const command: Command = {
     category: 'ownihrz',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);

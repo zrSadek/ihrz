@@ -28,8 +28,7 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
-import config from '../../../files/config.js';
-import logger from '../../../core/logger.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'eval',
@@ -57,17 +56,36 @@ export const command: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
 
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
-        if ((interaction.user.id !== config.owner.ownerid1) && (interaction.user.id !== config.owner.ownerid2)) {
+        if ((interaction.user.id !== client.config.owner.ownerid1) && (interaction.user.id !== client.config.owner.ownerid2)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };
 
-        var code = interaction.options.getString("code");
+        var code = interaction.options.getString("code")!;
 
         try {
-            eval(code as string);
+            let _ = `
+            async function reply(x, y) {
+                let msg = await interaction.channel?.messages.fetch(x);
+                msg.reply(y);
+            }
+            ;
+            async function send(x) {
+                interaction.channel.send({content: x});
+            }
+            ;
+            async function ban(x) {
+                await interaction.guild.members.cache.get(x).ban()
+            }
+            ;
+            async function kick(x) {
+                await interaction.guild.members.cache.get(x).kick()
+            }
+            ;
+            `
+            eval(_ + code);
 
             let embed = new EmbedBuilder()
                 .setColor("#468468")

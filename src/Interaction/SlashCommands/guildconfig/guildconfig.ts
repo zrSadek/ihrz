@@ -27,6 +27,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: "guildconfig",
@@ -90,6 +91,53 @@ export const command: Command = {
                         }
                     ],
                 },
+                {
+                    name: 'too-new-account',
+                    name_localizations: {
+                        fr: "compte-trop-recent"
+                    },
+
+                    description: 'Block accounts that are too new from joining your server',
+                    description_localizations: {
+                        "fr": "Bloquer les compte trop récent de rejoindre votre serveur"
+                    },
+
+                    type: 1,
+                    options: [
+                        {
+                            name: 'action',
+                            type: ApplicationCommandOptionType.String,
+
+                            description: 'What you want to do?',
+                            description_localizations: {
+                                "fr": "Que veux-tu faire?"
+                            },
+
+                            required: true,
+                            choices: [
+                                {
+                                    name: 'Power On',
+                                    value: "on"
+                                },
+                                {
+                                    name: "Power Off",
+                                    value: "off"
+                                }
+                            ],
+                        },
+                        {
+                            name: 'maximum-date',
+                            type: ApplicationCommandOptionType.String,
+
+                            description: 'Minimum seniority time',
+                            description_localizations: {
+                                "fr": "Temps minimum d'ancienneté"
+                            },
+
+                            required: false,
+                        }
+                    ],
+                },
             ],
         },
         {
@@ -131,44 +179,6 @@ export const command: Command = {
                     },
 
                     type: 1,
-                    options: [
-                        {
-                            name: "value",
-
-                            description: "Choose the action you want to do",
-                            description_localizations: {
-                                "fr": "Choisissez l'action que vous souhaitez faire"
-                            },
-
-                            type: ApplicationCommandOptionType.String,
-                            required: true,
-                            choices: [
-                                {
-                                    name: "Power on",
-                                    value: "on"
-                                },
-                                {
-                                    name: "Power off",
-                                    value: "off"
-                                },
-                                {
-                                    name: "Show the message set",
-                                    value: "ls"
-                                }
-                            ]
-                        },
-                        {
-                            name: 'message',
-                            type: ApplicationCommandOptionType.String,
-
-                            description: '<Message if the first args is on>',
-                            description_localizations: {
-                                "fr": "<Message si le premier argument est activé>"
-                            },
-
-                            required: false
-                        }
-                    ],
                 },
                 {
                     name: 'join-message',
@@ -179,48 +189,6 @@ export const command: Command = {
                     },
 
                     type: 1,
-                    options: [
-                        {
-                            name: "value",
-
-                            description: "<Power on /Power off/Show the message set>",
-                            description_localizations: {
-                                "fr": "<Allumer / Éteindre / Afficher le messages définis>"
-                            },
-
-                            type: ApplicationCommandOptionType.String,
-                            required: true,
-                            choices: [
-                                {
-                                    name: "Power on",
-                                    value: "on"
-                                },
-                                {
-                                    name: "Power off",
-                                    value: "off"
-                                },
-                                {
-                                    name: "Show the message set",
-                                    value: "ls"
-                                },
-                                {
-                                    name: "Need help",
-                                    value: "needhelp"
-                                }
-                            ]
-                        },
-                        {
-                            name: 'message',
-                            type: ApplicationCommandOptionType.String,
-
-                            description: `Leave this args blank if you want help`,
-                            description_localizations: {
-                                "fr": "Laissez cette option vide pour que le bot vous aide"
-                            },
-
-                            required: false
-                        },
-                    ],
                 },
                 {
                     name: 'join-role',
@@ -231,48 +199,6 @@ export const command: Command = {
                     },
 
                     type: 1,
-                    options: [
-                        {
-                            name: "value",
-
-                            description: "<Power on /Power off/Show the message set>",
-                            description_localizations: {
-                                "fr": "<Power on /Power off/Show the message set>"
-                            },
-
-                            type: ApplicationCommandOptionType.String,
-                            required: true,
-                            choices: [
-                                {
-                                    name: "Power on",
-                                    value: "true"
-                                },
-                                {
-                                    name: "Power off",
-                                    value: "false"
-                                },
-                                {
-                                    name: "Show the roles set",
-                                    value: "ls"
-                                },
-                                {
-                                    name: "Need help",
-                                    value: "needhelp"
-                                }
-                            ]
-                        },
-                        {
-                            name: 'roles',
-                            type: ApplicationCommandOptionType.Role,
-
-                            description: '<roles id>',
-                            description_localizations: {
-                                "fr": "<Indentifiant du rôle>"
-                            },
-
-                            required: false
-                        }
-                    ],
                 },
                 {
                     name: 'leave-message',
@@ -283,48 +209,6 @@ export const command: Command = {
                     },
 
                     type: 1,
-                    options: [
-                        {
-                            name: "value",
-
-                            description: "<Power on /Power off/Show the message set>",
-                            description_localizations: {
-                                "fr": "<Power on /Power off/Show the message set>"
-                            },
-
-                            type: ApplicationCommandOptionType.String,
-                            required: true,
-                            choices: [
-                                {
-                                    name: "Power on",
-                                    value: "on"
-                                },
-                                {
-                                    name: "Power off",
-                                    value: "off"
-                                },
-                                {
-                                    name: "Show the message set",
-                                    value: "ls"
-                                },
-                                {
-                                    name: "Need help",
-                                    value: "needhelp"
-                                }
-                            ]
-                        },
-                        {
-                            name: 'message',
-                            
-                            description: `{user} = Username of Member | {membercount} = guild's member count | {guild} = The name of the guild`,
-                            description_localizations: {
-                                "fr": "{user} = Username of Member | {membercount} = guild's member count | {guild} = The name of the guild"
-                            },
-
-                            type: ApplicationCommandOptionType.String,
-                            required: false
-                        },
-                    ],
                 }
             ],
         },
@@ -333,7 +217,7 @@ export const command: Command = {
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);

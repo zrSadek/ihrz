@@ -22,7 +22,6 @@
 import { Collection, EmbedBuilder, PermissionsBitField, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
 import logger from "../../core/logger.js";
-import config from '../../files/config.js';
 
 import { BotEvent } from '../../../types/event.js';
 
@@ -72,12 +71,12 @@ export const event: BotEvent = {
                     embeds: [tqtmonreuf],
                     files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
                 }).catch(() => { });
-                guild.leave();
+                await guild.leave();
                 return false;
             } else {
                 return true;
-            };
-        };
+            }
+        }
 
         async function messageToServer() {
             let welcomeMessage = [
@@ -105,23 +104,23 @@ export const event: BotEvent = {
                 .addComponents(
                     new ButtonBuilder()
                         .setEmoji(client.iHorizon_Emojis.icon.Crown_Logo)
-                        .setLabel("Invite iHorizon")
+                        .setLabel('Invite iHorizon')
                         .setStyle(ButtonStyle.Link)
                         .setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`),
                     new ButtonBuilder()
                         .setEmoji(client.iHorizon_Emojis.icon.Sparkles)
-                        .setLabel("iHorizon Website")
+                        .setLabel('iHorizon Website')
                         .setStyle(ButtonStyle.Link)
-                        .setURL(`https://ihorizon.me`),
+                        .setURL('https://ihorizon.me'),
                 )
                 ;
             (channel as GuildTextBasedChannel)?.send({
                 embeds: [embed],
-                content: `discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899`,
+                content: 'discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899',
                 files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
                 components: [buttons]
             }).catch(() => { });
-        };
+        }
 
         async function getInvites() {
             if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
@@ -129,25 +128,25 @@ export const event: BotEvent = {
                 guild.invites.fetch().then((guildInvites) => {
                     client.invites.set(guild.id, new Collection(guildInvites.map((invite) => [invite.code, invite.uses])));
                 });
-            } catch (error: any) { logger.err(error) };
-        };
+            } catch (error: any) { logger.err(error) }
+        }
 
         async function ownerLogs() {
             let i: string = '';
-            if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; };
+            if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
             let channel = guild.channels.cache.get((guild.systemChannelId as string)) || guild.channels.cache.random();
 
-            async function createInvite(chann: BaseGuildTextChannel) {
+            async function createInvite(channel: BaseGuildTextChannel) {
                 try {
-                    let invite = await chann.createInvite();
+                    let invite = await channel.createInvite();
                     let inviteCode = invite.code;
 
                     return 'discord.gg/' + inviteCode;
-                } catch (error: any) {
+                } catch {
                     return 'None';
                 }
-            };
+            }
 
             let embed = new EmbedBuilder()
                 .setColor("#00FF00")
@@ -164,7 +163,7 @@ export const event: BotEvent = {
                 .setThumbnail(guild.iconURL())
                 .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-            (client.channels.cache.get(config.core.guildLogsChannelID) as BaseGuildTextChannel).send({
+            (client.channels.cache.get(client.config.core.guildLogsChannelID) as BaseGuildTextChannel).send({
                 embeds: [embed],
                 files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
             }).catch(() => { });

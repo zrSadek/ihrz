@@ -27,6 +27,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: "authorization",
@@ -81,6 +82,14 @@ export const command: Command = {
                         {
                             name: "Delete Role",
                             value: "deleterole",
+                        },
+                        {
+                            name: "Ban Members",
+                            value: "banmembers",
+                        },
+                        {
+                            name: "Unban Members",
+                            value: "unbanmembers",
                         }
                     ]
                 },
@@ -159,7 +168,7 @@ export const command: Command = {
     category: 'protection',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);

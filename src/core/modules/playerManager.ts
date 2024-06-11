@@ -22,15 +22,16 @@
 import { BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
 import { LavalinkManager } from "lavalink-client";
 
-import config from '../../files/config.js';
+import { LanguageData } from '../../../types/languageData.js';
+import logger from '../logger.js';
 
 export default async (client: Client) => {
 
-    let nodes = config.lavalink.nodes;
+    let nodes = client.config.lavalink.nodes;
 
     nodes.forEach(i => {
         i.retryAmount = 100
-        i.retryDelay = 500
+        i.retryDelay = 5000
     });
 
     client.player = new LavalinkManager({
@@ -40,19 +41,19 @@ export default async (client: Client) => {
         },
         playerOptions: {
             onEmptyQueue: {
-                destroyAfterMs: 30_00
+                destroyAfterMs: 30_000,
             }
         },
         client: {
-            id: process.env.CLIENT_ID || client.user?.id as string,
+            id: process.env.CLIENT_ID || client.user?.id!,
             username: "iHorizon"
         },
     });
 
     client.player.on("trackStart", async (player, track) => {
-        let data = await client.functions.getLanguageData(player.guildId);
+        let data = await client.functions.getLanguageData(player.guildId) as LanguageData;
 
-        const channel = client.channels.cache.get(player.textChannelId as string);
+        const channel = client.channels.cache.get(player.textChannelId!);
 
         (channel as BaseGuildTextChannel).send({
             embeds: [
@@ -69,12 +70,29 @@ export default async (client: Client) => {
     });
 
     client.player.on("queueEnd", async player => {
-        let data = await client.functions.getLanguageData(player.guildId);
+        let data = await client.functions.getLanguageData(player.guildId) as LanguageData;
 
-        const channel = client.channels.cache.get(player.textChannelId as string);
+        const channel = client.channels.cache.get(player.textChannelId!);
+
         (channel as BaseGuildTextChannel).send({
             content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
         });
         return;
+    });
+
+    client.player.nodeManager.on("disconnect", (node, reason) => {
+        logger.warn(`:: DISCONNECT :: ${node.id} Reason: ${reason.reason} (${reason.code})`);
+    }).on("connect", (node) => {
+        logger.log(`:: CONNECTED :: ${node.id}`);
+    }).on("reconnecting", (node) => {
+        logger.warn(`:: RECONNECTING :: ${node.id}`);
+    }).on("create", (node) => {
+        logger.log(`:: CREATED :: ${node.id}`);
+    }).on("destroy", (node) => {
+        logger.err(`:: DESTROYED :: ${node.id}`);
+    }).on("error", (node, error, payload) => {
+        logger.err(`:: ERROR :: ${node.id} ${error}`);
+    }).on("resumed", (node, payload, players) => {
+        logger.log(`:: RESUMED :: ${node.id} ${players.length}`);
     });
 };

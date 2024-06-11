@@ -20,14 +20,25 @@
 */
 
 import { BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField } from 'discord.js';
-
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData';
+
+const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
+        /**
+         * Why doing this?
+         * On iHorizon Production, we have some ~discord.js problems~ 👎
+         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
+         * As always, fuck discord.js
+         */
+        if (processedMembers.has(member.id)) return;
+        processedMembers.add(member.id);
+        setTimeout(() => processedMembers.delete(member.id), 7000);
 
-        let data = await client.functions.getLanguageData(member.guild.id);
+        let data = await client.functions.getLanguageData(member.guild.id) as LanguageData;
 
         if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
 
@@ -37,7 +48,7 @@ export const event: BotEvent = {
         let invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites?.get(i.code) || 0));
 
         if (invite) {
-            let inviter = await client.users.fetch(invite?.inviterId as string);
+            let inviter = await client.users.fetch(invite?.inviterId!);
             client.invites.get(member.guild.id)?.set(invite?.code, invite?.uses);
 
             let check = await client.db.get(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`);
@@ -78,25 +89,30 @@ export const event: BotEvent = {
             if (!joinMessage) {
 
                 msg = data.event_welcomer_inviter
-                    .replace("${member.id}", member.id)
-                    .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
-                    .replace("${member.guild.name}", member.guild.name)
-                    .replace("${inviter.tag}", inviter.username)
-                    .replace("${fetched}", invitesAmount);
-
+                    .replaceAll("{memberUsername}", member.user.username)
+                    .replaceAll("{memberMention}", member.user.toString())
+                    .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
+                    .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                    .replaceAll('{guildName}', member.guild.name!)
+                    .replaceAll('{inviterUsername}', inviter.username)
+                    .replaceAll('{inviterMention}', inviter.toString())
+                    .replaceAll('{invitesCount}', invitesAmount)
+                    .replaceAll("\\n", '\n');
             } else {
 
                 msg = joinMessage
-                    .replace("{user}", member.user.username)
-                    .replace("{guild}", member.guild.name)
-                    .replace("{createdat}", member.user.createdAt.toLocaleDateString())
-                    .replace("{membercount}", member.guild.memberCount)
-                    .replace("{inviter}", inviter.username)
-                    .replace("{invites}", invitesAmount);
-
+                    .replaceAll("{memberUsername}", member.user.username)
+                    .replaceAll("{memberMention}", member.user.toString())
+                    .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
+                    .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                    .replaceAll('{guildName}', member.guild.name!)
+                    .replaceAll('{inviterUsername}', inviter.username)
+                    .replaceAll('{inviterMention}', inviter.toString())
+                    .replaceAll('{invitesCount}', invitesAmount)
+                    .replaceAll("\\n", '\n');
             };
 
-            channel.send({ content: msg });
+            await channel.send({ content: msg });
             return;
 
         } else if (member.guild.features.includes(GuildFeature.VanityURL)) {
@@ -115,15 +131,18 @@ export const event: BotEvent = {
             if (vanityInviteCache && vanityInviteCache.uses! < VanityURL.uses!) {
 
                 msg = data.event_welcomer_inviter
-                    .replace("${member.id}", member.id)
-                    .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
-                    .replace("${member.guild.name}", member.guild.name)
-                    .replace("${inviter.tag}", "/" + VanityURL.code)
-                    .replace("${fetched}", VanityURL.uses);
+                    .replaceAll("{memberUsername}", member.user.username)
+                    .replaceAll("{memberMention}", member.user.toString())
+                    .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
+                    .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                    .replaceAll('{guildName}', member.guild.name!)
+                    .replaceAll('{inviterUsername}', '.gg/' + VanityURL.code)
+                    .replaceAll('{inviterMention}', VanityURL.code!)
+                    .replaceAll('{invitesCount}', VanityURL.uses.toString()!)
+                    .replaceAll("\\n", '\n');
 
                 channel.send({ content: msg });
                 return;
-
             };
 
         } else {
@@ -135,9 +154,13 @@ export const event: BotEvent = {
             if (!wChan || !channel) return;
 
             msg = data.event_welcomer_default
-                .replace("${member.id}", member.id)
-                .replace("${member.user.createdAt.toLocaleDateString()}", member.user.createdAt.toLocaleDateString())
-                .replace("${member.guild.name}", member.guild.name)
+                .replaceAll("{memberUsername}", member.user.username)
+                .replaceAll("{memberMention}", member.user.toString())
+                .replaceAll('{memberCount}', member.guild.memberCount.toString()!)
+                .replaceAll('{createdAt}', member.user.createdAt.toDateString())
+                .replaceAll('{guildName}', member.guild.name!)
+                .replaceAll('{invitesCount}', invitesAmount)
+                .replaceAll("\\n", '\n');
 
             channel.send({ content: msg });
             return;

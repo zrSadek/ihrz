@@ -34,7 +34,7 @@ import logger from '../../../core/logger.js';
 
 export const command: Command = {
     name: 'setmentionrole',
-    
+
     description: 'Give a specific role to the user who pings me!',
     description_localizations: {
         "fr": "Donner un rôle spécifique à l'utilisateur qui me ping"
@@ -72,16 +72,28 @@ export const command: Command = {
             },
 
             required: false
+        },
+        {
+            name: 'part-of-nickname',
+            type: ApplicationCommandOptionType.String,
+
+            description: 'La partie du surnom que vous souhaitez que la personne ait dans son surnom',
+            description_localizations: {
+                "fr": "The part of the nickname you want the person to have in their nickname"
+            },
+
+            required: false
         }
     ],
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId);
 
         let type = interaction.options.getString("action");
         let argsid = interaction.options.getRole("roles");
+        let nickname = interaction.options.getString("part-of-nickname");
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({
@@ -112,7 +124,7 @@ export const command: Command = {
             } catch (e: any) { logger.err(e) };
 
             try {
-                let already = await client.db.get(`${interaction.guild?.id}.GUILD.RANK_ROLES.roles`);
+                let already = await client.db.get(`${interaction.guildId}.GUILD.RANK_ROLES.roles`);
 
                 if (already === argsid.id) {
                     await interaction.reply({
@@ -121,9 +133,21 @@ export const command: Command = {
                     return;
                 };
 
-                await client.db.set(`${interaction.guild?.id}.GUILD.RANK_ROLES.roles`, argsid.id);
+                let msg = '';
 
-                let e = new EmbedBuilder().setDescription(data.setrankroles_command_work.replace(/\${argsid}/g, argsid.id));
+                if (nickname) {
+                    msg = data.setrankroles_command_work_with_nicknames
+                        .replace('${argsid}', argsid.id)
+                        .replace('${nicknames}', nickname);
+
+                    await client.db.set(`${interaction.guildId}.GUILD.RANK_ROLES.nicknames`, nickname);
+                } else {
+                    msg = data.setrankroles_command_work.replace('${argsid}', argsid.id)
+                }
+
+                await client.db.set(`${interaction.guildId}.GUILD.RANK_ROLES.roles`, argsid.id);
+
+                let e = new EmbedBuilder().setDescription(msg);
 
                 await interaction.reply({ embeds: [e] });
                 return;
@@ -149,7 +173,7 @@ export const command: Command = {
             } catch (e: any) { logger.err(e) };
 
             try {
-                await client.db.delete(`${interaction.guild?.id}.GUILD.RANK_ROLES.roles`);
+                await client.db.delete(`${interaction.guildId}.GUILD.RANK_ROLES`);
 
                 await interaction.reply({
                     content: data.setrankroles_command_work_disable

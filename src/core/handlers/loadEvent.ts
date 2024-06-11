@@ -23,61 +23,72 @@ import { join as pathJoin } from 'node:path';
 import { opendir } from 'fs/promises';
 import { Client } from 'discord.js';
 
-import config from '../../files/config.js';
 import logger from '../logger.js';
 
-import { EltType } from '../../../types/eltType.js';
 import { BotEvent } from '../../../types/event.js';
 
-async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
-    let result = [];
-    let dir = await opendir(path);
-    for await (let dirent of dir) {
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const loadedEvents = new Set<string>();
+
+interface DirectoryTreeItem {
+    name: string;
+    sub: DirectoryTreeItem[];
+}
+
+async function buildDirectoryTree(path: string): Promise<DirectoryTreeItem[]> {
+    const result: DirectoryTreeItem[] = [];
+    const dir = await opendir(path);
+    for await (const dirent of dir) {
         if (dirent.isDirectory()) {
             result.push({ name: dirent.name, sub: await buildDirectoryTree(pathJoin(path, dirent.name)) });
-        } else {
-            result.push(dirent.name);
+        } else if (dirent.name.endsWith('.js')) {
+            result.push({ name: dirent.name, sub: [] });
         }
     }
     return result;
 }
 
-function buildPaths(basePath: string, directoryTree: (string | object)[]): string[] {
-    let paths = [];
-    for (let elt of directoryTree) {
-        switch (typeof elt) {
-            case 'object':
-                for (let subElt of buildPaths((elt as EltType).name, (elt as EltType).sub)) {
-                    paths.push(pathJoin(basePath, subElt));
-                }
-                break;
-            case 'string':
-                paths.push(pathJoin(basePath, elt));
-                break;
-            default:
-                throw new Error('Invalid element type');
+function buildPaths(basePath: string, directoryTree: DirectoryTreeItem[]): string[] {
+    const paths: string[] = [];
+    for (const elt of directoryTree) {
+        if (elt.sub.length === 0) {
+            paths.push(pathJoin(basePath, elt.name));
+        } else {
+            paths.push(...buildPaths(pathJoin(basePath, elt.name), elt.sub));
         }
     }
     return paths;
 }
 
-async function loadEvents(client: Client, path: string = `${process.cwd()}/dist/src/Events`): Promise<void> {
-    let directoryTree = await buildDirectoryTree(path);
-    let paths = buildPaths(path, directoryTree);
+let p = path.join(__dirname, '..', '..', 'Events');
+
+async function loadEvents(client: Client, pathDir = p): Promise<void> {
+    const directoryTree = await buildDirectoryTree(pathDir);
+    const paths = buildPaths(pathDir, directoryTree);
 
     await Promise.all(paths.map(async (filePath) => {
-        if (!filePath.endsWith('.js')) return;
+        if (loadedEvents.has(filePath)) {
+            logger.warn(`Event ${filePath} already loaded. Skipping.`);
+            return;
+        }
+        loadedEvents.add(filePath);
 
         try {
             const imported = await import(filePath);
-
-            client.on(`${(imported.event as BotEvent).name}`, (imported.event as BotEvent).run.bind(null, client));
+            if (!imported?.event) return;
+            client.on((imported.event as BotEvent).name, (imported.event as BotEvent).run.bind(null, client));
         } catch (error) {
             logger.err(`Error loading event from file: ${filePath}`);
+            throw error;
         }
     }));
 
-    logger.log(`${config.console.emojis.OK} >> Loaded ${paths.length} events.`);
+    logger.log(`${client.config.console.emojis.OK} >> Loaded ${paths.length} events.`);
 }
 
 export default loadEvents;

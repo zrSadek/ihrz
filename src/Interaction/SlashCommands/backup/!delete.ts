@@ -33,7 +33,7 @@ import backup from "discord-rebackup";
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let backupID = interaction.options.getString('backup-id');
+        let backupID = interaction.options.getString('backup-id') as string;
 
         if (backupID && !await client.db.get(`BACKUPS.${interaction.user.id}.${backupID}`)) {
             await interaction.editReply({
@@ -78,8 +78,8 @@ export default {
         let messageEmbed = await interaction.editReply({ embeds: [em], components: [components] });
 
         let collector = messageEmbed.createMessageComponentCollector({
-            filter: (i) => {
-                i.deferUpdate();
+            filter: async (i) => {
+                await i.deferUpdate();
                 return interaction.user.id === i.user.id;
             }, time: 15000
         });
@@ -90,7 +90,7 @@ export default {
             if (interaction.customId === 'backup-trash-button') {
                 used = true;
 
-                backup.remove(backupID as string)
+                backup.remove(backupID);
                 await client.db.delete(`BACKUPS.${interaction.user.id}.${backupID}`);
 
                 em.setTitle(data.backup_embed_title_succefully_deleted

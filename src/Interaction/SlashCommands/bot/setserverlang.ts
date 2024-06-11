@@ -31,6 +31,7 @@ import {
 
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
+import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: 'setserverlang',
@@ -72,10 +73,6 @@ export const command: Command = {
                     value: "fr-FR"
                 },
                 {
-                    name: "Rude French",
-                    value: "fr-ME"
-                },
-                {
                     name: "Italian",
                     value: "it-IT"
                 },
@@ -84,13 +81,21 @@ export const command: Command = {
                     value: "jp-JP"
                 },
                 {
-                    name: "Spanish",
-                    value: "es-ES"
+                    name: "Portuguese",
+                    value: "pt-PT"
+                },
+                {
+                    name: "Rude French",
+                    value: "fr-ME"
                 },
                 {
                     name: "Russian",
                     value: "ru-RU"
-                }
+                },
+                {
+                    name: "Spanish",
+                    value: "es-ES"
+                },
             ],
         }
     ],
@@ -98,7 +103,7 @@ export const command: Command = {
     category: 'bot',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guild?.id);
+        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
         let type = interaction.options.getString("language");
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
@@ -106,22 +111,22 @@ export const command: Command = {
             return;
         };
 
-        let already = await client.db.get(`${interaction.guild?.id}.GUILD.LANG`);
+        let already = await client.db.get(`${interaction.guildId}.GUILD.LANG`);
 
         if (already?.lang === type) {
             await interaction.reply({ content: data.setserverlang_already });
             return;
         }
 
-        await client.db.set(`${interaction.guild?.id}.GUILD.LANG`, { lang: type });
-        data = await client.functions.getLanguageData(interaction.guild?.id);
+        await client.db.set(`${interaction.guildId}.GUILD.LANG`, { lang: type });
+        data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
 
         try {
             let logEmbed = new EmbedBuilder()
                 .setColor("#bf0bb9")
                 .setTitle(data.setserverlang_logs_embed_title_on_enable)
                 .setDescription(data.setserverlang_logs_embed_description_on_enable
-                    .replace(/\${type}/g, type)
+                    .replace(/\${type}/g, type!)
                     .replace(/\${interaction\.user.id}/g, interaction.user.id)
                 );
 
@@ -129,7 +134,7 @@ export const command: Command = {
             if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
         } catch (e: any) { logger.err(e) };
 
-        await interaction.reply({ content: data.setserverlang_command_work_enable.replace(/\${type}/g, type) });
+        await interaction.reply({ content: data.setserverlang_command_work_enable.replace(/\${type}/g, type!) });
         return;
     },
 };

@@ -6,7 +6,6 @@
 
 # /add
 add_disabled_command: "このコマンドは管理者によって無効化されています！"
-add_incorect_syntax: "構文が間違っています！ **正しい使い方:** `.add <member>`"
 add_command_work: "${member.tag} をチケットに追加しました！"
 add_command_error: "エラーが発生しました。もう一度お試しください。"
 
@@ -84,6 +83,10 @@ setticketcategory_disabled_command: "このコマンドは管理者によって�
 setticketcategory_not_a_category: "指定されたチャンネルはカテゴリーではありません。もう一度試してください。"
 setticketcategory_command_work: "<@${interaction.user.id}>さん、チケットチャンネルのカテゴリーを `${category.name}` に設定しました！"
 
+# /ticket log-channel
+ticket_logchannel_embed_title: "チケットログチャンネル"
+ticket_logchannel_embed_desc: "${interaction.user}、チケットモジュールのログチャンネルを${channel}に設定しました！"
+
 
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
@@ -121,6 +124,13 @@ level_embed_fields2_name: ":money_with_wings:・__経験値:__"
 level_embed_fields2_value: "`${level}`"
 level_embed_description: "`${expNeededForLevelUp}` **次のレベルに必要な経験値ポイント！**"
 
+# /ranks leaderboard
+ranks_leaderboard_embed_title: "${interaction.guild?.name}のレベルリーダーボード"
+ranks_leaderboard_top_txt: "トップ#${i}"
+ranks_leaderboard_top_txt_raw: "トップ#${i} ${index.rawText}\n"
+ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **レベル**: `${a.level || '0'}`\n🔱 ➥ **総XP**: `${a.xptotal}`"
+ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ レベル: ${a.level || '0'}\n🔱 ➥ 総XP: ${a.xptotal}"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -141,6 +151,9 @@ blacklist_bot_lol: "自分自身をブラックリストにすることはでき
 blacklist_command_work: "${member.user.username}は今、ブラックリストに登録されています。"
 blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} 現在ブラックリストに登録されています。このメンバーをここでBanすることはできません。パーミッションが足りませんか？"
 blacklist_already_blacklisted: "${member.user.username}はすでにブラックリストに登録されています！"
+blacklist_no_one_blacklist: "${client.iHorizon_Emojis.icon.No_Logo} ブラックリストに誰も見つかりませんでした！"
+blacklist_var_no_reason: "理由が見つかりません"
+blacklist_embed_title: "ブラックリスト - ページ ${i / usersPerPage + 1}"
 
 # /unblacklist
 unblacklist_not_owner: "あなたはiHorizonプロジェクトの所有者ではありません。このコマンドを使用することはできません。"
@@ -208,7 +221,7 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 status_be_bot_dev: ":x: | **Botの開発者である必要があります！**"
 
 # /help
-help_tip_embed: "💡 __**ヒント**__: __iHorizonは今や多言語対応で、多くのバグが修正されました__。\n**今すぐiHorizonの言語を変更するには**: ```/setserverlang```iHorizonをご利用いただきありがとうございます！\n作成者に連絡する： `Kisakay`。\n使用可能なコマンドの一覧です。"
+help_tip_embed: "```${client.user?.username} ・ ヘルプメニュー```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** 利用可能なコマンドカテゴリ\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** 利用可能なスラッシュコマンド\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **作成者** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```知ってますか？ ・ ヒント```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} は**100％マルチ言語**です\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setserverlang language:Japanese`"
 help_mod_fields: "モデレーション"
 help_ranks_fields: "ランク"
 help_fun_fields: "楽しい"
@@ -256,17 +269,29 @@ help_pfps_fields: "PFPS"
 help_pfps_dsc: "チャンネルにランダムなユーザーアバターを送信します！"
 help_voicedashboard_fields: "音声ダッシュボード"
 help_voicedashboard_dsc: "インターフェイスでカスタム一時ボイスチャンネルを作成します！"
+help_select_menu: "選択してください！"
+help_select_menu_fields_desc: "${categories[index].value.length} コマンド"
+help_back_to_menu: "メインメニュー"
+help_back_to_menu_desc: "初期メニューに戻る"
+help_confession_dsc: "告白したいことがありますか？ とてもいいでしょう、それがどんなに陰惨であっても、iHorizon はあなたのためにここにいます！"
+help_confession_fields: "告白"
+help_antispam_dsc: "スパムにうんざり？大丈夫！iHorizonがスパムをモデレートします！"
+help_antispam_fields: "AntiSpam"
 
 # /say
 say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
 
 # /ping
 ping_down_msg: "**ダウン**"
-ping_embed_desc: "**ネットワーク** : `${await network}` ms\n**Discord API** : `${await API}` ms"
+ping_embed_desc: "# Pong！${interaction.client.user.username}のネットワーク統計:\n\n**[Discord ウェブサイトの Ping]** >> `${_net03}` ms\n**[Cloudflare の Ping]** >> `${_net02}` ms\n**[Google の Ping]** >> `${_net01}` ms\n\n${client.iHorizon_Emojis.icon.Crown_Logo} **[iHorizon ウェブサイトの Ping]** >> `${_net04}` ms\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Websocket の Ping]** `${client.ws.ping}` ms\n\n## ${client.iHorizon_Emojis.icon.iHorizon_Pointer} **[平均]** >> (平均)`${averagePing}` ms"
 
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
+
+# Fun Var
+fun_var_down_api: "エラー: APIがダウンしています！"
+fun_var_good_sentence: "良い文章を送ってください！"
 
 # /cats
 cats_embed_title: "ニャー🐱"
@@ -326,13 +351,13 @@ balance_embed_fields1_name: "銀行"
 balance_embed_fields2_name: "バランス中"
 
 # /daily
-daily_cooldown_error: "Sorry you must wait **${time}** before running this command!"
+daily_cooldown_error: "申し訳ありませんが、このコマンドを実行する前に**${time}**待つ必要があります！"
 daily_embed_title: "Daily"
 daily_embed_description: "**Daily Reward**"
 daily_embed_fields: "Collected"
 
 # /monthly
-monthly_cooldown_error: "Sorry you must wait **${time}** before running this command!"
+monthly_cooldown_error: "申し訳ありませんが、このコマンドを実行する前に**${time}**待つ必要があります！"
 monthly_embed_title: "Monthly"
 monthly_embed_description: "**Monthly Reward**"
 monthly_embed_fields: "Collected"
@@ -449,12 +474,20 @@ setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> がラ�
 setrankroles_logs_embed_title_disable: "ランクロールの設定"
 setrankroles_command_work_disable: "<@${interaction.user.id}> さん、ランクロールを削除しました！"
 setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} コマンドの実行中にエラーが発生しました！後でもう一度お試しください。"
+setrankroles_command_work_with_nicknames: "今、あなたが私を `@iHorizon` でピンすると、次の役割を追加します: <@&${argsid}> **ユーザーがユーザー名またはグローバル名に** `${nicknames}` **を持っている場合のみ**"
 
 # /snipe
 snipe_no_previous_message_deleted: "このチャンネルで削除されたメッセージはありません！"
 
 # /userinfo
-userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} お待ちください..."
+userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} 少々お待ちください..."
+userinfo_embed_fields_1_name: "バッジ"
+userinfo_embed_fields_2_name: "ユーザー名"
+userinfo_embed_fields_3_name: "表示名"
+userinfo_embed_fields_4_name: "作成日"
+userinfo_embed_fields_5_name: "Nitroステータス"
+userinfo_var_notfound: "`見つかりません`"
+userinfo_button_label: "ユーザープロフィール"
 
 # /renew
 renew_channel_send_success: "${interaction.user} チャンネルが再作成されました！"
@@ -466,6 +499,7 @@ prevnames_embed_title: "${user.username} のニックネームのリスト"
 prevnames_undetected: "データが見つかりませんでした！"
 prevnames_not_admin: "このコマンドを実行するための `ADMINISTRATOR` 権限がありません！"
 prevnames_data_erased: "以前のユーザー名は、あなたの要望に基づいて完全に削除されました！"
+prevnames_embed_footer_text: "iHorizon | ページ ${currentPage + 1}/${pages.length}"
 
 # /blockbot
 blockbot_not_owner: ":x: **サーバーのオーナーではありません！**"
@@ -501,9 +535,21 @@ derank_msg_failed: "役職の削除中にエラーが発生しました。"
 
 # /アクション全員の禁止解除
 action_unban_all_embed_desc: "## ギルドメンバー全員の禁止を解除する\n${client.iHorizon_Emojis.icon.Yes_Logo} | ギルドで`${unbanned_members.length}`人のメンバーの禁止を成功裏に解除しました！\n${client.iHorizon_Emojis.icon.No_Logo} | `${cannot_unban}`人のメンバーを禁止解除できません！"
+action_unban_all_no_banned_members: "禁止されているメンバーはいません。"
 
 # /アクションの禁止解除を元に戻す
 action_unban_undo_embed_desc: "## 全員の禁止解除を元に戻す\n${client.iHorizon_Emojis.icon.Yes_Logo} | ギルドで`${banned_members.length}`人のメンバーを成功裏に禁止しました！\n${client.iHorizon_Emojis.icon.No_Logo} | `${cannot_ban}`人のメンバーを禁止解除できません！"
+
+# /vc
+vc_embed_desc: "## ボイスステータス\n`${voiceStates?.size}` 人がボイスチャンネルにいます：\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## メンバーステータス\n`${membersStates?.size}` 人がギルドにいます：\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## ブーストステータス\n`${interaction.guild?.premiumSubscriptionCount}` ブーストがギルドにあります、\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_fields_1_name: "・メンバー数"
+vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} 人のメンバー```"
+vc_embed_fields_2_name: "・チャンネル数"
+vc_embed_fields_2_value: "```py\n${textChannelSize} テキストチャンネル\n${voiceChannelSize} ボイスチャンネル```"
+
+# /massmove
+massmove_results: "${interaction.user}さん、iHorizonはボイスチャンネル間でメンバーを移動しました。\n\n**${movedCount}**人のメンバーが${fromChannel}から${toChannel}に正常に移動しました。\n**${errorCount}**人のメンバーは移動できませんでした (詳細はサーバーログをご確認ください)。"
+massmove_too_much_member: "メンバーが多すぎます。レート制限の可能性があるため、実行できません。"
 
 
 # Guild Config commands
@@ -602,6 +648,11 @@ setjoindm_command_error_on_disable: "エラー：パーミッションが足り�
 setjoindm_already_disable: "JoinDmは既に無効です！"
 setjoindm_not_setup_ls: "JoinDmは設定されていません！"
 setjoindm_command_work_ls: "JoinDmメッセージは：\n```${already_off}```"
+setjoindm_help_embed_title: "JoinDMメッセージの設定ヘルプ！"
+setjoindm_help_embed_desc: "{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーをメンション\n{memberCount} => サーバーのメンバー数\n{guildName} => サーバー名\n{createdAt} => アカウント作成日（dd/mm/yyyy）"
+setjoindm_buttom_set_name: "メッセージを設定"
+setjoindm_buttom_delete_name: "DMメッセージを削除"
+setjoindm_awaiting_response: "チャンネルに新しいカスタムJoinDMメッセージを入力してください。"
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！"
@@ -616,23 +667,40 @@ setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> が参加メッセージを削除しました！"
 setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | カスタム参加メッセージの削除に成功しました。"
 setjoinmessage_command_work_ls: "参加メッセージは以下の通りです："
+setjoinmessage_help_embed_fields_custom_name: "カスタムメッセージ"
+setjoinmessage_help_embed_fields_custom_name_empy: "未設定！"
+setjoinmessage_help_embed_fields_default_name_empy: "デフォルトメッセージ"
+setjoinmessage_help_embed_desc: "{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーのメンション\n{inviterUsername} => 招待者の名前\n{inviterMention} => 招待者のメンション\n{memberCount} => ギルドのメンバー数\n{invitesCount} => 招待者の招待数\n{guildName} => ギルドの名前\n{createdAt} => アカウント作成日（DD/MM/YYYY形式）"
+setjoinmessage_button_set_name: "メッセージを設定"
+setjoinmessage_buttom_del_name: "デフォルトメッセージ"
+setjoinmessage_awaiting_response: "新しいカスタム参加メッセージを作成しました"
 
 # /setjoinroles
-setjoinroles_not_admin: ":x: | このコマンドを実行するには、サーバーの管理者である必要があります！"
-setjoinroles_help_embed_title: "/setjoinroles ヘルプ！"
-setjoinroles_help_embed_description: "/setjoinroles <オンにする/オフにする/設定を表示する> <ロールID>"
-setjoinroles_logs_embed_title_on_enable: "JoinRoles設定ログ"
-setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> がJoinRolesを設定しました！"
-setjoinroles_already_on_enable: "このロールでJoinRolesがすでに設定されています！"
-setjoinroles_command_work_enable: "JoinRolesが<@&${roleid}>に設定されました！"
-setjoinroles_command_error_on_enable: "エラー：権限が不足しているか、ロールが存在しません"
-setjoinroles_logs_embed_title_on_disable: "JoinRoles設定ログ"
-setjoinroles_logs_embed_description_on_disable: "<@${interaction.user.id}> がJoinRolesを削除しました！"
-setjoinroles_dont_need_command_on_disable: "JoinRolesが設定されていないため、不要です！"
-setjoinroles_command_work_on_disable: "JoinRolesが正常に削除されました！"
-setjoinroles_command_error_on_disable: "エラー？"
-setjoinroles_command_any_set_ls: "このサーバーではJoinRolesが設定されていません。"
-setjoinroles_command_work_ls: "JoinRolesが<@&${roles}>に設定されています。"
+setjoinroles_var_none: "なし"
+setjoinroles_var_perm_admin: "管理者"
+setjoinroles_var_perm_manage_guild: "サーバーを管理する**"
+setjoinroles_var_perm_manage_role: "ロールを管理する"
+setjoinroles_var_perm_use_mention: "@everyone @here を使用し、ロールをピン留めする"
+setjoinroles_var_perm_ban_members: "メンバーをBANする"
+setjoinroles_var_perm_kick_members: "メンバーをキックする"
+setjoinroles_var_perm_manage_webhooks: "Webhookを管理する"
+setjoinroles_var_perm_manage_channels: "チャンネルを管理する"
+setjoinroles_var_perm_manage_expression: "絵文字、ステッカー、サウンドボードを管理する"
+setjoinroles_var_perm_view_monetization_analytics: "クリエーターの収益化と分析を表示する"
+setjoinroles_var_perm_issue: "ロールを管理する権限がありません。"
+setjoinroles_var_timesup: "ロールの選択の時間が切れました。"
+setjoinroles_warn_dangerous_perm: "次のロールは危険な権限を持っています。本当にそれらを割り当てますか？"
+setjoinroles_warn_title: "警告！"
+setjoinroles_timesup_button: "時間切れ！"
+setjoinroles_action_canceled: "アクションがキャンセルされました"
+setjoinroles_too_highter_roles: "次のロールは私の役職よりも高い位置にあります。"
+setjoinroles_not_admin: ":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！"
+setjoinroles_help_embed_title: "参加ロールモジュール"
+setjoinroles_help_embed_description: "新しいメンバーに与えるすべてのロールです。"
+setjoinroles_help_embed_fields_1_name: "すべての登録済みロール"
+setjoinroles_logs_embed_title_on_enable: "JoinRolesログ"
+setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}>が参加ロールを設定しました！"
+setjoinroles_already_on_enable: "参加ロールはすでにこのロールで構成されています！"
 
 # /setleavemessage
 setleavemessage_not_admin: ":x: | このコマンドを要求するには、このサーバーの管理者である必要があります！"
@@ -647,6 +715,7 @@ setleavemessage_logs_embed_title_on_disable: "SetJoinMessage ログ"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}>が退出メッセージを削除しました！"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | カスタム退出メッセージを正常に削除しました。"
 setleavemessage_command_work_ls: "退出メッセージは次のとおりです。"
+setleavemessage_awaiting_response: "休暇メッセージを書きます。"
 
 # /setup
 setup_not_admin: ":x: | このサーバーの管理者である必要があります！"
@@ -661,6 +730,7 @@ setlogschannel_already_this_channel: "このサーバーは既にログのため
 setlogschannel_already_deleted: "このサーバーは既に `SERVER_LOGS` を持っていません！"
 setlogschannel_command_error: "コマンドの実行中にエラーが発生しましたか？"
 setlogschannel_command_work: "<#${argsid.id}> に `${typeOfLogs}` を正常に設定しました！"
+setlogschannel_utils_command_work: "${argsid.id} に `${typeOfLogs}` を正常に設定しました！"
 setlogschannel_command_work_on_delete: "**${interaction.guild.name}** からすべての `SERVER_LOGS` を正常に削除しました！"
 setlogschannel_logs_embed_title: "サーバーログの設定"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> が `${typeOfLogs}` を <#${argsid.id}> に設定しました"
@@ -671,6 +741,22 @@ setlogschannel_var_mods: "モデレーションログ"
 setlogschannel_var_voice: "音声ログ"
 setlogschannel_var_msg: "メッセージログ"
 setlogschannel_var_boost: "ブーストログ"
+setlogschannel_var_tickets: "チケットログ"
+setlogschannel_var_antispam: "AntiSpam ログ"
+
+# /join-ghostping add
+joinghostping_add_already_set: "チャンネル ${channel} はすでに設定されています！"
+joinghostping_add_sent_to_channel: "これから、メンバーがギルドに参加すると、ここに幽霊メッセージを送信します。"
+joinghostping_add_ok_embed_title: "Join GhostPing モジュール"
+joinghostping_add_ok_embed_desc: "今後、メンバーがギルドに参加するたびに、このチャンネルに幽霊メッセージを送信します！"
+joinghostping_add_ok_embed_fields_name: "すべての登録済みチャンネル"
+joinghostping_add_logs_embed_title: "Join GhostPing ログ"
+joinghostping_add_logs_embed_desc: "${interaction.user} が ${channel} を Join GhostPing モジュールに追加しました！"
+
+# /join-ghostping remove
+joinghostping_remove_isnt_set: "チャンネル ${channel} は設定されていません！"
+joinghostping_remove_ok_embed_desc: "チャンネルは Join GhostPing モジュールから削除されました！"
+joinghostping_remove_logs_embed_desc: "${interaction.user} が Join GhostPing モジュールから ${channel} を削除しました！"
 
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, あなたは`Mass-Mention AutoModルール`を**false**に設定しました。\n今、ユーザーはメッセージにメンションを送信できます。\nAutoMod x iHorizonはサーバーで無効になっています！"
@@ -683,6 +769,15 @@ automod_block_pub_command_off: "${interaction.user}, あなたは`Pub AutoModル
 # /automod block spam
 automod_block_spam_command_on: "${interaction.user}, あなたは`Spam AutoModルール`を**true**に設定しました。\n今、ユーザーはスパムできません。\nAutoModは${logs_channel}にログを送信しています。\nAutoMod x iHorizonがサーバーを保護しています！"
 automod_block_spam_command_off: "${interaction.user}, あなたは`Spam AutoModルール`を**false**に設定しました。\n今、ユーザーはスパムできます。\nAutoMod x iHorizonはサーバーで無効になっています！"
+
+# /guildconfig block too-new-account
+too_new_account_dont_specified_time_on_enable: "時間が指定されていません。このモジュールを有効にするには、アカウントの最低年齢が必要です！"
+too_new_account_invalid_time_on_enable: "入力した時間が無効です！ **有効な時間の例**: `3h; 30m; 4w; 4y` -> 3時間; 30分; 4週間; 4年"
+too_new_account_logEmbed_title: "TooNewAccount モジュール"
+too_new_account_logEmbed_desc_on_enable: "${interaction.user} は TooNewAccount モジュールを有効にしました。アカウントには現在、最低 ${beautifulTime} の年齢が必要です！"
+too_new_account_command_work_on_enable: "${interaction.user}、**${interaction.guild?.name}** に参加する新しいメンバーは、アカウントが `${beautifulTime}` より若い場合、強制退出させられます。"
+too_new_account_logEmbed_desc_on_disable: "${interaction.user} がモジュールを無効にしました！"
+too_new_account_command_work_on_disable: "${interaction.user}、モジュールは正常に無効化されました。新しいメンバーのアカウント作成日はチェックされなくなります。"
 
 
 # Member Count commands
@@ -719,10 +814,16 @@ loop_command_work: "{mode} | ループモードが更新されました"
 # /nowplaying
 nowplaying_no_queue: "再生中の曲はありません"
 nowplaying_message_embed_title: "再生中の曲"
+nowplaying_resume_button: "${interaction.user}が**音楽を再開**しました！"
+nowplaying_pause_button: "${interaction.user}が**音楽を一時停止**しました！"
+nowplaying_lyrics_button: "この曲の歌詞は見つかりませんでした"
+nowplaying_stop_buttom: "${interaction.user}が**音楽を停止**しました！"
 
 # /pause
 pause_no_queue: "${client.iHorizon_Emojis.icon.Warning_Icon} - ボイスチャンネルに接続していません！"
 pause_nothing_playing: "再生中の曲はありません"
+pause_var_paused: "一時停止"
+pause_var_err: "何かがうまくいかなかった"
 
 # /resume
 resume_nothing_playing: "再生中の曲はありません"
@@ -749,6 +850,16 @@ queue_embed_footer_text: "ページ {index} | 合計 {track} トラック"
 shuffle_no_queue: "私はボイスチャンネルにいません"
 shuffle_no_enought: "キューには **十分なトラックがありません**"
 shuffle_command_work: "キューを**シャッフル**しました"
+
+# /music history
+history_no_entries: "このコンペティションにはエントリーがありません。"
+history_embed_title: "${interaction.guild?.name}の音楽履歴 | ページ ${i / usersPerPage + 1}"
+history_embed_footer_text: "iHorizon | ページ ${currentPage + 1}/${pages.length}"
+
+# /music lyrics
+lyrics_embed_title_unknown: "不明なタイトル"
+lyrics_embed_author_name_unknown: "不明な著者"
+lyrics_not_found: "歌詞が見つかりません"
 
 
 # Giveaway commands
@@ -795,6 +906,7 @@ gw_getdata_embed_fields_isEnded: "終了済み？"
 gw_getdata_embed_fields_isValid: "有効？"
 gw_getdata_embed_fields_time: "終了日時"
 gw_getdata_embed_fields_entriesAmount: "応募数"
+gw_getdata_embed_fields_winners: "優勝者"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (詳細は `/gw list-entries giveaway-id:${giveawayId}` をご利用ください)"
 gw_getdata_yes: "`はい`"
 gw_getdata_no: "`いいえ`"
@@ -998,7 +1110,7 @@ embed_interaction_not_for_you: "このインタラクションはあなた向け
 embed_first_message: "何を行いたいですか？"
 embed_save_message: "<@${interaction.user.id}>さん、**埋め込みの設定を保存しました！**```埋め込みのID：${await saveEmbed()}```"
 embed_cancel_message: "<@${interaction.user.id}>さん、**埋め込みの設定を中止しました！**"
-embed_send_message: "<@${interaction.user.id}>さん、**この埋め込みをどのチャンネルに送信しますか？** (*チャンネルのIDを使用してください*)"
+embed_send_message: "<@${interaction.user.id}>さん、**この埋め込みをどのチャンネルに送信しますか？**"
 embed_timeout_getbtn: "<@${interaction.user.id}>さん、**回答に時間がかかりすぎました。操作を中止します！**"
 embed_choose_0: "埋め込みに含めるメッセージは何ですか？"
 embed_choose_1: "埋め込みに含めるタイトルは何ですか？"
@@ -1016,6 +1128,17 @@ embed_choose_12: "埋め込みに含める色は何ですか？ **www.color-hex.
 embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | 無効な色です！ www.color-hex.comで調べてください。"
 embed_choose_13: "埋め込みの色が正常に削除されました！"
 embed_send_embed_work: "<@${interaction.user.id}>さん、**埋め込みを正常に<#${message.content}>チャンネルに送信しました！**"
+
+# /rolesaver
+rolesaver_embed_title: "RoleSaverモジュール"
+rolesaver_embed_desc: "ギルドメンバーがサーバーを離れると、その役割はデータベースに保存されます。今、彼らが再参加すると、iHorizonは彼らの役割を戻します。"
+rolesaver_embed_fields_1_name: "有効にする"
+rolesaver_embed_fields_2_name: "管理者ロールの再付与"
+rolesaver_embed_fields_3_name: "タイムアウト"
+rolesaver_on_off_already_set: "モジュールはすでに無効です！"
+rolesaver_on_off_embed_title: "RoleSaverモジュール"
+rolesaver_on_off_embed_desc: "ギルドメンバーがサーバーを離れると、その役割はデータベースに保存されません。iHorizonは、メンバーがサーバーに戻ってきたときに古い役割を復元しなくなります。"
+rolesaver_on_off_embed_fields_1_name: "有効にする"
 
 
 # 提案コマンド
@@ -1247,7 +1370,72 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, このコマンドを使用�
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, このコマンドを使用する権限がありません！"
 tempvoice_staff_desc_embed: "## TempVoice スタッフロール\n<@&${targetedRole?.id}>は今後、チャンネルをモデレートできます！\n"
 
+
+# 告白モジュール
+# /cooldown, /disable, /channel
+
+# /confession channel
+confession_channel_command_work: "告白パネルが${channel?.toString()}に送信されました"
+confession_channel_panel_embed_desc: "# **匿名の告白**\n\n下のボタンをクリックして告白フォームを開いてください。告白したい内容を書くことができます。希望する場合は、告白を非公開にすることも選択できます。\n\n## **告白をする**\n\n*注: 告白を非公開にするには、フォームに対応するオプションを記入してください。*"
+confession_channel_log_embed_title: "SetChannel 告白モジュール"
+confession_channel_log_embed_desc: "${interaction.user}がチャンネルを${channel}に設定しました"
+
+# /confession cooldown
+confession_coolodwn_command_work: "${interaction.user.toString()}、告白のクールダウン時間は現在**${client.timeCalculator.to_beautiful_string(time)}**です！"
+confession_cooldown_log_embed_title: "SetCooldown 告白モジュール"
+confession_cooldown_log_embed_desc: "${interaction.user}がタイムアウトを`${client.timeCalculator.to_beautiful_string(time)}`に設定しました"
+
+# /confession disable
+confession_disable_command_work_on: "告白モジュールが有効になりました。"
+confession_disable_command_work_off: "告白モジュールが無効になりました。"
+confession_log_embed_title_on_enable: "告白の有効化/無効化"
+confession_log_embed_desc_on_enable: "${interaction.user}が告白モジュールを有効にしました！"
+confession_log_embed_desc_on_disabled: "${interaction.user}が告白モジュールを無効にしました！"
+
+
+# アンチスパムモジュール
+# /antispam manage
+
+# /antispam manage
+antispam_manage_embed_title: "アンチスパムモジュール設定"
+antispam_manage_choices_1_label: "モジュールを有効にする"
+antispam_manage_choices_1_desc: "アンチスパムモジュールを有効または無効にする"
+antispam_manage_choices_2_label: "ボットを無視する"
+antispam_manage_choices_2_desc: "サーバー内のボットのスパムを無視する"
+antispam_manage_choices_3_label: "処罰の種類"
+antispam_manage_choices_3_desc: "ユーザーにどのような種類の制裁を与えるか"
+antispam_manage_choices_4_label: "処罰時間"
+antispam_manage_choices_4_desc: "制裁がどれくらい続くか"
+antispam_manage_choices_5_label: "処罰時間倍率"
+antispam_manage_choices_5_desc: "制裁の期間がそれぞれの処罰に対して乗算されるかどうか"
+antispam_manage_choices_6_label: "メッセージを削除する"
+antispam_manage_choices_6_desc: "スパムメッセージを削除する"
+antispam_manage_choices_7_label: "最大メッセージ間隔"
+antispam_manage_choices_7_desc: "スパムと見なすためのメッセージ間の最大間隔"
+antispam_manage_choices_8_label: "最大重複メッセージ数"
+antispam_manage_choices_8_desc: "制裁前の最大重複メッセージ数"
+antispam_manage_choices_9_label: "最大重複間隔"
+antispam_manage_choices_9_desc: "ユーザーをフラグするための重複メッセージ間の間隔"
+antispam_manage_choices_10_label: "最大類似メッセージ数"
+antispam_manage_choices_10_desc: "制裁前の最大類似メッセージ数"
+antispam_manage_choices_11_label: "警告間の間隔"
+antispam_manage_choices_11_desc: "警告メッセージ間の間隔"
+antispam_manage_choices_12_label: "警告前のしきい値"
+antispam_manage_choices_12_desc: "警告メッセージ前のしきい値"
+antispam_manage_select_menu_punish_mute_label: "メンバーをミュートする"
+antispam_manage_modal_title: "アンチスパムモーダル"
+antispam_manage_button_label: "設定を保存"
+
+# /antispam bypass-roles
+antispan_bypassroles_embed_desc: "以下のすべてのロールはアンチスパムモジュールをバイパスできます"
+
 # -----------------------------/ \-----------------------------
+# 告白モジュールイベント
+confession_module_modal_title: "告白を送る"
+confession_module_modal_components1_label: "何を告白しますか？"
+confession_module_modal_components1_placeholder: "うーん"
+confession_module_modal_components2_label: "これはプライベートですか？"
+
 # Music Player Events
 
 event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - 現在 **${queue.channel.name}** で `${track.title}` を再生中..."
@@ -1263,12 +1451,12 @@ event_channel_create_message_embed_title: "正常にセットアップされま�
 event_channel_create_message_embed_description: "ボットは完璧にセットアップされました。もう何もする必要はありません。\n\niHorizonに関連するすべてのモデレーションログがここに表示されます。"
 
 # Welcome Message Events
-event_welcomer_inviter: "➕・<@${member.id}>さんがサーバーに参加しました。招待者は **${inviter.tag}** さんで、(**${fetched}** 回招待されました)。アカウント作成日：**${member.user.createdAt.toLocaleDateString()}**。**${member.guild.name}** でお会いできてうれしいです。"
-event_welcomer_default: "➕・<@${member.id}>さんがサーバーに参加しました。アカウント作成日：**${member.user.createdAt.toLocaleDateString()}**。**${member.guild.name}** でお会いできてうれしいです。"
+event_welcomer_inviter: "{memberMention}（アカウント作成日：{createdAt}）がサーバーに参加しました。**{inviterUsername}** によって招待されました（**{invitesCount}**回の招待）。現在、{guildName} には{memberCount}人います"
+event_welcomer_default: "{memberMention}（アカウント作成日：{createdAt}）がサーバーに参加しました。現在、{guildName} には{memberCount}人います"
 
 # Goodbye Message Events
-event_goodbye_inviter: "➖・<@${member.id}>さんがサーバーから退出しました。招待者は **${inviter.tag}** さんで、(**${fetched}** 回招待されました)。**${member.guild.name}** からさようなら。"
-event_goodbye_default: "➖・<@${member.id}>さんがサーバーから退出しました。**${member.guild.name}** からさようなら。"
+event_goodbye_inviter: "{memberUsername}（アカウント作成日：{createdAt}）がサーバーを退会しました。**{inviterUsername}** によって招待されました（**{invitesCount}**回の招待）。現在、{guildName} には{memberCount}人います"
+event_goodbye_default: "{memberUsername}（アカウント作成日：{createdAt}）がサーバーを退会しました。現在、{guildName} には{memberCount}人います"
 
 # XP Level Events
 event_xp_level_earn: "<@${message.author.id}> さん、レベルアップ (+1) おめでとうございます (現在のレベル: **${newLevel}**)。"
@@ -1277,6 +1465,12 @@ event_xp_level_earn: "<@${message.author.id}> さん、レベルアップ (+1) �
 event_ticket_embed_description: "${user.username}さん、チケットへようこそ！しばらくお待ちください。チケットを閉じる場合は、`/ticket close` を実行してください。"
 event_ticket_add_member: "${interaction.user}, あなたはチケット ${interaction.channel} に**追加**しました：${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')}！"
 event_ticket_del_member: "${interaction.user}, あなたはチケット ${interaction.channel} から**削除**しました：${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')}！"
+event_ticket_button_name: "チケットを作成する"
+event_ticket_category_awaiting_response: "カテゴリは何ですか [${x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer}] >> ${x.name}"
+event_ticket_reason_awaiting_response: "${interaction.user.toString()} ユーザーはチケットを作成する前に理由を入力する必要がありますか？"
+event_ticket_create_reason_modal_title: "チケットの理由は何ですか？"
+event_ticket_create_reason_modal_fields_1_label: "チケットの理由"
+event_ticket_reason_embed_desc: "# チケットの理由\n`${reason}`"
 
 # interactionCreateイベント：
 iC_event_cooldown: "クールダウン、コマンド間に少し待ってください！"
@@ -1295,6 +1489,8 @@ ticket_module_remove_question: "チケットから削除したいユーザーは
 
 # サーバーログ
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **が<@${firstEntry.target.id}>をBANしました**"
+event_srvLogs_banAdd_fields_name: "理由"
+event_srvLogs_banAdd_fields_value: "`{reason}`"
 event_srvLogs_banRemove_description: "<@${firstEntry.executor.id}> **が${firstEntry.target.username}のBANを解除しました**"
 event_srvLogs_guildMemberRemove_description: "<@${firstEntry.executor.id}> **が<@${firstEntry.target.id}>をキックしました**"
 event_srvLogs_guildMemberUpdate_description: "📤 <@${firstEntry.executor.id}> **が${oldMember.user.username}から${removedRoles}役職を削除しました**"
@@ -1404,5 +1600,25 @@ temporary_voice_transfer_trust_placeholder: "選択したユーザーは参加�
 temporary_voice_transfer_unblocked_placeholder: "選択したユーザーは参加できるようになります"
 
 temporary_voice_transfer_untrust_placeholder: "選択したユーザーは参加するために信頼されません"
+
+# 保護モジュール
+# イベントメッセージ
+
+protection_avoid_channel_delete: "**保護モードオン**\n<@${channel.guild.ownerId}>, チャンネルが再作成されました, <@${firstEntry.executorId}> がチャンネルを削除しようとしました!"
+
+# アンチスパムモジュール
+# イベントメッセージ
+
+# 基本的な警告メッセージ
+antispam_base_warn_message: "警告 ${mentionedMembers}、あなたはスパム行為をしており、罰せられる可能性があります。"
+
+# 処罰の種類に基づいた追加の警告メッセージ
+antispam_more_ban_msg: " 続行すると、サーバーから追放されます。"
+antispam_more_mute_msg: " 続行すると、ミュートされます。"
+antispam_more_kick_msg: " 続行すると、サーバーからキックされます。"
+
+# AntiSpamのログを埋め込む
+antispam_log_embed_title: "[AntiSpam] 新しい ${actionType}"
+antispam_log_embed_desc: "${client.user?.toString()} が **${actionType}** ${user.toString()} を行いました"
 
 # -----------------------------\ /-----------------------------

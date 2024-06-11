@@ -26,12 +26,13 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
+import { DatabaseStructure } from '../../../core/database_structure';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
 
-        let balance = await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`);
-        let toWithdraw = interaction.options.getNumber('how-much');
+        let dataAccount = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY`) as DatabaseStructure.EconomyUserSchema;
+        let toWithdraw = interaction.options.getNumber('how-much') as number;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -41,15 +42,15 @@ export default {
             return;
         };
 
-        if (toWithdraw && toWithdraw > balance) {
+        if (toWithdraw && toWithdraw > dataAccount?.bank!) {
             await interaction.reply({
                 content: data.withdraw_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
-        await client.db.sub(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`, toWithdraw!);
-        await client.db.add(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.money`, toWithdraw!);
+        await client.db.sub(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.bank`, toWithdraw!);
+        await client.db.add(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, toWithdraw!);
 
         let embed = new EmbedBuilder()
             .setAuthor({ name: data.daily_embed_title, iconURL: interaction.user.displayAvatarURL() })
@@ -57,10 +58,10 @@ export default {
             .setTitle(data.withdraw_embed_title)
             .setDescription(data.withdraw_embed_desc
                 .replace('${client.iHorizon_Emojis.icon.Coin}', client.iHorizon_Emojis.icon.Coin)
-                .replace('${interaction.user}', interaction.user as unknown as string)
-                .replace('${toWithdraw}', toWithdraw as unknown as string)
+                .replace('${interaction.user}', interaction.user.toString())
+                .replace('${toWithdraw}', toWithdraw.toString())
             )
-            .addFields({ name: data.withdraw_embed_fields1_name, value: `${await client.db.get(`${interaction.guild?.id}.USER.${interaction.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
+            .addFields({ name: data.withdraw_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
             .setTimestamp();
 

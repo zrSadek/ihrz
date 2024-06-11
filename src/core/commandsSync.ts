@@ -20,16 +20,15 @@
 */
 
 import { REST, Routes, Client, ApplicationCommand } from "discord.js";
-import config from "../files/config.js";
 import logger from "./logger.js";
 
 const synchronizeCommands = async (client: Client): Promise<void> => {
     return new Promise(async (resolve, reject) => {
         try {
-            let rest = new REST().setToken(process.env.BOT_TOKEN || config.discord.token as string);
+            let rest = new REST().setToken(process.env.BOT_TOKEN || client.config.discord.token);
 
-            logger.log(`${config.console.emojis.LOAD} >> Currently ${client.commands?.size || 0} of application (/) commands awaiting for refreshing.`.white());
-            logger.log(`${config.console.emojis.LOAD} >> Currently ${client.applicationsCommands?.size || 0} of application ([]) commands awaiting for refreshing.`.white());
+            logger.log(`${client.config.console.emojis.LOAD} >> Currently ${client.commands?.size || 0} of application (/) commands awaiting for refreshing.`.white());
+            logger.log(`${client.config.console.emojis.LOAD} >> Currently ${client.applicationsCommands?.size || 0} of application ([]) commands awaiting for refreshing.`.white());
 
             let appCmds = (client.applicationsCommands || []).map((command) => ({
                 name: command.name,
@@ -48,11 +47,11 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
             let allCommands = [...slashCommands, ...appCmds];
 
             let data = await rest.put(
-                Routes.applicationCommands(client.user?.id as string),
+                Routes.applicationCommands(client.user?.id!),
                 { body: allCommands }
             );
 
-            logger.log(`${config.console.emojis.OK} >> Currently ${(data as unknown as ApplicationCommand<{}>[]).length} of application are now synchronized.`.white());
+            logger.log(`${client.config.console.emojis.OK} >> Currently ${(data as unknown as ApplicationCommand<{}>[]).length} of application are now synchronized.`.white());
             resolve();
         } catch (error: any) {
             logger.err(error);

@@ -22,17 +22,16 @@
 import { PermissionsBitField, Client, GuildMember } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData';
 
 export const event: BotEvent = {
     name: "guildMemberRemove",
     run: async (client: Client, member: GuildMember) => {
 
-        let data = await client.functions.getLanguageData(member.guild.id);
-
         if (await client.db.get(`${member.guild.id}.GUILD_CONFIG.rolesaver.enable`)) {
             await client.db.delete(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
 
-            let admin = await client.db.get(`${member.guild?.id}.GUILD_CONFIG.rolesaver.admin`);
+            let admin = await client.db.get(`${member.guild.id}.GUILD_CONFIG.rolesaver.admin`);
             let rolesArray: string[] = [];
 
             member.roles.cache.each((role) => {

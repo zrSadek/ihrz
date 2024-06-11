@@ -20,106 +20,189 @@
 */
 
 import {
+    ActionRowBuilder,
     BaseGuildTextChannel,
+    ButtonBuilder,
+    ButtonStyle,
     ChatInputCommandInteraction,
     Client,
+    ComponentType,
     EmbedBuilder,
     PermissionsBitField,
+    TextInputStyle
 } from 'discord.js';
+import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData';
+import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.editReply({ content: data.setjoinmessage_not_admin });
+            await interaction.reply({ content: data.setjoinmessage_not_admin, ephemeral: true });
             return;
-        };
+        }
 
-        let type = interaction.options.getString("value");
-        let messagei = interaction.options.getString("message");
+        let joinMessage = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`);
+        joinMessage = joinMessage?.substring(0, 1010);
 
-        let help_embed = new EmbedBuilder()
-            .setColor("#0014a8")
+        const helpEmbed = new EmbedBuilder()
+            .setColor("#ffb3cc")
+            .setDescription(data.setjoinmessage_help_embed_desc)
             .setTitle(data.setjoinmessage_help_embed_title)
-            .setDescription(data.setjoinmessage_help_embed_description)
-            .addFields({
-                name: data.setjoinmessage_help_embed_fields_name,
-                value: data.setjoinmessage_help_embed_fields_value
-            });
+            .addFields(
+                {
+                    name: data.setjoinmessage_help_embed_fields_custom_name,
+                    value: joinMessage ? `\`\`\`${joinMessage}\`\`\`\n${generateJoinMessagePreview(joinMessage, interaction)}` : data.setjoinmessage_help_embed_fields_custom_name_empy
+                },
+                {
+                    name: data.setjoinmessage_help_embed_fields_default_name_empy,
+                    value: `\`\`\`${data.event_welcomer_inviter}\`\`\`\n${generateJoinMessagePreview(data.event_welcomer_inviter, interaction)}`
+                }
+            );
 
-        if (type == "on") {
-            if (messagei) {
-                let joinmsgreplace = messagei
-                    .replaceAll("{user}", "{user}")
-                    .replaceAll("{guild}", "{guild}")
-                    .replaceAll("{createdat}", "{createdat}")
-                    .replaceAll("{membercount}", "{membercount}")
-                    .replaceAll("\\n", '\n')
+        const buttons = new ActionRowBuilder<ButtonBuilder>()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId("joinMessage-set-message")
+                    .setLabel(data.setjoinmessage_button_set_name)
+                    .setStyle(ButtonStyle.Primary),
+                new ButtonBuilder()
+                    .setCustomId("joinMessage-default-message")
+                    .setLabel(data.setjoinmessage_buttom_del_name)
+                    .setStyle(ButtonStyle.Danger),
+            );
 
-                await client.db.set(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joinmessage`, joinmsgreplace);
+        const message = await interaction.editReply({
+            embeds: [helpEmbed],
+            components: [buttons]
+        });
+
+        const collector = message.createMessageComponentCollector({
+            componentType: ComponentType.Button,
+            time: 80_000
+        });
+
+        collector.on('collect', async (buttonInteraction) => {
+            if (buttonInteraction.user.id !== interaction.user.id) {
+                await buttonInteraction.reply({ content: data.help_not_for_you, ephemeral: true });
+                return;
+            };
+
+            if (buttonInteraction.customId === "joinMessage-set-message") {
+                let modalInteraction = await iHorizonModalResolve({
+                    customId: 'joinMessage-modal',
+                    title: data.setjoinmessage_awaiting_response,
+                    deferUpdate: false,
+                    fields: [
+                        {
+                            customId: 'joinMessage-input',
+                            label: data.guildprofil_embed_fields_joinmessage,
+                            style: TextInputStyle.Paragraph,
+                            required: true,
+                            maxLength: 1010,
+                            minLength: 2
+                        },
+                    ]
+                }, buttonInteraction);
+
+                if (!modalInteraction) return;
 
                 try {
-                    let logEmbed = new EmbedBuilder()
+                    const response = modalInteraction.fields.getTextInputValue('joinMessage-input');
+
+                    const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
+                        {
+                            name: data.setjoinmessage_help_embed_fields_custom_name,
+                            value: response ? `\`\`\`${response}\`\`\`\n${response
+                                .replaceAll("{memberUsername}", interaction.user.username)
+                                .replaceAll("{memberMention}", interaction.user.toString())
+                                .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
+                                .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
+                                .replaceAll('{guildName}', interaction.guild?.name!)
+                                .replaceAll('{inviterUsername}', interaction.client.user?.username)
+                                .replaceAll('{inviterMention}', interaction.client.user.toString())
+                                .replaceAll('{invitesCount}', '1337')
+                                .replaceAll("\\n", '\n')
+                                }` : data.setjoinmessage_help_embed_fields_custom_name_empy
+                        },
+                    );
+
+                    await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`, response);
+                    await modalInteraction.reply({
+                        content: data.setjoinmessage_command_work_on_enable
+                            .replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
+                        ephemeral: true
+                    });
+                    newEmbed.addFields(helpEmbed.data.fields![1]);
+                    await message.edit({ embeds: [newEmbed] });
+
+                    const logEmbed = new EmbedBuilder()
                         .setColor("#bf0bb9")
                         .setTitle(data.setjoinmessage_logs_embed_title_on_enable)
                         .setDescription(data.setjoinmessage_logs_embed_description_on_enable
                             .replace("${interaction.user.id}", interaction.user.id)
-                        )
+                        );
 
-                    let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                    const logchannel = interaction.guild?.channels.cache.find((channel: { name: string }) => channel.name === 'ihorizon-logs');
+
                     if (logchannel) {
-                        (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
+                        (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
                     }
                 } catch (e) {
-                };
+                    logger.err(e as any);
+                }
+            } else if (buttonInteraction.customId === "joinMessage-default-message") {
+                const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
+                    {
+                        name: data.setjoinmessage_help_embed_fields_custom_name,
+                        value: data.setjoinmessage_help_embed_fields_custom_name_empy
+                    },
+                );
 
-                await interaction.editReply({
-                    content: data.setjoinmessage_command_work_on_enable.replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo)
+                await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`);
+
+                await buttonInteraction.reply({
+                    content: data.setjoinmessage_command_work_on_enable
+                        .replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
+                    ephemeral: true
                 });
-                return;
-            }
-        } else if (type == "off") {
-            await client.db.delete(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joinmessage`);
-            try {
-                let logEmbed = new EmbedBuilder()
+
+                newEmbed.addFields(helpEmbed.data.fields![1]);
+                await message.edit({ embeds: [newEmbed] });
+
+                const logEmbed = new EmbedBuilder()
                     .setColor("#bf0bb9")
                     .setTitle(data.setjoinmessage_logs_embed_title_on_disable)
                     .setDescription(data.setjoinmessage_logs_embed_description_on_disable
                         .replace("${interaction.user.id}", interaction.user.id)
                     );
 
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
-
+                const logchannel = interaction.guild?.channels.cache.find((channel: { name: string }) => channel.name === 'ihorizon-logs');
                 if (logchannel) {
-                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
-                };
-            } catch (e) {
-            };
+                    (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
+                }
+            }
+        });
 
-            await interaction.editReply({
-                content: data.setjoinmessage_command_work_on_disable.replace('', client.iHorizon_Emojis.icon.Yes_Logo)
-            });
-            return;
-        } else if (type == "ls") {
-            var ls = await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.joinmessage`);
-
-            let embed = new EmbedBuilder()
-                .setAuthor({ name: interaction.user.globalName || interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
-                .setColor('#1481c1')
-                .setDescription(ls || 'None')
-                .setTimestamp()
-                .setTitle(data.setjoinmessage_command_work_ls)
-                .setFooter({ text: 'iHorizon', iconURL: client.user?.displayAvatarURL() })
-                .setThumbnail(interaction.guild?.iconURL() as string);
-
-            await interaction.editReply({ embeds: [embed] });
-            return;
-        };
-
-        if (!messagei) {
-            await interaction.editReply({ embeds: [help_embed] });
-            return;
-        };
+        collector.on('end', async () => {
+            buttons.components.forEach(x => {
+                x.setDisabled(true)
+            })
+            await message.edit({ components: [buttons] });
+        });
     },
 };
+
+
+function generateJoinMessagePreview(message: string, interaction: ChatInputCommandInteraction): string {
+    return message
+        .replaceAll("{memberUsername}", interaction.user.username)
+        .replaceAll("{memberMention}", interaction.user.toString())
+        .replaceAll('{memberCount}', interaction.guild?.memberCount?.toString()!)
+        .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
+        .replaceAll('{guildName}', interaction.guild?.name!)
+        .replaceAll('{inviterUsername}', interaction.client.user?.username)
+        .replaceAll('{inviterMention}', interaction.client.user?.toString())
+        .replaceAll('{invitesCount}', '1337')
+        .replaceAll("\\n", '\n');
+}

@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, Interaction } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Client, EmbedBuilder, Interaction } from 'discord.js';
 import { BotEvent } from '../../../types/event';
-import config from '../../files/config.js';
 import logger from '../../core/logger.js';
+import { LanguageData } from '../../../types/languageData';
 
 var timeout: number = 1000;
 
@@ -41,17 +41,42 @@ export const event: BotEvent = {
     run: async (client: Client, interaction: Interaction) => {
 
         if (!interaction.isChatInputCommand()
-            || !interaction.guild?.channels
             || interaction.user.bot) return;
 
+        if (interaction.channel?.type === ChannelType.DM) {
+            await interaction.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setColor(2829617)
+                        .setImage('https://ihorizon.me/assets/img/banner/ihrz_en-US.png')
+                        .setDescription(`# Uhh Oh!!\n\nIt seems you are using iHorizon in a private conversation.\nI want to clarify that iHorizon can only be used in a Discord server!\n\nTo unleash my full potential, add me!`)
+                ],
+                components: [
+                    new ActionRowBuilder<ButtonBuilder>()
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setEmoji(client.iHorizon_Emojis.icon.Crown_Logo)
+                                .setLabel('Invite iHorizon')
+                                .setStyle(ButtonStyle.Link)
+                                .setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`),
+                            new ButtonBuilder()
+                                .setEmoji(client.iHorizon_Emojis.icon.Sparkles)
+                                .setLabel('iHorizon Website')
+                                .setStyle(ButtonStyle.Link)
+                                .setURL('https://ihorizon.me'),
+                        )
+                ]
+            })
+            return;
+        }
         let command = client.commands?.get(interaction.commandName);
 
         if (!command) {
-            return interaction.reply({ content: "Connection error.", ephemeral: true });
+            return interaction.reply({ content: 'Connection error.', ephemeral: true });
         };
 
         if (await cooldDown(client, interaction)) {
-            let data = await client.functions.getLanguageData(interaction.guild.id);
+            let data = await client.functions.getLanguageData(interaction.guild?.id) as LanguageData;
 
             await interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
             return;
@@ -63,7 +88,7 @@ export const event: BotEvent = {
                     embeds: [
                         new EmbedBuilder()
                             .setColor("#0827F5").setTitle(":(")
-                            .setImage(config.core.blacklistPictureInEmbed)
+                            .setImage(client.config.core.blacklistPictureInEmbed)
                     ], ephemeral: true
                 });
                 return;
@@ -75,7 +100,8 @@ export const event: BotEvent = {
 
             await command.run(client, interaction);
         } catch (e: any) {
-            logger.err(e);
+            // logger.err(e);
+            console.error(e)
         };
     },
 };

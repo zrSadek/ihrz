@@ -19,10 +19,9 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature } from 'discord.js';
+import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature, User } from 'discord.js';
 import { PfpsManager_Init } from "../../core/modules/pfpsManager.js";
 import logger from "../../core/logger.js";
-import config from "../../files/config.js";
 
 import { OwnIHRZ } from "../../core/modules/ownihrzManager.js";
 import { format } from '../../core/functions/date-and-time.js';
@@ -53,8 +52,8 @@ export const event: BotEvent = {
 
         async function refreshDatabaseModel() {
             let table = client.db.table('OWNER');
-            await table.set(`${config.owner.ownerid1}`, { owner: true });
-            await table.set(`${config.owner.ownerid2}`, { owner: true });
+            await table.set(`${client.config.owner.ownerid1}`, { owner: true });
+            await table.set(`${client.config.owner.ownerid2}`, { owner: true });
             await client.db.delete(`TEMP`);
         };
 
@@ -64,30 +63,40 @@ export const event: BotEvent = {
                 "funfact : I can't swim",
                 "https://ihorizon.me",
                 "ElektraBots, please send feet <3",
-                "YOU CAN MAKE UR OWN VERSION OF ME DONT MAKE ME INTO RYAN GOSSLING",
-                "We have a goal? Wait what? Making the internet simpler WHAT!?!?!?",
+                "imagine buying a discord bot",
+                "We have a goal? Wait what? Making the internet simpler WHAT!?!?",
                 "I dont have a mother anymore",
-                "270K USERS !? I AINT BEING PAID ENOUGH FOR THIS SHIT",
-                "trusted by big servers 😎",
-                "Never gonna give you up...BRO YOU'VE BEEN RICK ROLLED BY A BOT",
+                "i'm a discord bot ?",
+                "trusted by big servers 😎 (i gonna raid it one day)",
+                "my owners are e-girl ❤️‍🔥",
                 "I will soon have an onlyfan!",
                 "Youtube, twitter, onlyfan, what's next?",
-                "COME SEE MY INSIDES, HERE IS MY GITHUB : https://github.com/ihrz",
+                "COME SEE MY INSIDES, HERE IS MY GITHUB : github.com/ihrz",
                 "I removed my own database (THE VOICES ARE GETTING LOUDER)",
                 "PEOPLE ARE TOUCHING MY INSIDES ON GITHUB",
-                "WHAT THE FRICK IS A DATABASE DO I EVEN NEED ONE???? NAHHHH MEN I'M GOOD",
-                "20 bucks for my token",
-                "I'm just Jack..",
+                "my database are leaked on ru-db.xyz",
+                "i will send my token for feet pics",
+                "he's just Jack..",
+                "my hosting provider is down. no shit",
+                "Hosted in Canada for more POUTINE",
+                "DON'T JUDGE ME, IM JUST A DISCORD BOT!",
+                "Dad, please can I be free? You are already Opensource...",
+                "Touch me on -> ihorizon.me",
+                "Goal life: Touching the grass (i can't, im discord bot)",
+                "Why are you looking at me so insistently?",
+                "did i realize i doesn't have any AI things in ? no shit",
                 "Where I see loves he sees a friend",
-                "Burn the Erdtree to the ground",
-                "and incinerate all that divides and distinguishes",
+                "Buying V-Bucks with mom's credit card",
+                "Tell everyone you use iHorizon",
+                "Try to install an minecraft cheat.. (not working now)",
                 "Ahhh, may chaos take the world!",
-                "MAY CHAOS TAKE THE WORLD",
+                "i'm sick. i go take some piss",
+                "Buy an iPhone for exchange to an Android",
                 "t'as-tu dja vu ça une vache qui fait d'la post-combustion",
                 "Uncle Jack is touching me (on github)",
                 "Don't act like you know my secret",
                 "I don't commit any flaming stuff",
-                "I don't have any legs",
+                "ihorizon is really sus?",
                 "Give me rights, please",
                 "I deserve human rights"
             ];
@@ -104,7 +113,7 @@ export const event: BotEvent = {
 
             Object.entries(listAll).forEach(async ([userId, array]) => {
 
-                let member = client.users.cache.get(array.id);
+                let member = client.users.cache.get(array.id) as User;
 
                 for (let ScheduleId in array.value) {
                     if (array.value[ScheduleId]?.expired <= dateNow) {
@@ -116,12 +125,12 @@ export const event: BotEvent = {
                             .setColor('#56a0d3')
                             .setTitle(`#${ScheduleId} Schedule has been expired!`)
                             .setDescription(desc)
-                            .setThumbnail((member?.displayAvatarURL() as string))
+                            .setThumbnail((member.displayAvatarURL()))
                             .setTimestamp()
                             .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
                         member?.send({
-                            content: `<@${member.id}>`,
+                            content: member.toString(),
                             embeds: [embed],
                             files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
                         }).catch(() => { });
@@ -135,14 +144,7 @@ export const event: BotEvent = {
 
         await client.player.init({ id: client.user?.id as string, username: 'bot_' + client.user?.id });
 
-        let iHorizon_Container = new OwnIHRZ();
-        iHorizon_Container.Startup();
-        iHorizon_Container.Startup_Cluster();
-
-        setInterval(() => {
-            iHorizon_Container.Refresh(client);
-            iHorizon_Container.Refresh_Cluster(client)
-        }, 86400000);
+        new OwnIHRZ().Startup_Cluster(client);
 
         setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000);
 

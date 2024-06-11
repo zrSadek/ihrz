@@ -23,14 +23,26 @@ import { Client, EmbedBuilder, Message } from 'discord.js';
 import { generatePassword } from '../../core/functions/random.js';
 
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData.js';
+
+const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "messageCreate",
     run: async (client: Client, message: Message) => {
+        /**
+         * Why doing this?
+         * On iHorizon Production, we have some ~discord.js problems~ 👎
+         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
+         * As always, fuck discord.js
+         */
+        if (processedMembers.has(message.author.id)) return;
+        processedMembers.add(message.author.id);
+        setTimeout(() => processedMembers.delete(message.author.id), 4000);
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let data = await client.functions.getLanguageData(message.guild.id);
+        let data = await client.functions.getLanguageData(message.guild.id) as LanguageData;
 
         let baseData = await client.db.get(`${message.guildId}.SUGGEST`);
 
@@ -60,7 +72,7 @@ export const event: BotEvent = {
         if (args.length < 5) return;
 
         let msg = await message.channel.send({
-            content: `<@${message.author.id}>`,
+            content: message.author.toString(),
             embeds: [suggestionEmbed],
             files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
         });

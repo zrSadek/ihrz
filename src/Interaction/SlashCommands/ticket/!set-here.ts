@@ -29,7 +29,7 @@ import {
     StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
-import { CreatePanel, CreateSelectPanel } from '../../../core/modules/ticketsManager.js';
+import { CreateButtonPanel, CreateSelectPanel } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
@@ -38,7 +38,7 @@ export default {
         let panelName = interaction.options.getString("name");
         let panelDesc = interaction.options.getString("description");
 
-        if (await client.db.get(`${interaction.guild?.id}.GUILD.TICKET.disable`)) {
+        if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
             await interaction.editReply({ content: data.sethereticket_disabled_command });
             return;
         };
@@ -64,7 +64,7 @@ export default {
 
         let response = await interaction.editReply({
             content: data.sethereticket_command_type_menu_question
-            .replace("${interaction.user.id}", interaction.user.id),
+                .replace("${interaction.user.id}", interaction.user.id),
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
             ]
@@ -77,13 +77,13 @@ export default {
         }).then(async (i) => {
 
             if (i.values[0] === 'button_panel') {
-                await CreatePanel(interaction, {
+                await CreateButtonPanel(interaction, {
                     name: panelName,
                     author: interaction.user.id,
                     description: panelDesc
                 });
 
-                i.deferUpdate();
+                await i.deferUpdate();
 
                 interaction.editReply({
                     components: [],
@@ -92,7 +92,7 @@ export default {
 
             } else if (i.values[0] === 'select_panel') {
 
-                i.deferUpdate();
+                await i.deferUpdate();
 
                 await CreateSelectPanel(interaction, {
                     name: panelName,

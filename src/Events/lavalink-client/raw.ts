@@ -19,8 +19,8 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client } from 'discord.js';
 import { BotEvent } from '../../../types/event';
+import { Client } from 'discord.js';
 
 export const event: BotEvent = {
     name: "raw",

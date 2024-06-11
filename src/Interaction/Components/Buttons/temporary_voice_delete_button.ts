@@ -32,11 +32,11 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
     let member = interaction.member as GuildMember;
 
-    let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guild?.id}.${interaction.user.id}`);
+    let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
 
     if (!result) return interaction.deferUpdate();
     if (result.channelId !== interaction.channelId
-        || getChannelOwner !== targetedChannel?.id) return interaction.deferUpdate();
+        || getChannelOwner !== targetedChannel?.id) return await interaction.deferUpdate();
 
     if (!member.voice.channel) {
         await interaction.deferUpdate()
@@ -44,7 +44,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     } else {
 
         await targetedChannel?.delete();
-        await table.delete(`CUSTOM_VOICE.${interaction.guild?.id}.${interaction.user.id}`);
+        await table.delete(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
 
         await interaction.reply({
             embeds: [

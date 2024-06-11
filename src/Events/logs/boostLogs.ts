@@ -22,12 +22,13 @@
 import { EmbedBuilder, Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData';
 
 export const event: BotEvent = {
     name: "guildMemberUpdate",
     run: async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
 
-        let data = await client.functions.getLanguageData(newMember.guild.id);
+        let data = await client.functions.getLanguageData(newMember.guild.id) as LanguageData;
 
         if (!newMember.guild.roles.premiumSubscriberRole) return;
         let someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.boosts`);
@@ -37,7 +38,7 @@ export const event: BotEvent = {
 
         let embed = new EmbedBuilder()
             .setColor("#a27cec")
-            .setAuthor({ name: newMember?.user.username as string, iconURL: newMember?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
+            .setAuthor({ name: newMember?.user.username, iconURL: newMember?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
             .setTimestamp();
 
         if (
@@ -46,7 +47,7 @@ export const event: BotEvent = {
         ) {
             embed.setDescription(data.event_boostlog_add
                 .replace('${newMember.user.id}', newMember.user.id)
-                .replace('${newMember.guild.premiumSubscriptionCount}', newMember.guild.premiumSubscriptionCount)
+                .replace('${newMember.guild.premiumSubscriptionCount}', newMember.guild.premiumSubscriptionCount?.toString()!)
             );
 
             (Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
@@ -58,7 +59,7 @@ export const event: BotEvent = {
         ) {
             embed.setDescription(data.event_boostlog_sub
                 .replace('${newMember.user.id}', newMember.user.id)
-                .replace('${newMember.guild.premiumSubscriptionCount}', newMember.guild.premiumSubscriptionCount)
+                .replace('${newMember.guild.premiumSubscriptionCount}', newMember.guild.premiumSubscriptionCount?.toString()!)
             );
 
             (Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
