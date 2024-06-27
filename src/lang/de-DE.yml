@@ -177,8 +177,11 @@ invites_confirmation_embed_description: "<@${member.user.id}> hat `${inv || 0}` 
 invites_confirmation_embed_title: "Inviter-Statistik"
 
 # /leaderboard
-leaderboard_text_inline: "<@${i}> hat **${a.invites || 0}** Einladungen (**${a.regular || 0}** Reguläre, **${a.bonus || 0}** Bonus, **${a.leaves || 0}** Abgänge)\n"
-leaderboard_default_text: "**__Bestenliste:__**\n"
+leaderboard_text_inline: "`${i} ` <@${index.inviter}> • Einladungen∶ **${index.invites}**\n  ┖ Regulär **${index.regular}**, Bonus∶ **${index.bonus}**, Verlassen∶ **${index.leaves}**\n"
+leaderboard_default_text: "**__Bestenliste__**"
+leaderboard_rank_text: "🏅Du bist derzeit auf Platz `${userRank + 1}` von `${arr.length}` mit **${arr[userRank].invites}** Einladungen\n\n"
+leaderboard_rank_none: "🏅Du bist derzeit nicht im Ranking.\n\n"
+leaderboard_gen_time_msg: "Die Bestenliste von **${interaction.guild?.name}** wurde in ${Date.now() - execTimestamp}ms erstellt.\n\n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "Du benötigst Administratorrechte, um diesen Befehl zu verwenden!"
@@ -779,6 +782,16 @@ too_new_account_command_work_on_enable: "${interaction.user}, neue Mitglieder, d
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} hat das Modul deaktiviert!"
 too_new_account_command_work_on_disable: "${interaction.user}, das Modul wurde erfolgreich deaktiviert. Neue Mitgliedskonten werden nicht mehr überprüft."
 
+# /guildconfig set-bot footer-name
+guildconfig_setbot_footername_footer_too_long_msg: "Der Bot-Fußzeile ist zu lang, es wird zu hässlich, um angezeigt zu werden."
+guildconfig_setbot_footername_is_good: "Erfolgreich geändert, alle iHorizon-Einbettungen werden `${footerName}` als Fußzeile verwenden!"
+
+# /guildconfig set-bot prefix
+guildconfig_setbot_prefix_prefix_now_mention: "Das Bot-Präfix für Befehle ist jetzt Erwähnung! `@Ping-Me`"
+guildconfig_setbot_prefix_prefix_specify_prefix: "Sie müssen das Bot-Präfix angeben."
+guildconfig_setbot_prefix_prefix_too_long: "Das Bot-Präfix ist zu lang, es wird zu schwierig zu verwenden."
+guildconfig_setbot_prefix_prefix_is_good: "Das Bot-Präfix wurde erfolgreich geändert, jetzt sind Befehle mit: `${formatedPrefix}` nutzbar."
+
 
 # Member Count commands
 # /setmembercount
@@ -1128,6 +1141,11 @@ embed_choose_12: "Welche Farbe möchtest du in deine Einbettung aufnehmen? **www
 embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | Ungültige Farbe! Bitte überprüfe **www.color-hex.com**"
 embed_choose_13: "Die Farbe der Einbettung wurde erfolgreich gelöscht!"
 embed_send_embed_work: "<@${interaction.user.id}>, **Du hast die Einbettung erfolgreich in den Kanal <#${message.content}> gesendet!**"
+embed_copy_bad_guild_msg: "Die Gilde, in der sich die Nachricht befindet, ist nicht dieselbe wie ${interaction.guild?.name}"
+embed_copy_bad_channel_msg: "Der Kanal, in dem sich die Nachricht befindet, ist nicht erreichbar!"
+embed_copy_bad_message_msg: "Die Nachricht ist nicht erreichbar!"
+embed_copy_bad_embed_message_msg: "Die Nachricht hat kein Embed!"
+embed_copy_bad_url_msg: "Ungültige URL, bitte erneut versuchen. Das korrekte Format ist: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
 
 # /rolesaver
 rolesaver_embed_title: "RoleSaver Modul"
@@ -1418,13 +1436,14 @@ antispam_manage_choices_9_label: "Max. Intervall für doppelte Nachrichten"
 antispam_manage_choices_9_desc: "Das Intervall zwischen doppelten Nachrichten, um den Benutzer zu markieren"
 antispam_manage_choices_10_label: "Max. ähnliche Nachrichten"
 antispam_manage_choices_10_desc: "Anzahl maximaler ähnlicher Nachrichten vor Sanktion"
-antispam_manage_choices_11_label: "Intervall zwischen Warnungen"
-antispam_manage_choices_11_desc: "Das Intervall zwischen Warnmeldungen"
-antispam_manage_choices_12_label: "Schwellenwert vor Warnung"
-antispam_manage_choices_12_desc: "Der Schwellenwert vor der Warnmeldung"
+antispam_manage_choices_12_label: "Schwelle vor Bestrafung"
+antispam_manage_choices_12_desc: "Die maximale Schwelle vor der Bestrafung"
 antispam_manage_select_menu_punish_mute_label: "Mitglieder stummschalten"
 antispam_manage_modal_title: "AntiSpam Modal"
 antispam_manage_button_label: "Konfiguration speichern"
+antispam_manage_preset_level1_name: "Entspannter Modus"
+antispam_manage_preset_level2_name: "Wachmodus"
+antispam_manage_preset_level3_name: "Extremer Schutzmodus"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Alle unten stehenden Rollen können das Antispam-Modul umgehen"

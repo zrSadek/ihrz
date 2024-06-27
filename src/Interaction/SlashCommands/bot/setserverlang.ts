@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -27,7 +27,7 @@ import {
     ChatInputCommandInteraction,
     BaseGuildTextChannel,
     ApplicationCommandType
-} from 'discord.js'
+} from 'pwss'
 
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
@@ -103,7 +103,10 @@ export const command: Command = {
     category: 'bot',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let type = interaction.options.getString("language");
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
@@ -119,7 +122,7 @@ export const command: Command = {
         }
 
         await client.db.set(`${interaction.guildId}.GUILD.LANG`, { lang: type });
-        data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         try {
             let logEmbed = new EmbedBuilder()
@@ -130,7 +133,7 @@ export const command: Command = {
                     .replace(/\${interaction\.user.id}/g, interaction.user.id)
                 );
 
-            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
         } catch (e: any) { logger.err(e) };
 

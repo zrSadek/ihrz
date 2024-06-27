@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Attachment, AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder, Message } from 'discord.js';
+import { Attachment, AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder, Message } from 'pwss';
 import { AxiosResponse, axios } from '../../core/functions/axios.js';
 
 import { BotEvent } from '../../../types/event';
@@ -29,7 +29,7 @@ export const event: BotEvent = {
     name: "messageDelete",
     run: async (client: Client, message: Message) => {
 
-        let data = await client.functions.getLanguageData(message.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(message.guildId) as LanguageData;
         if (!message.guild || !message.author
             || message.author.id == client.user?.id) return;
 

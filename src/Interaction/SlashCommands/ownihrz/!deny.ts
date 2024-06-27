@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -23,7 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-} from 'discord.js';
+} from 'pwss';
 
 import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 
@@ -33,6 +33,8 @@ const OWNIHRZ = new OwnIHRZ();
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let id_1 = interaction.options.getString('id');
 
@@ -47,7 +49,7 @@ export default {
             }
         };
 
-        if ((interaction.user.id !== client.config.owner.ownerid1) && (interaction.user.id !== client.config.owner.ownerid2)) {
+        if (!client.owners.includes(interaction.user.id)) {
             await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };
@@ -82,12 +84,12 @@ export default {
                 .setDescription(data.mybot_instance_deny_embed_desc
                     .replace('${utils_msg}', utils_msg)
                 )
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
 
             await interaction.reply({
                 embeds: [embed],
                 ephemeral: false,
-                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
             });
 
             await table_1.delete(`OWNIHRZ.${interaction.user.id}`);

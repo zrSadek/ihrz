@@ -177,8 +177,11 @@ invites_confirmation_embed_description: "<@${member.user.id}> ha **${inv || 0}**
 invites_confirmation_embed_title: "Statistiche Invitante"
 
 # /leaderboard
-leaderboard_text_inline: "<@${i}> ha **${a.invites || 0}** Inviti (**${a.regular || 0}** Regolari, **${a.bonus || 0}** Bonus, **${a.leaves || 0}** Abbandoni)\n"
-leaderboard_default_text: "__Classifica__:\n"
+leaderboard_text_inline: "`${i} ` <@${index.inviter}> • Inviti∶ **${index.invites}**\n  ┖ Regolari **${index.regular}**, Bonus∶ **${index.bonus}**, Uscite∶ **${index.leaves}**\n"
+leaderboard_default_text: "**__Classifica__**"
+leaderboard_rank_text: "🏅Attualmente sei classificato `${userRank + 1}`/`${arr.length}` con **${arr[userRank].invites}** inviti\n\n"
+leaderboard_rank_none: "🏅Non sei attualmente classificato.\n\n"
+leaderboard_gen_time_msg: "La classifica di **${interaction.guild?.name}** è stata generata in ${Date.now() - execTimestamp}ms.\n\n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "Devi essere amministratore per utilizzare questo comando!"
@@ -779,6 +782,16 @@ too_new_account_command_work_on_enable: "${interaction.user}, i nuovi membri che
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} ha disabilitato il modulo!"
 too_new_account_command_work_on_disable: "${interaction.user}, il modulo è stato disabilitato con successo. La data di creazione dei nuovi account dei membri non sarà più verificata."
 
+# /guildconfig set-bot footer-name
+guildconfig_setbot_footername_footer_too_long_msg: "Il piè di pagina del bot è troppo lungo, sarà troppo brutto da visualizzare."
+guildconfig_setbot_footername_is_good: "Modificato con successo, tutti gli embed di iHorizon useranno `${footerName}` come piè di pagina!"
+
+# /guildconfig set-bot prefix
+guildconfig_setbot_prefix_prefix_now_mention: "Il prefisso del bot per i comandi ora è menzione! `@Ping-Me`"
+guildconfig_setbot_prefix_prefix_specify_prefix: "È necessario specificare il prefisso del bot."
+guildconfig_setbot_prefix_prefix_too_long: "Il prefisso del bot è troppo lungo, sarà troppo difficile da usare."
+guildconfig_setbot_prefix_prefix_is_good: "Il prefisso del bot è stato cambiato con successo, ora i comandi sono utilizzabili con: `${formatedPrefix}`."
+
 
 # Member Count commands
 # /setmembercount
@@ -1128,6 +1141,11 @@ embed_choose_12: "Quale colore desideri includere nel tuo Embed? **www.color-hex
 embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | Colore non valido! Controlla **www.color-hex.com**"
 embed_choose_13: "Il colore dell'Embed è stato eliminato con successo!"
 embed_send_embed_work: "<@${interaction.user.id}>, **Hai inviato con successo l'Embed al canale <#${message.content}>!**"
+embed_copy_bad_guild_msg: "La gilda in cui si trova il messaggio non è la stessa di ${interaction.guild?.name}"
+embed_copy_bad_channel_msg: "Il canale in cui si trova il messaggio è irraggiungibile!"
+embed_copy_bad_message_msg: "Il messaggio è irraggiungibile!"
+embed_copy_bad_embed_message_msg: "Il messaggio non ha un embed!"
+embed_copy_bad_url_msg: "URL non valida, si prega di riprovare. Il formato corretto è: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
 
 # /rolesaver
 rolesaver_embed_title: "Modulo RoleSaver"
@@ -1418,13 +1436,14 @@ antispam_manage_choices_9_label: "Intervallo massimo tra duplicati"
 antispam_manage_choices_9_desc: "L'intervallo tra messaggi duplicati per segnalare l'utente"
 antispam_manage_choices_10_label: "Max messaggi simili"
 antispam_manage_choices_10_desc: "Quantità massima di messaggi simili prima della sanzione"
-antispam_manage_choices_11_label: "Intervallo tra avvisi"
-antispam_manage_choices_11_desc: "L'intervallo tra i messaggi di avviso"
-antispam_manage_choices_12_label: "Soglia prima dell'avviso"
-antispam_manage_choices_12_desc: "La soglia prima del messaggio di avviso"
+antispam_manage_choices_12_label: "Soglia prima della punizione"
+antispam_manage_choices_12_desc: "La soglia massima prima della punizione"
 antispam_manage_select_menu_punish_mute_label: "Silenzia membri"
 antispam_manage_modal_title: "Modale AntiSpam"
 antispam_manage_button_label: "Salva configurazione"
+antispam_manage_preset_level1_name: "Modalità Rilassata"
+antispam_manage_preset_level2_name: "Modalità Guardia"
+antispam_manage_preset_level3_name: "Modalità Protezione Estrema"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Tutti i ruoli sottostanti possono bypassare il modulo antispam"

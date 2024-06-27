@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -24,21 +24,23 @@ import {
     Client,
     EmbedBuilder,
     GuildMember,
-} from 'discord.js';
+} from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let baseData = await client.db.get(`${interaction.guildId}.ALLOWLIST`);
         let member = interaction.options.getMember('member') as GuildMember;
 
-        if (interaction.user.id !== interaction.guild?.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
+        if (interaction.user.id !== interaction.guild.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
             await interaction.reply({ content: data.allowlist_add_not_permited });
             return;
         };
 
-        if (interaction.user.id !== interaction.guild?.ownerId) {
+        if (interaction.user.id !== interaction.guild.ownerId) {
             await interaction.reply({ content: data.allowlist_add_not_owner });
             return;
         };
@@ -56,7 +58,7 @@ export default {
         await client.db.set(`${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`, { allowed: true });
         await interaction.reply({
             content: data.allowlist_add_command_work
-                .replace('${member.user}', member.user .toString())
+                .replace('${member.user}', member.user.toString())
         });
         return;
     },

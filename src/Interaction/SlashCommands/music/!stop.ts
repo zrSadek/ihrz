@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -23,20 +23,22 @@ import {
     ChatInputCommandInteraction,
     Client,
     GuildMember,
-} from 'discord.js';
+} from 'pwss';
 
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         try {
             let voiceChannel = (interaction.member as GuildMember).voice.channel;
             let player = client.player.getPlayer(interaction.guildId as string);
 
             if (!player || !player.playing || !voiceChannel) {
-                await interaction.deleteReply();    
+                await interaction.deleteReply();
                 await interaction.followUp({ content: data.stop_nothing_playing, ephemeral: true });
                 return;
             };

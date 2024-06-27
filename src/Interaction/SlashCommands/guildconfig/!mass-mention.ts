@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -24,24 +24,27 @@ import {
     PermissionsBitField,
     AutoModerationRuleTriggerType,
     ChatInputCommandInteraction
-} from 'discord.js';
+} from 'pwss';
 
 interface Action {
     type: number;
     metadata: Record<string, any>;
 };
 import { LanguageData } from '../../../../types/languageData';
+import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let turn = interaction.options.getString("action");
         let max_mention = interaction.options.getNumber('max-mention-allowed') || 3;
         let logs_channel = interaction.options.getChannel('logs-channel');
 
-        let automodRules = await interaction.guild?.autoModerationRules.fetch();
+        let automodRules = await interaction.guild.autoModerationRules.fetch();
 
-        let mentionSpamRule = automodRules?.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.MentionSpam);
+        let mentionSpamRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.MentionSpam);
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.blockpub_not_admin });
@@ -71,7 +74,7 @@ export default {
 
                 if (!mentionSpamRule) {
 
-                    await interaction.guild?.autoModerationRules.create({
+                    await interaction.guild.autoModerationRules.create({
                         name: 'Block mass-mention spam by iHorizon',
                         enabled: true,
                         eventType: 1,
@@ -97,13 +100,14 @@ export default {
                 await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.mass_mention`, "on");
                 await interaction.editReply({
                     content: data.automod_block_massmention_command_on
-                        .replace('${interaction.user}', interaction.user .toString())
+                        .replace('${interaction.user}', interaction.user.toString())
                         .replace('${logs_channel}', (logs_channel?.toString() || 'None'))
-                        .replace('${max_mention}', max_mention .toString())
+                        .replace('${max_mention}', max_mention.toString())
                 });
                 return;
-            } catch {
-                interaction.editReply({ content: 'Error 404' });
+            } catch (error) {
+                logger.err(error as any);
+                await interaction.editReply({ content: 'Error 404' });
             }
         } else if (turn === "off") {
 
@@ -112,7 +116,7 @@ export default {
             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.mass_mention`, "off");
             await interaction.editReply({
                 content: data.automod_block_massmention_command_off
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
             });
             return;
         };

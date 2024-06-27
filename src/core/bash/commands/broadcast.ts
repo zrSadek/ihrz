@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
+import { BaseGuildTextChannel, Client, EmbedBuilder } from 'pwss';
 import logger from "../../logger.js";
 
 export default function (client: Client, args: string) {
@@ -36,10 +36,10 @@ export default function (client: Client, args: string) {
             (channel as BaseGuildTextChannel).send({
                 content: '@here',
                 embeds: [embed],
-                files: [{ attachment: await guild.client.functions.image64(client.user?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 4096 })), name: 'icon.png' }]
+                files: [{ attachment: await guild.client.func.image64(client.user?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 4096 })), name: 'icon.png' }]
             })
         };
     });
 
-    logger.legacy(`* All are successfully sended`.gray().bgBlack());
+    logger.legacy(`* All are successfully sended`.gray.bgBlack);
 };

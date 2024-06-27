@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -27,7 +27,7 @@ import {
     ChatInputCommandInteraction,
     BaseGuildTextChannel,
     ApplicationCommandType
-} from 'discord.js'
+} from 'pwss'
 
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
@@ -101,7 +101,10 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.reactionroles_dont_admin_added });
@@ -123,7 +126,7 @@ export const command: Command = {
             if (!reaction) { return await interaction.reply({ content: data.reactionroles_missing_reaction_added }) };
 
             try {
-                await interaction.channel?.messages.fetch((messagei as string))?.then((message) => { message.react(reaction as string) });
+                await interaction.channel.messages.fetch((messagei as string))?.then((message) => { message.react(reaction as string) });
             } catch {
                 await interaction.reply({ content: data.reactionroles_dont_message_found });
                 return;
@@ -154,7 +157,7 @@ export const command: Command = {
                         .replace("${reaction}", reaction)
                         .replace("${role}", role?.toString()!)
                     )
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
 
@@ -174,7 +177,7 @@ export const command: Command = {
                 return;
             };
 
-            let message = await interaction.channel?.messages.fetch(messagei as string).catch(async () => {
+            let message = await interaction.channel.messages.fetch(messagei as string).catch(async () => {
                 await interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove })
                 return;
             });
@@ -192,7 +195,7 @@ export const command: Command = {
                 await interaction.reply({ content: data.reactionroles_cant_fetched_reaction_remove })
                 return;
             };
-            await reactionVar.users.remove(client.user?.id).catch((err: string) => { logger.err(err) });
+            await reactionVar.users.remove(client.user.id).catch((err: string) => { logger.err(err) });
 
             await client.db.delete(`${interaction.guildId}.GUILD.REACTION_ROLES.${messagei}.${reaction}`);
 
@@ -205,7 +208,7 @@ export const command: Command = {
                         .replace("${messagei}", messagei!)
                         .replace("${reaction}", reaction!)
                     );
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) };
             } catch (e: any) { logger.err(e) };
 

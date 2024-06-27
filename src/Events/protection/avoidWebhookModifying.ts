@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel } from 'discord.js'
+import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel } from 'pwss'
 
 import { BotEvent } from '../../../types/event';
 
@@ -54,11 +54,7 @@ export const event: BotEvent = {
                     case 'simply':
                         break;
                     case 'simply+derank':
-                        user?.guild.roles.cache.forEach((element) => {
-                            if (user?.roles.cache.has(element.id) && element.name !== '@everyone') {
-                                user.roles.remove(element.id);
-                            };
-                        });
+                        await user?.roles.set([], "Punish");
                         break;
                     case 'simply+ban':
                         user?.ban({ reason: 'Protect!' }).catch(() => { });

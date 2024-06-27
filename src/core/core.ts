@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { initializeDatabase, getDatabaseInstance } from './database.js';
+import { initializeDatabase } from './database.js';
 import commandsSync from './commandsSync.js';
 import bash from './bash/bash.js';
 import logger from "./logger.js";
@@ -32,7 +32,7 @@ import emojis from './modules/emojisManager.js';
 import { VanityInviteData } from '../../types/vanityUrlData';
 import { ConfigData } from '../../types/configDatad.js';
 
-import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from "discord.js";
+import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'pwss';
 import { GiveawayManager } from 'discord-regiveaways';
 import { readdirSync } from "node:fs";
 import backup from 'discord-rebackup';
@@ -60,12 +60,21 @@ backup.setStorageFolder(backups_folder);
 export async function main(client: Client) {
     initConfig(client.config);
 
-    logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray());
-    logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray());
-    logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray());
+    logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
+    logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
+    logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
+
+    client.owners = [];
+
+    client.config.owner.owners?.forEach(owner => {
+        if (!Number.isNaN(Number.parseInt(owner))) client.owners.push(owner);
+    });
+    if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
+    if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
 
     errorManager.uncaughtExceptionHandler(client);
 
+    // @ts-ignore
     client.giveawaysManager = new GiveawayManager(client, {
         storage: `${process.cwd()}/src/files/giveaways/`,
         config: {
@@ -79,6 +88,14 @@ export async function main(client: Client) {
         },
     });
 
+    client.db = await initializeDatabase(client.config);
+    client.content = [];
+    client.category = [];
+    client.invites = new Collection();
+    client.timeCalculator = new iHorizonTimeCalculator();
+    client.lyricsSearcher = new LyricsManager();
+    client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
+
     process.on('SIGINT', async () => {
         client.destroy();
         await new OwnIHRZ().QuitProgram(client);
@@ -89,15 +106,6 @@ export async function main(client: Client) {
     playerManager(client);
     bash(client);
     emojis(client);
-
-    await initializeDatabase(client.config);
-    client.db = getDatabaseInstance();
-    client.content = [];
-    client.category = [];
-    client.invites = new Collection();
-    client.timeCalculator = new iHorizonTimeCalculator();
-    client.lyricsSearcher = new LyricsManager();
-    client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 
     let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
     let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
@@ -122,12 +130,20 @@ export async function main(client: Client) {
     };
 
     client.login(process.env.BOT_TOKEN || client.config.discord.token).then(() => {
+        const title = "iHorizon - " + client.version.ClientVersion + " platform:" + process.platform;
+
+        if (process.platform === 'win32') {
+            process.title = title;
+        } else {
+            process.stdout.write('\x1b]2;' + title + '\x1b\x5c');
+        };
+
         commandsSync(client).then(() => {
-            logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta());
-            logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta());
-            logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta());
-            logger.log(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`.magenta());
-            logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta());
+            logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
+            logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta);
+            logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta);
+            logger.log(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`.magenta);
+            logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta);
         });
     });
 };

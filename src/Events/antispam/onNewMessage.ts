@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -28,7 +28,7 @@ import {
     Collection,
     Snowflake,
     EmbedBuilder
-} from 'discord.js';
+} from 'pwss';
 
 import { DatabaseStructure } from '../../core/database_structure';
 
@@ -37,12 +37,11 @@ import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
 
 export const cache: AntiSpam.AntiSpamCache = {
-    raidInfo: new Map<string, { value: number | boolean }>(),
-    messages: new Set(),
-    kickedUsers: new Set(),
-    bannedUsers: new Set(),
-    spamMessagesToClear: new Set<AntiSpam.CachedMessage>(),
-    membersToPunish: new Set(),
+    raidInfo: new Map<string, Map<string, { value: number | boolean; }>>(),
+    messages: new Map<string, Set<AntiSpam.CachedMessage>>(),
+    spamMessagesToClear: new Map<string, Set<AntiSpam.CachedMessage>>(),
+    membersToPunish: new Map<string, Set<GuildMember>>(),
+    membersFlags: new Map<string, Map<string, { value: number; }>>()
 };
 
 
@@ -57,6 +56,7 @@ async function waitForFinish(lastMessage?: AntiSpam.CachedMessage): Promise<void
         }, 500);
     });
 }
+
 function levenshtein(a: string, b: string): number {
     const distanceMatrix: number[][] = [];
 
@@ -83,12 +83,15 @@ function levenshtein(a: string, b: string): number {
     return distanceMatrix[b.length][a.length];
 }
 
-async function logsAction(lang: LanguageData, client: Client, user: GuildMember, actionType: 'sanction' | 'warn', sanctionType?: 'mute' | 'kick' | 'ban') {
-    let inDb = await client.db.get(`${user.guild.id}.GUILD.SERVER_LOGS.antispam`) as string | null;
+async function logsAction(lang: LanguageData, client: Client, guildId: string, users: Set<GuildMember>, actionType: 'sanction' | 'warn', sanctionType?: 'mute' | 'kick' | 'ban') {
+    if (users.size === 0) return;
+
+    const firstUser = users.values().next().value;
+    const inDb = await client.db.get(`${guildId}.GUILD.SERVER_LOGS.antispam`) as string | null;
 
     if (!inDb) return;
 
-    let channel = user.guild.channels.cache.get(inDb);
+    const channel = firstUser.guild.channels.cache.get(inDb);
     if (!channel) return;
 
     let embed = new EmbedBuilder()
@@ -98,7 +101,7 @@ async function logsAction(lang: LanguageData, client: Client, user: GuildMember,
         .setDescription(lang.antispam_log_embed_desc
             .replace("${client.user?.toString()}", client.user?.toString()!)
             .replace("${actionType}", String(actionType === 'sanction' ? sanctionType : 'warn'))
-            .replace("${user.toString()}", user.toString())
+            .replace("${user.toString()}", Array.from(users).map(x => x.toString()).join(','))
         )
 
     await (channel as BaseGuildTextChannel).send({ embeds: [embed] });
@@ -111,12 +114,11 @@ async function sendWarningMessage(
     channel: BaseGuildTextChannel | null,
     options: AntiSpam.AntiSpamOptions
 ): Promise<void> {
-    const membersToWarn = [...members].filter(member => !cache.raidInfo.get(`${channel?.guildId}_${member.id}.warned`)?.value === true);
+    const membersToWarn = [...members];
 
     for (const member of membersToWarn) {
-        cache.raidInfo.set(`${channel?.guildId}_${member.id}.warned`, { value: true });
-        let amountOfWarn = cache.raidInfo.get(`${channel?.guildId}_${member.id}.amount`)?.value as number;
-        cache.raidInfo.set(`${channel?.guildId}_${member.id}.amount`, { value: amountOfWarn + 1 });
+        let amountOfWarn = cache.raidInfo.get(channel?.guildId!)?.get(`${member.id}.amount`)?.value as number;
+        cache.raidInfo.get(channel?.guildId!)?.set(`${member.id}.amount`, { value: amountOfWarn + 1 });
     }
 
     if (membersToWarn.length === 0) {
@@ -147,21 +149,15 @@ async function sendWarningMessage(
             await member.send(warningMessage);
         }
     }
-
-    setTimeout(() => {
-        for (const member of membersToWarn) {
-            cache.raidInfo.set(`${channel?.guildId}_${member.id}.warned`, { value: false });
-        }
-    }, options.intervalBetweenWarn);
 }
 
-async function clearSpamMessages(messages: Set<AntiSpam.CachedMessage>, client: Client): Promise<void> {
+async function clearSpamMessages(guildId: string, messages: Set<AntiSpam.CachedMessage>, client: Client): Promise<void> {
     try {
         const CHUNK_SIZE = 50;
         const messagesByChannel: Collection<Snowflake, Collection<string, Snowflake>> = new Collection();
 
         const messageChunks = [];
-        const messagesArray = Array.from(messages);
+        const messagesArray = Array.from(messages).filter(m => m.isSpam);
         for (let i = 0; i < messagesArray.length; i += CHUNK_SIZE) {
             messageChunks.push(messagesArray.slice(i, i + CHUNK_SIZE));
         }
@@ -179,8 +175,8 @@ async function clearSpamMessages(messages: Set<AntiSpam.CachedMessage>, client: 
                     try {
                         await channel.bulkDelete(Array.from(messageIds.values()), true).then(() => {
                             messages.forEach(message => {
-                                cache.messages.delete(message);
-                                cache.spamMessagesToClear.delete(message);
+                                cache.messages.get(guildId)?.delete(message);
+                                cache.spamMessagesToClear.get(guildId)?.delete(message);
                             });
                         });
                     } catch {
@@ -194,22 +190,20 @@ async function clearSpamMessages(messages: Set<AntiSpam.CachedMessage>, client: 
 }
 
 async function PunishUsers(
-    lang: LanguageData,
+    guildId: string,
     members: Set<GuildMember>,
-    client: Client,
     options: AntiSpam.AntiSpamOptions
 ): Promise<void> {
     const membersCleaned = [...new Set(members)];
 
     const punishPromises = membersCleaned.map(async (member) => {
 
-        cache.raidInfo.set(`${member?.guild.id}_${member.id}.warned`, { value: true });
-        let amountOfWarn = cache.raidInfo.get(`${member?.guild.id}_${member.id}.amount`)?.value as number;
-        cache.raidInfo.set(`${member?.guild.id}_${member.id}.amount`, { value: amountOfWarn + 1 });
+        let amountOfWarn = cache.raidInfo.get(guildId)?.get(`${member.id}.amount`)?.value as number;
+        cache.raidInfo.get(guildId)?.set(`${member.id}.amount`, { value: amountOfWarn + 1 });
 
         let time = options.punishTime;
         if (options.punishTimeMultiplier) {
-            time = options.punishTime * (cache.raidInfo.get(`${member.guild.id}.${member.id}.amount`)?.value as number || 1);
+            time = options.punishTime * (cache.raidInfo.get(guildId)?.get(`${member.id}.amount`)?.value as number || 1);
         }
 
         switch (options.punishment_type) {
@@ -224,27 +218,21 @@ async function PunishUsers(
                 }
                 break;
             case 'ban':
-                const userCanBeBanned =
-                    options.Enabled && !cache.bannedUsers.has(member.id) && member.bannable;
+                const userCanBeBanned = options.Enabled && member.bannable;
 
                 if (userCanBeBanned) {
-                    cache.bannedUsers.add(member.id);
                     await member.ban({ reason: 'Spamming!' }).catch(() => { });
                 }
                 break;
             case 'kick':
-                const userCanBeKicked =
-                    options.Enabled && !cache.kickedUsers.has(member.id) && member.kickable;
+                const userCanBeKicked = options.Enabled && member.kickable;
 
                 if (userCanBeKicked) {
-                    cache.kickedUsers.add(member.id);
                     await member.kick('Spamming!').catch(() => { });
                 }
                 break;
         }
-        cache.membersToPunish.delete(member);
-
-        // await logsAction(lang, client, member, "sanction", options.punishment_type);
+        cache.membersFlags.get(guildId)?.delete(`${member.id}`);
     });
 
     await Promise.all(punishPromises);
@@ -259,7 +247,7 @@ export const event: BotEvent = {
 
         let cancelAnalyze = false;
         for (let role in options.BYPASS_ROLES) {
-            if (message.member?.roles.cache.has(role)) {
+            if (message.member?.roles.cache.has(options.BYPASS_ROLES[parseInt(role)])) {
                 cancelAnalyze = true;
             }
         };
@@ -276,7 +264,7 @@ export const event: BotEvent = {
             return false;
         }
 
-        let lang = await client.functions.getLanguageData(message.guild.id) as LanguageData;
+        let lang = await client.func.getLanguageData(message.guild.id) as LanguageData;
 
         let currentMessage: AntiSpam.CachedMessage = {
             messageID: message.id,
@@ -285,11 +273,28 @@ export const event: BotEvent = {
             channelID: message.channel.id,
             content: message.content,
             sentTimestamp: message.createdTimestamp,
+            isSpam: false
         };
 
-        cache.messages.add(currentMessage);
+        if (!cache.messages.has(message.guild.id)) {
+            cache.messages.set(message.guild.id, new Set());
+        }
+        if (!cache.spamMessagesToClear.has(message.guild.id)) {
+            cache.spamMessagesToClear.set(message.guild.id, new Set());
+        }
+        if (!cache.membersToPunish.has(message.guild.id)) {
+            cache.membersToPunish.set(message.guild.id, new Set());
+        }
+        if (!cache.raidInfo.has(message.guild.id)) {
+            cache.raidInfo.set(message.guild.id, new Map());
+        }
+        if (!cache.membersFlags.has(message.guild.id)) {
+            cache.membersFlags.set(message.guild.id, new Map());
+        }
 
-        const cacheMessages = Array.from(cache.messages).filter(
+        cache.messages.get(message.guild.id)!.add(currentMessage);
+
+        const cacheMessages = Array.from(cache.messages.get(message.guild.id)!).filter(
             (m) => m.guildID === message.guild?.id
         );
 
@@ -312,49 +317,60 @@ export const event: BotEvent = {
                 });
         }
 
-        if (!cache.raidInfo.get(`${message.guildId}.${message.author.id}.amount`)?.value) {
-            cache.raidInfo.set(`${message.guildId}.${message.author.id}.amount`, { value: 0 })
+        if (!cache.raidInfo.get(message.guild.id)!.get(`${message.author.id}.amount`)?.value) {
+            cache.raidInfo.get(message.guild.id)!.set(`${message.author.id}.amount`, { value: 0 })
         }
 
-        const spamMatches = cacheMessages.filter(
-            (m) => m.sentTimestamp > Date.now() - options.maxInterval
-        );
+        if (!cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value) {
+            cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: 0 })
+        }
+
+        let memberTotalWarn = cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value!;
 
         const similarMessages = cacheMessages.length >= 2 ? cacheMessages.filter(
-            (m) => levenshtein(m.content.toLowerCase(), currentMessage.content.toLowerCase()) <= 3
+            (m) => levenshtein(m.content.toLowerCase(), currentMessage.content.toLowerCase()) <= 2
         ) : null
 
         const lastMessage = cacheMessages.length > 1 ? cacheMessages[1] : null;
         const elapsedTime = lastMessage ? currentMessage.sentTimestamp - lastMessage.sentTimestamp : null;
 
         if (duplicateMessages.length >= options.maxDuplicates) {
-            cache.membersToPunish = cache.membersToPunish.add(message.member!);
-            duplicateMessages.forEach(msg => cache.spamMessagesToClear.add(msg));
-            spamOtherDuplicates.forEach(msg => cache.spamMessagesToClear.add(msg));
+            cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: memberTotalWarn + 1 });
+            currentMessage.isSpam = true;
+            cache.spamMessagesToClear.get(message.guild.id)!.add(currentMessage);
         }
 
         if (elapsedTime && elapsedTime < options.maxInterval) {
-            cache.membersToPunish = cache.membersToPunish.add(message.member!);
-            cacheMessages.forEach(msg => cache.spamMessagesToClear.add(msg));
-            duplicateMessages.forEach(msg => cache.spamMessagesToClear.add(msg));
-            spamMatches.forEach(msg => cache.spamMessagesToClear.add(msg));
-            spamOtherDuplicates.forEach(msg => cache.spamMessagesToClear.add(msg));
-            cache.spamMessagesToClear.add(currentMessage);
+            cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: memberTotalWarn + 1 });
+            currentMessage.isSpam = true;
+            cache.spamMessagesToClear.get(message.guild.id)!.add(currentMessage);
         }
 
         if (similarMessages && similarMessages.length! >= options.similarMessageThreshold) {
-            cache.membersToPunish = cache.membersToPunish.add(message.member!);
-            similarMessages.forEach(msg => cache.spamMessagesToClear.add(msg));
-            spamOtherDuplicates.forEach(msg => cache.spamMessagesToClear.add(msg));
+            cache.membersFlags.get(message.guild.id)!.set(`${message.author.id}`, { value: memberTotalWarn + 1 });
+            currentMessage.isSpam = true;
+            cache.spamMessagesToClear.get(message.guild.id)!.add(currentMessage);
         }
 
-        await waitForFinish(lastMessage!);
+        if (cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
+            cache.membersToPunish.get(message.guild.id)!.add(message.member!);
+            currentMessage.isSpam = true;
+            cache.spamMessagesToClear.get(message.guild.id)!.add(currentMessage);
+        };
 
-        await PunishUsers(lang, cache.membersToPunish, client, options)
-        await sendWarningMessage(lang, cache.membersToPunish, message.channel as BaseGuildTextChannel, options)
+        if (cache.membersToPunish.get(message.guild.id)!.size >= 1 && cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)?.value! >= options.Threshold) {
+            await waitForFinish(lastMessage!);
 
-        if (options.removeMessages && cache.spamMessagesToClear.size > 0) {
-            await clearSpamMessages(cache.spamMessagesToClear, client);
+            await PunishUsers(message.guild.id, cache.membersToPunish.get(message.guild.id)!, options)
+            await sendWarningMessage(lang, cache.membersToPunish.get(message.guild.id)!, message.channel as BaseGuildTextChannel, options)
+
+            if (options.removeMessages && cache.spamMessagesToClear.get(message.guild.id)!.size > 0) {
+                await clearSpamMessages(message.guild.id, cache.spamMessagesToClear.get(message.guild.id)!, client);
+            }
+
+            await logsAction(lang, client, message.guild.id, cache.membersToPunish.get(message.guild.id)!, "sanction", options.punishment_type);
+
+            cache.membersToPunish.get(message.guild.id)!.clear();
         }
     },
 };

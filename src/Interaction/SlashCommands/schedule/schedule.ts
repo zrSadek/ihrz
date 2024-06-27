@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -34,7 +34,7 @@ import {
     CacheType,
     TextInputComponent,
     ApplicationCommandType
-} from 'discord.js';
+} from 'pwss';
 
 import { format } from '../../../core/functions/date-and-time.js';
 
@@ -54,8 +54,10 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let table = client.db.table("SCHEDULE");
 
         let select = new StringSelectMenuBuilder()
@@ -80,7 +82,7 @@ export const command: Command = {
                     .setValue('3'),
             );
 
-        let response = await interaction.reply({
+        let original_interaction = await interaction.reply({
             content: interaction.user.toString(),
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
@@ -89,7 +91,7 @@ export const command: Command = {
 
         try {
 
-            let collector = response.createMessageComponentCollector({
+            let collector = original_interaction.createMessageComponentCollector({
                 filter: (member) => member.user.id === interaction.user.id,
                 componentType: ComponentType.StringSelect,
                 time: 420_000
@@ -110,9 +112,10 @@ export const command: Command = {
         async function chooseAction(i: StringSelectMenuInteraction) {
             switch (i.values[0]) {
                 case '0':
-                    let response = await iHorizonModalResolve({
+                    let modal = await iHorizonModalResolve({
                         customId: 'modal',
                         title: data.schedule_modal_title,
+                        deferUpdate: false,
                         fields: [
                             {
                                 customId: 'name',
@@ -131,10 +134,10 @@ export const command: Command = {
                                 minLength: 10
                             },
                         ]
-                    }, interaction);
+                    }, i);
 
-                    if (!response) return;
-                    executeAfterModal(response);
+                    if (!modal) return;
+                    executeAfterModal(modal);
                     break;
                 case '1':
                     let u = await i.reply({ content: data.schedule_delete_question, ephemeral: false });
@@ -181,7 +184,7 @@ export const command: Command = {
                 let fetched = await table.get(`${interaction.user.id}`);
 
                 if (!fetched || !fetched[arg0]) {
-                    await response.edit({
+                    await original_interaction.edit({
                         content: data.schedule_delete_not_found
                             .replace('${arg0}', arg0), embeds: []
                     });
@@ -197,13 +200,13 @@ export const command: Command = {
                         )
                         .setThumbnail(interaction.guild?.iconURL() as string)
                         .setColor('#ff0a0a')
-                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                        .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                         .setTimestamp();
 
                     await table.delete(`${interaction.user.id}.${arg0}`);
-                    await response.edit({
+                    await original_interaction.edit({
                         content: data.schedule_delete_confirm, embeds: [embed],
-                        files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                        files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
                     });
                     return;
                 };
@@ -219,17 +222,17 @@ export const command: Command = {
                             name: interaction.user.globalName || interaction.user.username,
                             iconURL: interaction.user.displayAvatarURL({ extension: 'png', size: 512 })
                         })
-                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                        .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                         .setTitle(data.schedule_deleteall_title_embed)
                         .setDescription(data.schedule_deleteall_desc_embed)
 
-                    await response.edit({
+                    await original_interaction.edit({
                         content: data.schedule_deleteall_confirm,
                         embeds: [embed],
-                        files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                        files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
                     });
                 } else {
-                    await response.edit({
+                    await original_interaction.edit({
                         content: data.schedule_deleteall_cancel,
                     });
                     return;
@@ -240,12 +243,12 @@ export const command: Command = {
                 let fetched = await table.get(`${interaction.user.id}`);
 
                 if (!fetched) {
-                    await response.edit({ content: data.schedule_list_not_schedule, embeds: [] });
+                    await original_interaction.edit({ content: data.schedule_list_not_schedule, embeds: [] });
                     return;
                 };
 
                 let embed = new EmbedBuilder()
-                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                    .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                     .setTitle(data.schedule_list_title_embed)
                     .setColor('#60BEE0')
                     .setAuthor({
@@ -264,10 +267,10 @@ export const command: Command = {
                     });
                 };
 
-                await response.edit({
+                await original_interaction.edit({
                     content: data.schedule_list_content_message,
                     embeds: [embed],
-                    files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                    files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
                 });
             };
 
@@ -285,10 +288,10 @@ export const command: Command = {
                     .setTitle(data.schedule_create_title_embed)
                     .setThumbnail(interaction.guild?.iconURL() as string)
                     .setColor('#00549f')
-                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                    .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" })
                     .setTimestamp();
 
-                await response.edit({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                await original_interaction.edit({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
                 let u = await i.reply({ content: data.schedule_create_when_question });
 
                 let dateCollector = interaction.channel?.createMessageCollector({
@@ -308,7 +311,7 @@ export const command: Command = {
                     var scheduleCode = generatePassword({ length: 16 });
 
                     if (Number.isNaN(date0)) {
-                        response.edit({
+                        original_interaction.edit({
                             embeds: [],
                             content: data.schedule_create_not_number_time
                                 .replace('${interaction.user}', interaction.user.toString()),
@@ -316,7 +319,7 @@ export const command: Command = {
                         return;
                     };
 
-                    response.edit({
+                    original_interaction.edit({
                         embeds: [
                             embed.addFields({
                                 name: data.schedule_create_embed_fields_name_confirm,

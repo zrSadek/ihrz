@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -21,11 +21,10 @@
 
 import {
     Client,
-    PermissionsBitField,
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType
-} from 'discord.js'
+} from 'pwss'
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
@@ -49,7 +48,7 @@ export const command: Command = {
                 "fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -72,13 +71,13 @@ export const command: Command = {
                 "fr": "Récupérer la bannière du serveur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
     ],
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);

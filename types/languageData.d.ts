@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -142,6 +142,9 @@ export interface LanguageData {
   invites_confirmation_embed_title: string;
   leaderboard_text_inline: string;
   leaderboard_default_text: string;
+  leaderboard_rank_text: string;
+  leaderboard_rank_none: string;
+  leaderboard_gen_time_msg: string;
   removeinvites_not_admin_embed_description: string;
   removeinvites_confirmation_embed_description: string;
   removeinvites_logs_embed_title: string;
@@ -581,6 +584,13 @@ export interface LanguageData {
   too_new_account_command_work_on_enable: string;
   too_new_account_logEmbed_desc_on_disable: string;
   too_new_account_command_work_on_disable: string;
+  guildconfig_setbot_footername_footer_too_long_msg: string;
+  guildconfig_setbot_footername_footer_too_long_msg: string;
+  guildconfig_setbot_footername_is_good: string;
+  guildconfig_setbot_prefix_prefix_now_mention: string;
+  guildconfig_setbot_prefix_prefix_specify_prefix: string;
+  guildconfig_setbot_prefix_prefix_too_long: string;
+  guildconfig_setbot_prefix_prefix_is_good: string;
   setmembercount_not_admin: string;
   setmembercount_helpembed_title: string;
   setmembercount_helpembed_description: string;
@@ -832,6 +842,11 @@ export interface LanguageData {
   embed_choose_12_error: string;
   embed_choose_13: string;
   embed_send_embed_work: string;
+  embed_copy_bad_guild_msg: string;
+  embed_copy_bad_channel_msg: string;
+  embed_copy_bad_message_msg: string;
+  embed_copy_bad_embed_message_msg: string;
+  embed_copy_bad_url_msg: string;
   rolesaver_embed_title: string;
   rolesaver_embed_desc: string;
   rolesaver_embed_fields_1_name: string;
@@ -1027,6 +1042,9 @@ export interface LanguageData {
   antispam_manage_choices_10_label: string;
   antispam_manage_choices_10_desc: string;
   antispam_manage_choices_11_label: string;
+  antispam_manage_preset_level1_name: string;
+  antispam_manage_preset_level2_name: string;
+  antispam_manage_preset_level3_name: string;
   antispam_manage_choices_11_desc: string;
   antispam_manage_choices_12_label: string;
   antispam_manage_choices_12_desc: string;

@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -24,7 +24,7 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType,
-} from 'discord.js';
+} from 'pwss';
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
@@ -46,7 +46,7 @@ export const command: Command = {
                 "fr": "Récuperer l'avatar d'un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -69,7 +69,7 @@ export const command: Command = {
                 "fr": "Bannir un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'member',
@@ -92,7 +92,7 @@ export const command: Command = {
                 "fr": "Effacer une quantité de message dans le cannal"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'number',
@@ -115,7 +115,7 @@ export const command: Command = {
                 "fr": "Expulser un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'member',
@@ -138,7 +138,7 @@ export const command: Command = {
                 "fr": "Supprimer la possibilité de parler de tous les utilisateurs de ce channel"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: 'lock-all',
@@ -148,7 +148,7 @@ export const command: Command = {
                 "fr": "Supprimer la possibilité de parler de tous les utilisateurs sur tous les channel"
             },
 
-            type: 1
+            type: ApplicationCommandOptionType.Subcommand
         },
         {
             name: 'tempmute',
@@ -158,7 +158,7 @@ export const command: Command = {
                 "fr": "Couper temporairement la possibilité d'envoyer des message pour un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -192,7 +192,7 @@ export const command: Command = {
                 "fr": "Annuler le bannissement d'un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'userid',
@@ -226,7 +226,7 @@ export const command: Command = {
                 "fr": "Donner la possibilité de parler de tous les utilisateurs dans ce texte"
             },
 
-            type: 1
+            type: ApplicationCommandOptionType.Subcommand
         },
         {
             name: 'unmute',
@@ -236,7 +236,7 @@ export const command: Command = {
                 "fr": "Demute un utilisateur !"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -256,7 +256,7 @@ export const command: Command = {
     category: 'moderation',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);

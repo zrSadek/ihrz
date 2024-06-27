@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -27,7 +27,8 @@ import {
     Client,
     EmbedBuilder,
     Message,
-} from 'discord.js';
+    PermissionsBitField
+} from 'pwss';
 
 import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
 import { LanguageData } from '../../../../types/languageData';
@@ -37,6 +38,7 @@ import { DatabaseStructure } from '../../../core/database_structure.js';
 export const command: Command = {
 
     name: 'list-react',
+    aliases: ['react-list', 'listreact', 'reactlist'],
 
     description: 'Show all specific messages saved to be react',
     description_localizations: {
@@ -46,8 +48,16 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    run: async (client: Client, interaction: Message, execTimestamp: number, args: string[]) => {
+
+
+        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
+
+        if (!permission) {
+            return;
+        };
+
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         let all_specific_message: DatabaseStructure.DbGuildObject["REACT_MSG"] = await client.db.get(`${interaction.guildId}.GUILD.REACT_MSG`) || {};
 
@@ -60,7 +70,7 @@ export const command: Command = {
         });
 
         if (pages.length === 0) {
-            await interaction.reply({ content: 'Aucune données as été trouvé, veuillez en ajouter avant.' });
+            await interaction.reply({ content: 'Aucune données as été trouvé, veuillez en ajouter avant.', allowedMentions: { repliedUser: false } });
             return;
         }
 
@@ -86,7 +96,7 @@ export const command: Command = {
         let messageEmbed = await interaction.reply({
             embeds: [createEmbed()],
             components: [(row as ActionRowBuilder<ButtonBuilder>)],
-            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -26,9 +26,9 @@ import yaml from 'js-yaml';
 import path from 'path';
 import readline from 'readline';
 
-logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray());
-logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 2.0.".gray());
-logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/2.0".gray());
+logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
+logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
+logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
 
 interface TypingsFiles {
     [key: string]: string;
@@ -149,12 +149,12 @@ function generateMergedTypeString(json: any): string {
 
 function promptUser(): Promise<number> {
     const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
+        input: process.stdin as any,
+        output: process.stdout as any
     });
 
     return new Promise((resolve) => {
-        rl.question('Choose an option:\n1. Verify the integrity of files and do nothing more\n2. Verify the integrity of files and create TypeScript Interface files\n', (answer) => {
+        rl.question('Choose an option:\n1. [EXIT]\n2. Create TypeScript Interface files\n', (answer) => {
             rl.close();
             resolve(parseInt(answer, 10));
         });

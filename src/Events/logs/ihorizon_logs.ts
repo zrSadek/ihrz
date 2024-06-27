@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, GuildChannel, GuildTextBasedChannel } from 'discord.js'
+import { Client, EmbedBuilder, GuildChannel, GuildTextBasedChannel } from 'pwss'
 
 import { LanguageData } from '../../../types/languageData';
 import { BotEvent } from '../../../types/event';
@@ -30,7 +30,7 @@ export const event: BotEvent = {
 
         if (channel.name !== "ihorizon-logs") return;
 
-        let data = await client.functions.getLanguageData(channel.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(channel.guild.id) as LanguageData;
 
         let setup_embed = new EmbedBuilder()
             .setColor("#1e1d22")

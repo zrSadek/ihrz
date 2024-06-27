@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -26,11 +26,13 @@ import {
     EmbedBuilder,
     PermissionsBitField,
     User,
-} from 'discord.js';
+} from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.reply({ content: data.addmoney_not_admin });
@@ -54,7 +56,7 @@ export default {
                 .replace("${amount.value}", amount.toString())
         });
 
-        await client.db.add(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`, amount);
+        await client.db.add(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, amount);
 
         try {
             let logEmbed = new EmbedBuilder()
@@ -66,7 +68,7 @@ export default {
                     .replace(/\${user\.user\.id}/g, user.id)
                 );
 
-            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
         } catch (e) { return; };
     },

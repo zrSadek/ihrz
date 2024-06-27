@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -25,7 +25,7 @@ import {
     User,
     ChatInputCommandInteraction,
     ApplicationCommandType
-} from 'discord.js'
+} from 'pwss'
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
@@ -55,7 +55,10 @@ export const command: Command = {
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let tableOwner = client.db.table('OWNER');
 
         if (await tableOwner.get(`${interaction.user.id}.owner`) !== true) {
@@ -65,7 +68,7 @@ export const command: Command = {
 
         var member = interaction.options.getUser('member');
 
-        if ((member?.id === client.config.owner.ownerid1) || (member?.id === client.config.owner.ownerid2)) {
+        if (client.owners.includes(member?.id!)) {
             await interaction.reply({ content: data.unowner_cant_unowner_creator });
             return;
         };

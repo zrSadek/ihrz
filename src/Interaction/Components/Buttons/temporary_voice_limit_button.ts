@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ButtonInteraction, CacheType, EmbedBuilder, GuildMember, TextInputStyle } from 'discord.js';
+import { ButtonInteraction, CacheType, EmbedBuilder, GuildMember, TextInputStyle } from 'pwss';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData';
 
@@ -28,7 +28,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
     let table = interaction.client.db.table('TEMP');
 
-    let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let member = interaction.member as GuildMember;
 
     let targetedChannel = (interaction.member as GuildMember).voice.channel;
@@ -45,6 +45,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
     } else {
         let response = await iHorizonModalResolve({
             customId: 'modal',
+            deferUpdate: false,
             title: lang.temporary_voice_modal_title,
             fields: [
                 {
@@ -53,7 +54,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                     style: TextInputStyle.Short,
                     required: true,
                     maxLength: 20,
-                    minLength: 2
+                    minLength: 1
                 },
             ]
         }, interaction);
@@ -91,14 +92,14 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                     .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await interaction.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
                     .setFooter(
                         {
-                            text: "iHorizon",
+                            text: await interaction.client.func.displayBotName(interaction.guildId),
                             iconURL: 'attachment://icon.png'
                         }
                     )
             ],
             files: [
                 {
-                    attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
+                    attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()),
                     name: 'icon.png'
                 }
             ],

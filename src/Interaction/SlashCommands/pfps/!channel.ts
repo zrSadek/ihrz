@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -25,11 +25,13 @@ import {
     EmbedBuilder,
     PermissionsBitField,
     TextChannel
-} from 'discord.js';
+} from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let channel = interaction.options.getChannel('to');
         let fetch = await client.db.get(`${interaction.guildId}.PFPS.disable`);
@@ -48,13 +50,13 @@ export default {
                 .setColor('#333333')
                 .setTitle(data.pfps_channel_embed_title)
                 .setDescription(data.pfps_channel_embed_desc
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
                 )
                 .setTimestamp();
 
             await interaction.reply({
                 content: data.pfps_channel_command_work
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
                     .replace('${channel}', channel.toString())
             });
 
@@ -64,7 +66,7 @@ export default {
         } else {
             await interaction.reply({
                 content: data.pfps_channel_command_error
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
             });
             return;
         };

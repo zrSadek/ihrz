@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,28 +19,22 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
+import { Client, GuildMember, BaseGuildTextChannel, SnowflakeUtil } from 'pwss';
 
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
 import { LanguageData } from '../../../types/languageData';
-
-const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "guildMemberRemove",
     run: async (client: Client, member: GuildMember) => {
         /**
          * Why doing this?
-         * On iHorizon Production, we have some ~discord.js problems~ 👎
+         * On iHorizon Production, we have some ~problems~ 👎
          * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-         * As always, fuck discord.js
          */
-        if (processedMembers.has(member.id)) return;
-        processedMembers.add(member.id);
-        setTimeout(() => processedMembers.delete(member.id), 7000);
-
-        let data = await client.functions.getLanguageData(member.guild.id) as LanguageData;
+        const nonce = SnowflakeUtil.generate().toString();
+        let data = await client.func.getLanguageData(member.guild.id) as LanguageData;
 
         try {
             let base = await client.db.get(`${member.guild.id}.USER.${member.user.id}.INVITES.BY`);
@@ -76,7 +70,7 @@ export const event: BotEvent = {
                         .replaceAll('{inviterUsername}', inviter.username)
                         .replaceAll('{inviterMention}', inviter.toString())
                         .replaceAll('{invitesCount}', invitesAmount)
-                        .replaceAll("\\n", '\n')
+                        .replaceAll("\\n", '\n'), enforceNonce: true, nonce: nonce
                 });
                 return;
             };
@@ -94,7 +88,7 @@ export const event: BotEvent = {
 
             let lChanManager = member.guild.channels.cache.get(lChan) as BaseGuildTextChannel;
 
-            lChanManager.send({ content: joinMessageFormated }).catch(() => { });
+            lChanManager.send({ content: joinMessageFormated, enforceNonce: true, nonce: nonce }).catch(() => { });
             return;
         } catch (e) {
             let lChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
@@ -110,7 +104,7 @@ export const event: BotEvent = {
                     .replaceAll('{createdAt}', member.user.createdAt.toDateString())
                     .replaceAll('{guildName}', member.guild?.name!)
                     .replaceAll('{invitesCount}', invitesAmount)
-                    .replaceAll("\\n", '\n')
+                    .replaceAll("\\n", '\n'), enforceNonce: true, nonce: nonce
             }).catch(() => { });
             return;
         }

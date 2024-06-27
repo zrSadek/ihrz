@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, PermissionsBitField, ChannelType, Message, ClientUser } from 'discord.js';
+import { Client, EmbedBuilder, PermissionsBitField, ChannelType, Message, ClientUser, SnowflakeUtil } from 'pwss';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
 import { LanguageData } from '../../../types/languageData';
@@ -30,7 +30,7 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let data = await client.functions.getLanguageData(message.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(message.guild.id) as LanguageData;
 
         if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot
             || message.author.id === client.user?.id || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)
@@ -41,6 +41,13 @@ export const event: BotEvent = {
         if (!dbGet || !dbGet.roles) return;
 
         let fetch = message.guild.roles.cache.find((role) => role.id === dbGet.roles);
+
+        /**
+         * Why doing this?
+         * On iHorizon Production, we have some ~problems~ 👎
+         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
+         */
+        const nonce = SnowflakeUtil.generate().toString();
 
         if (fetch) {
             let target = message.guild.members.cache.get(message.author.id);
@@ -58,13 +65,15 @@ export const event: BotEvent = {
                     .replace("${message.author.id}", message.author.id)
                     .replace("${fetch.id}", fetch.id)
                 )
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: await client.func.displayBotName(message.guild.id), iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
             message.member?.roles.add(fetch).catch(() => { });
             message.channel.send({
                 embeds: [embed],
-                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
+                enforceNonce: true,
+                nonce
             }).catch(() => { });
         }
     },

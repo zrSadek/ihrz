@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -28,11 +28,13 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField
-} from 'discord.js';
+} from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
             await interaction.editReply({
@@ -150,8 +152,8 @@ export default {
                 },
             )
             .setFooter({
-                text: 'iHorizon',
-                iconURL: client.user?.displayAvatarURL({ size: 1024 }) as string
+                text: await client.func.displayBotName(interaction.guild.id),
+                iconURL: client.user.displayAvatarURL({ size: 1024 })
             });
 
         let buttonRows = [

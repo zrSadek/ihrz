@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,24 +19,19 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Message } from 'discord.js';
+import { Client, Message, SnowflakeUtil } from 'pwss';
 
 import { BotEvent } from '../../../types/event';
-
-const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "messageCreate",
     run: async (client: Client, message: Message) => {
         /**
          * Why doing this?
-         * On iHorizon Production, we have some ~discord.js problems~ 👎
+         * On iHorizon Production, we have some ~problems~ 👎
          * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-         * As always, fuck discord.js
          */
-        if (processedMembers.has(message.author.id)) return;
-        processedMembers.add(message.author.id);
-        setTimeout(() => processedMembers.delete(message.author.id), 2500);
+        const nonce = SnowflakeUtil.generate().toString();
 
         if (!message.guild || message.author.bot || !message.channel) return;
 

@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -30,15 +30,15 @@ import {
     GuildVoiceChannelResolvable,
     Message,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
-import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
 export const command: Command = {
 
     name: 'remove-react',
+    aliases: ['react-remove', 'removereact', 'reactremove'],
 
     description: 'Remove reaction by iHorizon when user send message',
     description_localizations: {
@@ -48,8 +48,8 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    run: async (client: Client, interaction: Message, execTimestamp: number, args: string[]) => {
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
 
@@ -59,7 +59,7 @@ export const command: Command = {
             return;
         }
 
-        await interaction.reply({ content: `<@${interaction.member?.id}>, maintenant quand un membre envoie \`${message.toLowerCase()}\`, le bot **ne réagis plus**.` });
+        await interaction.reply({ content: `<@${interaction.member?.id}>, maintenant quand un membre envoie \`${message.toLowerCase()}\`, le bot **ne réagis plus**.`, allowedMentions: { repliedUser: false } });
 
         await client.db.delete(`${interaction.guildId}.GUILD.REACT_MSG.${message.toLowerCase()}`);
         return;

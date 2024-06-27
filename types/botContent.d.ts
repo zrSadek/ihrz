@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -23,9 +23,10 @@
 import { DescriptionLocalizations } from "./command"
 
 export interface BotContent {
-    cmd: string,
-    category: string,
-    desc: string,
-    desc_localized: DescriptionLocalizations,
-    messageCmd: boolean,
+    cmd: string;
+    category: string;
+    aliases?: string[];
+    desc: string;
+    desc_localized: DescriptionLocalizations;
+    messageCmd: boolean;
 }

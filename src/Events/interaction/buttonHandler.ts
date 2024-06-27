@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,24 +19,12 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Interaction } from 'discord.js';
+import { Client, Interaction } from 'pwss';
 import { BotEvent } from '../../../types/event';
-
-const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "interactionCreate",
     run: async (client: Client, interaction: Interaction) => {
-        /**
-         * Why doing this?
-         * On iHorizon Production, we have some ~discord.js problems~ 👎
-         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-         * As always, fuck discord.js
-         */
-        if (processedMembers.has(interaction.user.id)) return;
-        processedMembers.add(interaction.user.id);
-        setTimeout(() => processedMembers.delete(interaction.user.id), 1300);
-
         if (!interaction.isButton()
             || !interaction.guild?.channels
             || interaction.user.bot) return;

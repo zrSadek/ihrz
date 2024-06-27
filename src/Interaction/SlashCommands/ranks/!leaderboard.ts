@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -24,12 +24,14 @@ import {
     EmbedBuilder,
     AttachmentBuilder,
     ChatInputCommandInteraction,
-} from 'discord.js';
+} from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../core/database_structure';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
         let array = [];
@@ -75,14 +77,14 @@ export default {
         let attachment = new AttachmentBuilder(buffer, { name: 'leaderboard.txt' })
 
         embed
-            .setThumbnail(interaction.guild?.iconURL() as string)
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
-            .setTitle(data.ranks_leaderboard_embed_title.replace('${interaction.guild?.name}', interaction.guild?.name!));
+            .setThumbnail(interaction.guild.iconURL())
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
+            .setTitle(data.ranks_leaderboard_embed_title.replace('${interaction.guild?.name}', interaction.guild.name));
 
         await interaction.reply({
             embeds: [embed],
             content: undefined,
-            files: [attachment, { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [attachment, { attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

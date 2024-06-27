@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -25,7 +25,7 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 
 import logger from '../../../core/logger.js';
@@ -34,12 +34,15 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.backup_not_admin });
             return;
         };
 
-        if (!interaction.guild?.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
+        if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.backup_i_dont_have_permission });
             return;
         };
@@ -49,6 +52,7 @@ export default {
 
         let svMsg = interaction.options.getBoolean('save-message');
 
+        // @ts-ignore
         backup.create(interaction.guild, {
             maxMessagesPerChannel: svMsg ? 10 : 0,
             jsonBeautify: true

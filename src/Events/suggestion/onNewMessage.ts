@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,30 +19,25 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, Message } from 'discord.js';
+import { Client, EmbedBuilder, Message, SnowflakeUtil } from 'pwss';
 import { generatePassword } from '../../core/functions/random.js';
 
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData.js';
-
-const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "messageCreate",
     run: async (client: Client, message: Message) => {
         /**
          * Why doing this?
-         * On iHorizon Production, we have some ~discord.js problems~ 👎
+         * On iHorizon Production, we have some ~problems~ 👎
          * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-         * As always, fuck discord.js
          */
-        if (processedMembers.has(message.author.id)) return;
-        processedMembers.add(message.author.id);
-        setTimeout(() => processedMembers.delete(message.author.id), 4000);
+        const nonce = SnowflakeUtil.generate().toString();
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let data = await client.functions.getLanguageData(message.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(message.guild.id) as LanguageData;
 
         let baseData = await client.db.get(`${message.guildId}.SUGGEST`);
 
@@ -63,7 +58,7 @@ export const event: BotEvent = {
             })
             .setDescription(suggestionContent.toString())
             .setThumbnail((message.guild?.iconURL() as string))
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.func.displayBotName(message.guild.id), iconURL: "attachment://icon.png" })
             .setTimestamp();
 
         message.delete();
@@ -74,7 +69,8 @@ export const event: BotEvent = {
         let msg = await message.channel.send({
             content: message.author.toString(),
             embeds: [suggestionEmbed],
-            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
+            enforceNonce: true, nonce: nonce
         });
 
         await msg.react(client.iHorizon_Emojis.icon.Yes_Logo);

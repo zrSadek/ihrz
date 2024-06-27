@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -39,25 +39,28 @@ export namespace DatabaseStructure {
     }
 
     export interface DbBackupsObject {
-        [userId: string]: {
-            [backupId: string]: {
-                guildName: string;
-                categoryCount: number;
-                channelCount: number;
-            };
+        [userId: string]: DbBackupsUserObject;
+    }
+
+    export interface DbBackupsUserObject {
+        [backupId: string]: {
+            guildName: string;
+            categoryCount: number;
+            channelCount: number;
         };
     }
 
     export interface TicketData {
-        [userId: string]: {
-            [channelId: string]: {
-                channel: string;
-                author: string;
-                alive: boolean;
-            };
-        };
+        [userId: string]: TicketUserData;
     }
 
+    export interface TicketUserData {
+        [channelId: string]: {
+            channel: string;
+            author: string;
+            alive: boolean;
+        };
+    }
     export interface ProtectionData {
         [rule: string]: {
             mode: string;
@@ -203,6 +206,18 @@ export namespace DatabaseStructure {
             event?: string;
             channel?: string;
         };
+        boost?: {
+            name?: string;
+            enable?: boolean;
+            event?: string;
+            channel?: string;
+        };
+        channel?: {
+            name?: string;
+            enable?: boolean;
+            event?: string;
+            channel?: string;
+        };
     }
 
     export interface DbInId {
@@ -256,7 +271,12 @@ export namespace DatabaseStructure {
         req: number;
     }
 
+    export interface DbGuildBotObject {
+        prefix?: string;
+        botName?: string;
+    }
     export interface DbGuildObject {
+        BOT?: DbGuildBotObject;
         LANG?: {
             lang: string;
         };

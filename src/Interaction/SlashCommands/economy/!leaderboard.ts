@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,13 +19,14 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ChatInputCommandInteraction, Client, EmbedBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, Client, EmbedBuilder } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../core/database_structure';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        let toAnalyze = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -34,6 +35,8 @@ export default {
             });
             return;
         };
+
+        let toAnalyze = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
 
         // Convert the user data to an array for sorting
         let usersArray = Object.entries(toAnalyze);
@@ -48,9 +51,9 @@ export default {
         let embed = new EmbedBuilder()
             .setColor('#e4b7ff')
             .setTitle(data.economy_leaderboard_embed_title
-                .replace('${interaction.guild.name}', interaction.guild?.name as string)
+                .replace('${interaction.guild.name}', interaction.guild.name as string)
             )
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setTimestamp();
 
         usersArray = usersArray.slice(0, 10);
@@ -58,7 +61,7 @@ export default {
         // Display the sorted leaderboard
         usersArray.forEach((user, index) => {
             let userId = user[0];
-            let userData = user[1]?.ECONOMY;
+            let userData = user[1].ECONOMY;
 
             if (userId !== 'undefined' && userData) {
                 embed.addFields({
@@ -66,8 +69,8 @@ export default {
                     value: data.economy_leaderboard_embed_fields_value
                         .replaceAll('${client.iHorizon_Emojis.icon.Coin}', client.iHorizon_Emojis.icon.Coin)
                         .replace('${userId}', userId)
-                        .replace('${userData.bank || 0}', String(userData?.bank || 0))
-                        .replace('${userData.money || 0}', String(userData?.money || 0))
+                        .replace('${userData.bank || 0}', String(userData.bank || 0))
+                        .replace('${userData.money || 0}', String(userData.money || 0))
                     ,
                     inline: false,
                 });
@@ -76,7 +79,7 @@ export default {
 
         await interaction.reply({
             embeds: [embed],
-            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

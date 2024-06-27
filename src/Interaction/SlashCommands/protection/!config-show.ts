@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -23,13 +23,15 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-} from 'discord.js';
+} from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if (interaction.user.id !== interaction.guild?.ownerId) {
+        if (interaction.user.id !== interaction.guild.ownerId) {
             await interaction.editReply({ content: data.authorization_configshow_not_permited });
             return;
         };
@@ -68,19 +70,19 @@ export default {
             .setColor('#000000')
             .setAuthor({ name: data.authorization_configshow_embed1_author })
             .setDescription(text2)
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setTimestamp();
 
         let embed2 = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({ name: data.authorization_configshow_embed2_author })
             .setDescription(text)
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setTimestamp();
 
         await interaction.editReply({
             embeds: [embed1, embed2],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

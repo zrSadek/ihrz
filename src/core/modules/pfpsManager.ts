@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ActionRowBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Client, EmbedBuilder } from "discord.js";
+import { ActionRowBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Client, EmbedBuilder } from 'pwss';
 
 async function PfpsManager_Init(client: Client) {
     Refresh(client);
@@ -98,7 +98,7 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
         .setTitle(`${user?.user.username || user?.user.globalName}'s **User** avatar`)
         .setImage(user.user.displayAvatarURL({ extension: 'png', forceStatic: false }))
         .setTimestamp()
-        .setFooter({ text: 'iHorizon' })
+        .setFooter({ text: await client.func.displayBotName(channel.guildId) })
     );
 
     (channel as BaseGuildTextChannel).send({

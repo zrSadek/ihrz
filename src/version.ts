@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -23,7 +23,7 @@ import pkg from "././../package.json" with { "type": "json" }
 
 const env = "main"; // production, ownihrz, dev, main
 const version = pkg.version;
-const djs = pkg.dependencies['discord.js'];
+const djs = pkg.dependencies['pwss'];
 
 const ClientVersion = `${env}@${version} djs@${djs}`;
 

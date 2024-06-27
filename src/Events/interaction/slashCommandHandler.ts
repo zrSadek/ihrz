@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Client, EmbedBuilder, Interaction } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Client, EmbedBuilder, Interaction } from 'pwss';
 import { BotEvent } from '../../../types/event';
 import logger from '../../core/logger.js';
 import { LanguageData } from '../../../types/languageData';
@@ -76,7 +76,7 @@ export const event: BotEvent = {
         };
 
         if (await cooldDown(client, interaction)) {
-            let data = await client.functions.getLanguageData(interaction.guild?.id) as LanguageData;
+            let data = await client.func.getLanguageData(interaction.guild?.id) as LanguageData;
 
             await interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
             return;
@@ -98,10 +98,9 @@ export const event: BotEvent = {
                 await interaction.deferReply();
             };
 
-            await command.run(client, interaction);
+            await command.run(client, interaction, Date.now(), []);
         } catch (e: any) {
-            // logger.err(e);
-            console.error(e)
+            logger.err(e);
         };
     },
 };

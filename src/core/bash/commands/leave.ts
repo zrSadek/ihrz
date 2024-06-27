@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,19 +19,19 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client } from "discord.js";
+import { Client } from 'pwss';
 import logger from "../../logger.js";
 
 export default function (client: Client, args: string) {
     if (!args) {
-        return logger.legacy(`[*] I have not received the Guild's ID on the command.`.gray().bgBlack());
+        return logger.legacy(`[*] I have not received the Guild's ID on the command.`.gray.bgBlack);
     };
 
     let guild = client.guilds.cache.get(args);
 
     guild?.leave().catch(() => {
-        logger.legacy(`* The guild doesn't exist on bot's database.`.gray().bgBlack());
+        logger.legacy(`* The guild doesn't exist on bot's database.`.gray.bgBlack);
     });
 
-    logger.legacy(`* I have successfully leave the server.`.gray().bgBlack());
+    logger.legacy(`* I have successfully leave the server.`.gray.bgBlack);
 };

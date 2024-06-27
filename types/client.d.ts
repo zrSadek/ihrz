@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -23,7 +23,7 @@ import { LyricsManager } from "../src/core/functions/lyrics-fetcher.js";
 import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
 
 import { GiveawayManager } from "discord-regiveaways";
-import { Collection, Snowflake } from "discord.js";
+import { Collection, Snowflake } from 'pwss';
 import { LavalinkManager } from "lavalink-client";
 import { QuickDB } from "quick.db";
 
@@ -40,9 +40,9 @@ import * as ClientVersion from "../src/version.js";
 import { Assets } from "./assets";
 import { ConfigData } from "./configDatad.js";
 
-declare module 'discord.js' {
+declare module 'pwss' {
     export interface Client {
-        functions: clientFunction,
+        func: clientFunction,
         commands: Collection<string, Command>,
         category: Category[]
         message_commands: Collection<string, Command>,
@@ -61,6 +61,7 @@ declare module 'discord.js' {
         version: typeof ClientVersion,
         assets: Assets,
         config: ConfigData,
-        isModuled?: boolean
+        isModuled?: boolean,
+        owners: string[]
     }
 };

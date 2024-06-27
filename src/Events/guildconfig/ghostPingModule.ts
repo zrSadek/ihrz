@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,40 +19,32 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, GuildMember } from 'discord.js';
+import { BaseGuildTextChannel, Client, GuildMember, SnowflakeUtil, PermissionsBitField } from 'pwss';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
-
-const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
-        /**
-         * Why doing this?
-         * On iHorizon Production, we have some ~discord.js problems~ 👎
-         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-         * As always, fuck discord.js
-         */
-        if (processedMembers.has(member.id)) return;
-        processedMembers.add(member.id);
-        setTimeout(() => processedMembers.delete(member.id), 7000);
-
         let all_channels = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) as DatabaseStructure.GhostPingData['channels'];
 
         if (!all_channels) return;
 
         for (let i of all_channels) {
-            const channel = member.guild.channels.cache.get(i);
-            if (!channel) continue;
-
-            const msg = await (channel as BaseGuildTextChannel).send({ content: member.user.toString() });
+            const channel = member.guild.channels.cache.get(i) as BaseGuildTextChannel;
+            if (!channel || !channel.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) continue;
 
             try {
-                await msg.delete().catch(() => { });
-            } catch (e) {
-                await msg.delete().catch(() => { });
+                const nonce = SnowflakeUtil.generate().toString();
+                const msg = await channel.send({
+                    content: `${member.user}`,
+                    enforceNonce: true,
+                    nonce: nonce
+                });
+
+                await msg.delete();
+            } catch {
             }
-        };
+        }
     },
 };

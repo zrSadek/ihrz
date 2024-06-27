@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -21,15 +21,15 @@
 
 import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
-import { Client, Message } from 'discord.js';
+import { Client, Message } from 'pwss';
 
-export async function isMessageCommand(client: Client, message: string): Promise<{ s: boolean, a?: string[], c?: Command }> {
-    var prefix = `<@${client.user?.id}>`;
+export async function isMessageCommand(client: Client, message: Message): Promise<{ s: boolean, a?: string[], c?: Command }> {
+    var prefix = await client.func.prefix.guildPrefix(client, message.guildId!);
 
-    let args = message.slice(prefix.length).trim().split(/ +/g);
+    let args = message.content.slice(prefix.string.length).trim().split(/ +/g);
     let command = client.message_commands.get(args.shift()?.toLowerCase() as string);
 
-    if (message.startsWith(prefix) && command) {
+    if (message.content.startsWith(prefix.string) && command) {
         return { s: true, a: args, c: command };
     } else {
         return { s: false, a: undefined, c: undefined };
@@ -42,10 +42,10 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let result = await isMessageCommand(client, message.content);
+        let result = await isMessageCommand(client, message);
 
         if (result.s) {
-            result.c?.run(client, message, result.a);
+            result.c?.run(client, message, Date.now(), result.a);
             return true;
         } else {
             return false;

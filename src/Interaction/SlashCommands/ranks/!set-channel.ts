@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -25,13 +25,15 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let type = interaction.options.getString("action");
         let argsid = interaction.options.getChannel("channel");
@@ -54,7 +56,7 @@ export default {
                     .setDescription(data.setxpchannels_logs_embed_description_enable.replace(/\${interaction\.user.id}/g, interaction.user.id)
                         .replace(/\${argsid}/g, argsid.id))
 
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
                     (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
@@ -83,7 +85,7 @@ export default {
                     .setTitle(data.setxpchannels_logs_embed_title_disable)
                     .setDescription(data.setxpchannels_logs_embed_description_disable.replace(/\${interaction\.user.id}/g, interaction.user.id))
 
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 
                 if (logchannel) {
                     (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });

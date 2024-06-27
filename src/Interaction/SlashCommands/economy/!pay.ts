@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -23,16 +23,18 @@ import {
     Client,
     ChatInputCommandInteraction,
     User
-} from 'discord.js';
+} from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let user = interaction.options.getUser("member") as User;
         let amount = interaction.options.getNumber("amount") as number;
 
-        let member = await client.db.get(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`);
+        let member = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await interaction.reply({
@@ -42,7 +44,7 @@ export default {
             return;
         };
 
-        if (amount?.toString().includes('-')) {
+        if (amount.toString().includes('-')) {
             await interaction.reply({ content: data.pay_negative_number_error });
             return;
         };
@@ -55,11 +57,11 @@ export default {
         await interaction.reply({
             content: data.pay_command_work
                 .replace(/\${interaction\.user\.username}/g, interaction.user.globalName || interaction.user.username)
-                .replace(/\${user\.user\.username}/g, user?.globalName!)
+                .replace(/\${user\.user\.username}/g, user.globalName!)
                 .replace(/\${amount}/g, amount.toString())
         });
 
-        await client.db.add(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`, amount!);
+        await client.db.add(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, amount!);
         await client.db.sub(`${interaction.guildId}.USER.${interaction.user.id}.ECONOMY.money`, amount!);
         return;
     },

@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -24,7 +24,7 @@ import {
     EmbedBuilder,
     ApplicationCommandType,
     MessageContextMenuCommandInteraction,
-} from 'discord.js';
+} from 'pwss';
 import { AnotherCommand } from '../../../types/anotherCommand';
 import { LanguageData } from '../../../types/languageData';
 
@@ -34,7 +34,7 @@ export const command: AnotherCommand = {
     thinking: false,
     run: async (client: Client, interaction: MessageContextMenuCommandInteraction) => {
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let question = interaction.options.getMessage("message")?.content || ".";
 
         let text = question?.split(" ");

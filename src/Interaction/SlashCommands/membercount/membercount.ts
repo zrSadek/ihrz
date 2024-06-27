@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -28,7 +28,7 @@ import {
     BaseGuildTextChannel,
     GuildMember,
     ApplicationCommandType
-} from 'discord.js'
+} from 'pwss'
 
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
@@ -80,9 +80,9 @@ export const command: Command = {
             required: false,
             type: ApplicationCommandOptionType.String,
 
-            description: `{botcount}, {rolescount}, {membercount}`,
+            description: `{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}`,
             description_localizations: {
-                "fr": "{botcount}, {rolescount}, {membercount}"
+                "fr": "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}"
             }
         },
     ],
@@ -90,7 +90,10 @@ export const command: Command = {
     category: 'membercount',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setmembercount_not_admin });
@@ -98,7 +101,7 @@ export const command: Command = {
         };
 
         let type = interaction.options.getString("action");
-        let messagei = interaction.options.getString("name");
+        let messagei = interaction.options.getString("name")?.toLowerCase()!;
         let channel = interaction.options.getChannel("channel");
 
         let help_embed = new EmbedBuilder()
@@ -108,9 +111,11 @@ export const command: Command = {
             .addFields({ name: data.setmembercount_helpembed_fields_name, value: data.setmembercount_helpembed_fields_value });
 
         if (type == "on") {
-            let botMembers = interaction.guild?.members.cache.filter((member: GuildMember) => member.user.bot);
-            let rolesCollection = interaction.guild?.roles.cache;
-            let rolesCount = rolesCollection?.size as number;
+            let botMembers = interaction.guild.members.cache.filter((member: GuildMember) => member.user.bot);
+            let rolesCollection = interaction.guild.roles.cache;
+            let channelsCount = interaction.guild.channels.cache.size.toString()!;
+            let rolesCount = rolesCollection.size!;
+            let boostsCount = interaction.guild.premiumSubscriptionCount?.toString() || '0';
 
             if (!messagei) {
                 await interaction.editReply({ embeds: [help_embed] });
@@ -118,9 +123,11 @@ export const command: Command = {
             };
 
             let joinmsgreplace = messagei
+                .replace("{membercount}", interaction.guild.memberCount.toString()!)
                 .replace("{rolescount}", rolesCount.toString())
-                .replace("{membercount}", interaction.guild?.memberCount as unknown as string)
-                .replace("{botcount}", botMembers?.size.toString()!);
+                .replace("{channelcount}", channelsCount)
+                .replace("{boostcount}", boostsCount)
+                .replace("{botcount}", botMembers.size.toString()!);
 
             if (messagei.includes("member")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.member`,
@@ -129,6 +136,14 @@ export const command: Command = {
             } else if (messagei.includes("roles")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.roles`,
                     { name: messagei, enable: true, event: "roles", channel: channel?.id }
+                );
+            } else if (messagei.includes("channel")) {
+                await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.channel`,
+                    { name: messagei, enable: true, event: "bot", channel: channel?.id }
+                );
+            } else if (messagei.includes("boost")) {
+                await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.boost`,
+                    { name: messagei, enable: true, event: "bot", channel: channel?.id }
                 );
             } else if (messagei.includes("bot")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.bot`,
@@ -166,7 +181,7 @@ export const command: Command = {
                     .setDescription(data.setmembercount_logs_embed_description_on_disable
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)
                     )
-                let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+                let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
                 if (logchannel) { (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] }) }
             } catch (e: any) { logger.err(e) };
 

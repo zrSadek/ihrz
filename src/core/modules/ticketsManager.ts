@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -43,7 +43,7 @@ import {
     StringSelectMenuOptionBuilder,
     ChannelSelectMenuBuilder,
     ModalSubmitInteraction,
-} from 'discord.js';
+} from 'pwss';
 
 import { LanguageData } from '../../../types/languageData';
 
@@ -63,13 +63,13 @@ interface CreatePanelData {
 
 async function CreateButtonPanel(interaction: ChatInputCommandInteraction<CacheType>, data: CreatePanelData) {
 
-    let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
 
     let panel = new EmbedBuilder()
         .setTitle(data.name)
         .setColor("#3b8f41")
         .setDescription(data.description || lang.sethereticket_description_embed)
-        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+        .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
 
     let confirm = new ButtonBuilder()
         .setCustomId('open-new-ticket')
@@ -80,7 +80,7 @@ async function CreateButtonPanel(interaction: ChatInputCommandInteraction<CacheT
     interaction.channel?.send({
         embeds: [panel],
         components: [new ActionRowBuilder<ButtonBuilder>().addComponents(confirm)],
-        files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
     }).then(async (message) => {
 
         await database.set(`${message.guildId}.GUILD.TICKET.${message.id}`,
@@ -107,10 +107,10 @@ async function CreateButtonPanel(interaction: ChatInputCommandInteraction<CacheT
                 .replace('${data.name}', data.name!)
                 .replace('${interaction}', interaction.channel?.toString()!)
             )
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
             .setTimestamp();
 
-        TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+        TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
         return;
     } catch (e) { return };
 };
@@ -125,13 +125,13 @@ export interface CaseList {
 }
 
 async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheType>, data: CreatePanelData) {
-    let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let case_list: CaseList[] = [];
 
     let panel_for_create = new EmbedBuilder()
         .setColor(2829617)
         .setDescription(lang.sethereticket_panelforcreate_embed_desc)
-        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+        .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" });
 
     let button = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(
@@ -157,7 +157,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
         embeds: [panel_for_create],
         components: [button],
         content: null,
-        files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+        files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
     });
 
     let collector = interaction.channel?.createMessageComponentCollector({
@@ -189,6 +189,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
             let response = await iHorizonModalResolve({
                 customId: 'selection_modal',
                 title: lang.sethereticket_modal_1_title,
+                deferUpdate: true,
                 fields: [
                     {
                         customId: 'case_name',
@@ -242,6 +243,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
             let response = await iHorizonModalResolve({
                 customId: 'embed_saved_modal',
                 title: lang.sethereticket_modal_2_title,
+                deferUpdate: true,
                 fields: [
                     {
                         customId: 'embed_title',
@@ -287,7 +289,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                 content: undefined,
                 files: [
                     {
-                        attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
+                        attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()),
                         name: 'icon.png'
                     }
                 ],
@@ -295,7 +297,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                     new EmbedBuilder()
                         .setColor(2829617)
                         .setDescription(`## ${title}\n${desc}`)
-                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                        .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
                 ],
                 components: [
                     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
@@ -330,10 +332,10 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<CacheT
                     .setColor("#008000")
                     .setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
                     .setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc.replace('${data.name}', data.name!).replace('${interaction}', `${interaction.channel}`))
-                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                    .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
                     .setTimestamp();
 
-                TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
                 return;
             } catch (e) { return };
         }
@@ -455,7 +457,7 @@ interface ResultButton {
 };
 
 async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringSelectMenuInteraction<CacheType>, result: ResultButton) {
-    let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let category = await database.get(`${interaction.message.guildId}.GUILD.TICKET.category`);
 
     let reason = '';
@@ -554,7 +556,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                             .replace('{category}', result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.name!)
                     )
                     .setFooter({
-                        text: 'iHorizon',
+                        text: await interaction.client.func.displayBotName(interaction.guild?.id),
                         iconURL: "attachment://icon.png"
                     })
             );
@@ -565,7 +567,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                         .setColor(2829617)
                         .setDescription(lang.event_ticket_reason_embed_desc.replace('${reason}', reason))
                         .setFooter({
-                            text: 'iHorizon',
+                            text: await interaction.client.func.displayBotName(interaction.guild?.id),
                             iconURL: "attachment://icon.png"
                         })
                 );
@@ -578,7 +580,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                         .replace("${user.username}", interaction.user.username)
                     )
                     .setFooter({
-                        text: 'iHorizon',
+                        text: await interaction.client.func.displayBotName(interaction.guild?.id),
                         iconURL: "attachment://icon.png"
                     })
             )
@@ -621,7 +623,7 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     .addComponents(delete_ticket_button)
             ],
             files: [
-                { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }
+                { attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }
             ]
         }).catch((err: any) => {
             logger.err(err)
@@ -639,17 +641,17 @@ async function CreateChannel(interaction: ButtonInteraction<CacheType> | StringS
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${channel.id}', channel.id)
                 )
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
-            TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+            TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
             return;
         } catch (e) { return };
     }).catch(() => { });
 };
 
 async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
 
     let fetch = await database.get(
         `${interaction.guildId}.TICKET_ALL`
@@ -663,7 +665,8 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) 
                 if (interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member?.user.id) {
                     interaction.channel.messages.fetch().then(async (messages) => {
 
-                        let attachment = await discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
+                        //@ts-ignore
+                        let attachment = await discordTranscripts.createTranscript(interaction.channel, {
                             limit: -1,
                             filename: 'transcript.html',
                             footerText: "Exported {number} message{s}",
@@ -695,10 +698,10 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) 
                                     .replace('${interaction.user}', interaction.user.toString())
                                     .replace('${interaction.channel.id}', interaction.channel?.id!)
                                 )
-                                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                                .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
                                 .setTimestamp();
 
-                            TicketLogsChannel.send({ embeds: [embed], files: [attachment, { attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                            TicketLogsChannel.send({ embeds: [embed], files: [attachment, { attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
                             return;
                         } catch (e) { return };
                     });
@@ -709,7 +712,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<CacheType>) 
 };
 
 async function TicketTranscript(interaction: ButtonInteraction<CacheType>) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let interactionChannel = interaction.channel;
 
     let fetch = await database.get(
@@ -723,6 +726,7 @@ async function TicketTranscript(interaction: ButtonInteraction<CacheType>) {
                 let member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
                 if (interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member?.user.id) {
+                    // @ts-ignore
                     let attachment = await discordTranscripts.createTranscript(interactionChannel as TextBasedChannel, {
                         limit: -1,
                         filename: 'transcript.html',
@@ -748,7 +752,7 @@ async function TicketTranscript(interaction: ButtonInteraction<CacheType>) {
 };
 
 async function TicketRemoveMember(interaction: ChatInputCommandInteraction<CacheType>) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let member = interaction.options.getUser("user");
 
     try {
@@ -768,10 +772,10 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<Cache
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${interaction.channel.id}', interaction.channel?.id!)
                 )
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
-            TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+            TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
             return;
         } catch (e) { return };
 
@@ -782,7 +786,7 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<Cache
 };
 
 async function TicketAddMember(interaction: ChatInputCommandInteraction<CacheType>) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let member = interaction.options.getUser("user");
 
     if (!member) {
@@ -807,10 +811,10 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<CacheTyp
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${interaction.channel.id}', interaction.channel?.id!)
                 )
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
-            TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+            TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
             return;
         } catch (e) { return };
 
@@ -821,7 +825,7 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<CacheTyp
 };
 
 async function TicketReOpen(interaction: ChatInputCommandInteraction<CacheType>) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let fetch = await database.get(`${interaction.guildId}.TICKET_ALL`);
 
     for (let user in fetch) {
@@ -857,10 +861,10 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<CacheType>)
                                 .replace('${interaction.user}', interaction.user.toString())
                                 .replace('${interaction.channel.id}', interaction.channel.id)
                             )
-                            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                            .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
                             .setTimestamp();
 
-                        TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                        TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
                         return;
                     } catch (e) { return };
 
@@ -874,7 +878,7 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<CacheType>)
 };
 
 async function TicketDelete(interaction: Interaction<CacheType>) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let fetch = await database.get(`${interaction.guildId}.TICKET_ALL`);
 
     for (let user in fetch) {
@@ -901,10 +905,10 @@ async function TicketDelete(interaction: Interaction<CacheType>) {
                             .replace('${interaction.user}', interaction.user.toString())
                             .replace('${interaction.channel.name}', (interaction.channel as BaseGuildTextChannel)?.name)
                         )
-                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                        .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
                         .setTimestamp();
 
-                    TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                    TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
                     return;
                 } catch (e) { return };
             }
@@ -913,7 +917,7 @@ async function TicketDelete(interaction: Interaction<CacheType>) {
 };
 
 async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheType>) {
-    let data = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;;
+    let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;;
     let owner_ticket = await database.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}.${interaction.channel?.id}`);
 
     if (!owner_ticket) {
@@ -987,10 +991,10 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<CacheTyp
                 .replace('${interaction.channel}', interaction.channel?.toString()!)
 
             )
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: await interaction.client.func.displayBotName(interaction.guildId), iconURL: "attachment://icon.png" })
             .setTimestamp();
 
-        TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
+        TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }] });
         return;
     } catch (e) { return };
 };

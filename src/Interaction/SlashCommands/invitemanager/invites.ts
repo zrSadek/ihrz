@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -24,7 +24,7 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType,
-} from 'discord.js';
+} from 'pwss';
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
@@ -44,7 +44,7 @@ export const command: Command = {
                 "fr": "Ajouter des invitations à un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'member',
@@ -78,7 +78,7 @@ export const command: Command = {
                 "fr": "Afficher le classement des invitations du serveur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: "show",
@@ -88,7 +88,7 @@ export const command: Command = {
                 "fr": "Obtenez le montant des invitations d'un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'member',
@@ -111,7 +111,7 @@ export const command: Command = {
                 "fr": "Supprimer les invitations d'un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'member',
@@ -141,11 +141,11 @@ export const command: Command = {
     thinking: true,
     category: 'invitemanager',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    run: async (client: Client, interaction: ChatInputCommandInteraction, execTimestamp: number) => {
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);
-        await commandModule.default.run(client, interaction, data);
+        await commandModule.default.run(client, interaction, data, execTimestamp);
     },
 };

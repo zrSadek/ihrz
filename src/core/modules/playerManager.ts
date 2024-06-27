@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
+import { BaseGuildTextChannel, Client, EmbedBuilder } from 'pwss';
 import { LavalinkManager } from "lavalink-client";
 
 import { LanguageData } from '../../../types/languageData.js';
@@ -31,7 +31,7 @@ export default async (client: Client) => {
 
     nodes.forEach(i => {
         i.retryAmount = 100
-        i.retryDelay = 5000
+        i.retryDelay = 50_000
     });
 
     client.player = new LavalinkManager({
@@ -51,7 +51,7 @@ export default async (client: Client) => {
     });
 
     client.player.on("trackStart", async (player, track) => {
-        let data = await client.functions.getLanguageData(player.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(player.guildId) as LanguageData;
 
         const channel = client.channels.cache.get(player.textChannelId!);
 
@@ -70,7 +70,7 @@ export default async (client: Client) => {
     });
 
     client.player.on("queueEnd", async player => {
-        let data = await client.functions.getLanguageData(player.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(player.guildId) as LanguageData;
 
         const channel = client.channels.cache.get(player.textChannelId!);
 
@@ -91,7 +91,7 @@ export default async (client: Client) => {
     }).on("destroy", (node) => {
         logger.err(`:: DESTROYED :: ${node.id}`);
     }).on("error", (node, error, payload) => {
-        logger.err(`:: ERROR :: ${node.id} ${error}`);
+        logger.err(`:: ERROR :: ${node.id} ${error.message}`);
     }).on("resumed", (node, payload, players) => {
         logger.log(`:: RESUMED :: ${node.id} ${players.length}`);
     });

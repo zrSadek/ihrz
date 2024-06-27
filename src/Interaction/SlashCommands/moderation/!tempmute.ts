@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -26,13 +26,15 @@ import {
     EmbedBuilder,
     GuildMember,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let tomute = interaction.options.getMember("user") as GuildMember;
         let mutetime = interaction.options.getString("time")!;
@@ -48,14 +50,14 @@ export default {
             return;
         };
 
-        if (!interaction.guild?.members.me?.permissions.has([PermissionsBitField.Flags.ManageMessages])) {
+        if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageMessages])) {
             await interaction.editReply({
                 content: data.tempmute_i_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
-        if (tomute?.id === interaction.user.id) {
+        if (tomute.id === interaction.user.id) {
             await interaction.editReply({
                 content: data.tempmute_cannot_mute_yourself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });

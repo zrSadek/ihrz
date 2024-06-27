@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -27,13 +27,15 @@ import {
     PermissionsBitField,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
-} from 'discord.js';
+} from 'pwss';
 
 import { CreateButtonPanel, CreateSelectPanel } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let panelName = interaction.options.getString("name");
         let panelDesc = interaction.options.getString("description");

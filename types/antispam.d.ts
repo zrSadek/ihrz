@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Collection, GuildMember, Message, Snowflake } from "discord.js";
+import { Collection, GuildMember, Message, Snowflake } from 'pwss';
 
 export namespace AntiSpam {
     export interface CachedMessage {
@@ -29,18 +29,16 @@ export namespace AntiSpam {
         channelID: Snowflake;
         content: string;
         sentTimestamp: number;
+        isSpam: boolean;
     }
 
     export interface AntiSpamCache {
-        raidInfo: Map<string, { value: number | boolean }>;
-        messages: Set<CachedMessage>;
-
-        kickedUsers: Set<Snowflake>;
-        bannedUsers: Set<Snowflake>;
-
-        membersToPunish: Set<GuildMember>;
-        spamMessagesToClear: Set<CachedMessage>;
-    }
+        raidInfo: Map<string, Map<string, { value: number | boolean }>>;
+        messages: Map<string, Set<CachedMessage>>;
+        membersToPunish: Map<string, Set<GuildMember>>;
+        membersFlags: Map<string, Map<string, { value: number }>>;
+        spamMessagesToClear: Map<string, Set<CachedMessage>>;
+    }    
 
     export interface AntiSpamOptions {
         BYPASS_ROLES?: string[];
@@ -54,7 +52,6 @@ export namespace AntiSpam {
         punishment_type: 'mute' | 'kick' | 'ban';
         punishTime: number;
         similarMessageThreshold: number;
-        intervalBetweenWarn: number;
         punishTimeMultiplier: boolean;
     }
 }

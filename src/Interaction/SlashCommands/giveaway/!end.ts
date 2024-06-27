@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -25,13 +25,15 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let inputData = interaction.options.getString("giveaway-id");
 
@@ -53,6 +55,7 @@ export default {
             return;
         };
 
+        // @ts-ignore
         client.giveawaysManager.end(client, inputData as string)
 
         await interaction.editReply({
@@ -69,9 +72,9 @@ export default {
                     .replace(/\${giveaway\.messageID}/g, inputData as string)
                 );
 
-            let logchannel = interaction.guild?.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+            let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
             if (logchannel) {
-                (logchannel as BaseGuildTextChannel)?.send({ embeds: [logEmbed] })
+                (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] })
             };
 
         } catch (e: any) {

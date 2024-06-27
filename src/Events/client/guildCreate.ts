@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Collection, EmbedBuilder, PermissionsBitField, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { Collection, EmbedBuilder, PermissionsBitField, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle, TextChannel } from 'pwss';
 
 import logger from "../../core/logger.js";
 
@@ -28,7 +28,9 @@ import { BotEvent } from '../../../types/event.js';
 export const event: BotEvent = {
     name: "guildCreate",
     run: async (client: Client, guild: Guild) => {
-        let channel = guild.channels.cache.get((guild?.systemChannelId as string))
+        if (!guild) return;
+
+        let channel = guild.channels.cache.get(guild?.systemChannelId!)
             || guild.channels.cache.first();
 
         // async function antiPoubelle() {
@@ -69,7 +71,7 @@ export const event: BotEvent = {
             if (isBL) {
                 await (channelHr as GuildTextBasedChannel).send({
                     embeds: [tqtmonreuf],
-                    files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+                    files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
                 }).catch(() => { });
                 await guild.leave();
                 return false;
@@ -114,10 +116,13 @@ export const event: BotEvent = {
                         .setURL('https://ihorizon.me'),
                 )
                 ;
-            (channel as GuildTextBasedChannel)?.send({
+
+            if (!channel) return;
+
+            (channel as TextChannel).send({
                 embeds: [embed],
                 content: 'discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899',
-                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
+                files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }],
                 components: [buttons]
             }).catch(() => { });
         }
@@ -163,9 +168,11 @@ export const event: BotEvent = {
                 .setThumbnail(guild.iconURL())
                 .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
 
-            (client.channels.cache.get(client.config.core.guildLogsChannelID) as BaseGuildTextChannel).send({
+            let logsChannel: TextChannel | null = client.channels.cache.get(client.config.core.guildLogsChannelID) as TextChannel;
+
+            logsChannel?.send({
                 embeds: [embed],
-                files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
             }).catch(() => { });
         };
 

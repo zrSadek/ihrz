@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -23,13 +23,15 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-} from 'discord.js';
+} from 'pwss';
 
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         try {
             client.lyricsSearcher.search(interaction.options.getString("query")!)
@@ -48,13 +50,13 @@ export default {
                         })
                         .setDescription(trimmedLyrics?.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics ?? 'null')
                         .setColor('#cd703a')
-                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                        .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" });
 
                     await interaction.editReply({
                         embeds: [embed],
                         files: [
                             {
-                                attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
+                                attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()),
                                 name: 'icon.png'
                             }
                         ]

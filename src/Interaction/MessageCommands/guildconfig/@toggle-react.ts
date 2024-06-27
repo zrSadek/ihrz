@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -30,7 +30,7 @@ import {
     GuildVoiceChannelResolvable,
     Message,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
@@ -38,6 +38,7 @@ import { Command } from '../../../../types/command';
 export const command: Command = {
 
     name: 'toggle-react',
+    aliases: ['react-toggle', 'togglereact', 'reacttoggle'],
 
     description: 'Enable / Disable the reaction when user greets someone',
     description_localizations: {
@@ -47,15 +48,15 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, interaction: Message, args: string[]) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    run: async (client: Client, interaction: Message) => {
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
 
         let active: boolean;
 
         if (!permission) {
-            await interaction.reply({ content: data.setup_not_admin });
+            await interaction.reply({ content: data.setup_not_admin, allowedMentions: { repliedUser: false } });
             return;
         }
 
@@ -69,7 +70,7 @@ export const command: Command = {
             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`, active)
         };
 
-        await interaction.reply({ content: `<@${interaction.member?.id}>, maintenant quand un membre envoie un message de bienvenue, le bot **${active ? 'réagis' : 'ne réagis pas'}**` });
+        await interaction.reply({ content: `<@${interaction.member?.id}>, maintenant quand un membre envoie un message de bienvenue, le bot **${active ? 'réagis' : 'ne réagis pas'}**`, allowedMentions: { repliedUser: false } });
         return;
     },
 };

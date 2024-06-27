@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,25 +19,20 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, GuildMember } from 'discord.js';
+import { Client, GuildMember, SnowflakeUtil } from 'pwss';
 
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
-
-const processedMembers = new Set<string>();
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
         /**
          * Why doing this?
-         * On iHorizon Production, we have some ~discord.js problems~ 👎
+         * On iHorizon Production, we have some ~problems~ 👎
          * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-         * As always, fuck discord.js
          */
-        if (processedMembers.has(member.user.id)) return;
-        processedMembers.add(member.user.id);
-        setTimeout(() => processedMembers.delete(member.user.id), 2500);
+        const nonce = SnowflakeUtil.generate().toString();
 
         if (!member.guild || member.user.bot) return;
 
@@ -51,7 +46,9 @@ export const event: BotEvent = {
 
         if (accountAge < baseData.req) {
             try {
-                await member.kick("Account is too new");
+                member.kick("Account is too new")
+                    .catch(() => { })
+                    .then(() => { });
             } catch { }
         }
     },

@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, User, time } from "discord.js";
+import { Client, User, time } from 'pwss';
 
 import { BotEvent } from '../../../types/event';
 
@@ -30,7 +30,7 @@ export const event: BotEvent = {
         var newUser = await client.users.fetch(oldUser.id);
 
         let oldUsertag = oldUser.username;
-        let oldUserGlbl = oldUser.globalName;
+        let oldUserGlbl = oldUser.globalName || oldUser.displayName;
         let table = client.db.table("PREVNAMES");
 
         if (!oldUser) return;

@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -25,7 +25,7 @@ import {
     AutoModerationRuleTriggerType,
     ChatInputCommandInteraction,
     TextChannel
-} from 'discord.js';
+} from 'pwss';
 
 interface Action {
     type: number;
@@ -35,12 +35,14 @@ import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let turn = interaction.options.getString("action");
         let logs_channel = interaction.options.getChannel('logs-channel');
 
-        let automodRules = await interaction.guild?.autoModerationRules.fetch();
-        let KeywordPresetRule = automodRules?.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+        let automodRules = await interaction.guild.autoModerationRules.fetch();
+        let KeywordPresetRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.blockpub_not_admin });
@@ -67,7 +69,7 @@ export default {
                     });
                 };
 
-                await interaction.guild?.autoModerationRules.create({
+                await interaction.guild.autoModerationRules.create({
                     name: 'Block advertissement message by iHorizon',
                     enabled: true,
                     eventType: 1,
@@ -75,9 +77,7 @@ export default {
                     triggerMetadata:
                     {
                         regexPatterns: [
-                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
-                            '\bhttps?:\/\/\S+\b',
-                            '\b(https?:\/\/)?\S+\.\S+\b'
+                            '(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/.+[a-z]',
                         ]
                     },
                     actions: arrayActionsForRule
@@ -104,7 +104,7 @@ export default {
                         {
                             type: 2,
                             metadata: {
-                                channel: (logs_channel as unknown as TextChannel)
+                                channel: logs_channel as TextChannel
                             }
                         },
                     ]

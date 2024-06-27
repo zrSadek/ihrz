@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -29,13 +29,15 @@ import {
     ComponentType,
     EmbedBuilder,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: data.setjoindm_not_admin });
@@ -55,9 +57,9 @@ export default {
                     value: joinDm ? `\`\`\`${joinDm
                         .replaceAll("{memberUsername}", interaction.user.username)
                         .replaceAll("{memberMention}", interaction.user.toString())
-                        .replaceAll('{memberCount}', interaction.guild?.memberCount.toString()!)
+                        .replaceAll('{memberCount}', interaction.guild.memberCount.toString()!)
                         .replaceAll('{createdAt}', interaction.user.createdAt.toDateString())
-                        .replaceAll('{guildName}', interaction.guild?.name!)
+                        .replaceAll('{guildName}', interaction.guild.name!)
                         }\`\`\`\n` : data.setjoinmessage_help_embed_fields_custom_name_empy
                 }
             );
@@ -103,7 +105,7 @@ export default {
 
                     try {
                         let logEmbed = new EmbedBuilder()
-                            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
+                            .setColor("#bf0bb9")
                             .setTitle(data.setjoindm_logs_embed_title_on_enable)
                             .setDescription(data.setjoindm_logs_embed_description_on_enable
                                 .replace(/\${interaction\.user\.id}/g, interaction.user.id)

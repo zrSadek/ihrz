@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -23,7 +23,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-} from 'discord.js';
+} from 'pwss';
 
 import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
 import { format } from '../../../core/functions/date-and-time.js';
@@ -32,7 +32,7 @@ import { LanguageData } from '../../../../types/languageData';
 
 const OWNIHRZ = new OwnIHRZ();
 
-async function buildEmbed(client: Client, data: any, lang: LanguageData) {
+async function buildEmbed(client: Client, data: any, lang: LanguageData, guildID: string) {
 
     let bot_1 = (await OWNIHRZ.Get_Bot(data.Auth).catch(() => { }))?.data || 404;
 
@@ -54,12 +54,14 @@ async function buildEmbed(client: Client, data: any, lang: LanguageData) {
                 .replace('${expire}', expire)
                 .replace('${utils_msg}', utils_msg)
         )
-        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+        .setFooter({ text: await client.func.displayBotName(guildID), iconURL: "attachment://icon.png" })
         .setTimestamp();
 };
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let table_1 = client.db.table("OWNIHRZ");
         let data_2 = await table_1.get(`MAIN.${interaction.user.id}`);
@@ -69,20 +71,20 @@ export default {
             new EmbedBuilder()
                 .setTitle(data.mybot_list_embed0_title)
                 .setColor('#000000')
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
                 .setTimestamp()
         ];
 
         for (let botId in data_2) {
             if (data_2[botId]) {
-                let embed = await buildEmbed(client, data_2[botId], data);
+                let embed = await buildEmbed(client, data_2[botId], data, interaction.guildId!);
                 lsEmbed.push(embed);
             }
         }
 
         if (allData) {
             for (let botId in allData[interaction.user.id]) {
-                let embed = await buildEmbed(client, allData[interaction.user.id][botId], data);
+                let embed = await buildEmbed(client, allData[interaction.user.id][botId], data, interaction.guildId!);
                 lsEmbed.push(embed);
             }
         }
@@ -90,7 +92,7 @@ export default {
         await interaction.reply({
             embeds: lsEmbed,
             ephemeral: true,
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

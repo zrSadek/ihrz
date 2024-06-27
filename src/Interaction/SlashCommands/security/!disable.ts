@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -24,11 +24,13 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField
-} from 'discord.js';
+} from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let action = interaction.options.getString("action");
 
@@ -41,7 +43,7 @@ export default {
             await client.db.set(`${interaction.guildId}.SECURITY.disable`, false);
             await interaction.reply({
                 content: data.security_disable_pw_on
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
             });
 
             return;
@@ -49,7 +51,7 @@ export default {
             await client.db.set(`${interaction.guildId}.SECURITY.disable`, true);
             await interaction.reply({
                 content: data.security_disable_pw_off
-                    .replace('${interaction.user}', interaction.user .toString())
+                    .replace('${interaction.user}', interaction.user.toString())
             });
 
             return;

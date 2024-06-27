@@ -177,8 +177,11 @@ invites_confirmation_embed_description: "<@${member.user.id}> have `${inv || 0}`
 invites_confirmation_embed_title: "Inviter Stats"
 
 # /leaderboard
-leaderboard_text_inline: "<@${i}> Have **${a.invites || 0}** Invites (**${a.regular || 0}** Regular ** ${a.bonus || 0}** Bonus **${a.leaves || 0}** Leaves)\n"
-leaderboard_default_text: "**__Leaderboard :__**\n"
+leaderboard_text_inline: "`${i} ` <@${index.inviter}> • Invites∶ **${index.invites}**\n  ┖ Regular **${index.regular}**, Bonus∶ **${index.bonus}**, Left∶ **${index.leaves}**\n"
+leaderboard_default_text: "**__Leaderboard__**"
+leaderboard_rank_text: "🏅You are currently ranked `${userRank + 1}`/`${arr.length}` with **${arr[userRank].invites}** invites\n\n"
+leaderboard_rank_none: "🏅You are not currently ranked.\n\n"
+leaderboard_gen_time_msg: "**${interaction.guild?.name}**'s leaderboard generated in ${Date.now() - execTimestamp}ms.\n\n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "You need admin to use this!"
@@ -779,6 +782,16 @@ too_new_account_command_work_on_enable: "${interaction.user}, new members joinin
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} has disabled the module!"
 too_new_account_command_work_on_disable: "${interaction.user}, the module has been successfully disabled. New member account creation dates will no longer be checked."
 
+# /guildconfig set-bot footer-name
+guildconfig_setbot_footername_footer_too_long_msg: "The bot footer is too long, it will be too ugly to display."
+guildconfig_setbot_footername_is_good: "Succefully changed, all iHorizon embed will use `${footerName}` as footer!"
+
+# /guildconfig set-bot prefix
+guildconfig_setbot_prefix_prefix_now_mention: "The bot prefix for Message's command is now mention! `@Ping-Me`"
+guildconfig_setbot_prefix_prefix_specify_prefix: "You need to specify the bot prefix."
+guildconfig_setbot_prefix_prefix_too_long: "The bot prefix is too long, it will be too difficult to use."
+guildconfig_setbot_prefix_prefix_is_good: "The bot prefix are succefully changed, now message's commands is usable with: `${formatedPrefix}`"
+
 
 # Member Count commands
 # /setmembercount
@@ -1128,6 +1141,11 @@ embed_choose_12: "What color do you want to include in your Embed? **www.color-h
 embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | Invalid color! Please check **www.color-hex.com**"
 embed_choose_13: "The color of the Embed has been successfully deleted!"
 embed_send_embed_work: "<@${interaction.user.id}>, **You have successfully sent the Embed to the <#${message.content}> channel!**"
+embed_copy_bad_guild_msg: "The guild where is the message is not the same as ${interaction.guild?.name}"
+embed_copy_bad_channel_msg: "The channel where is the message is unreachable !"
+embed_copy_bad_message_msg: "The message is unreachable !"
+embed_copy_bad_embed_message_msg: "The message doesn't have embed !"
+embed_copy_bad_url_msg: "Invalid URL, please retry. The correct format is: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
 
 # /rolesaver
 rolesaver_embed_title: "RoleSaver Module"
@@ -1418,13 +1436,14 @@ antispam_manage_choices_9_label: "Max duplicates interval"
 antispam_manage_choices_9_desc: "The interval between duplicates mesasge for flag user"
 antispam_manage_choices_10_label: "Max Similar Messages"
 antispam_manage_choices_10_desc: "Amount of max similar message before sanction"
-antispam_manage_choices_11_label: "Interval Between Warn"
-antispam_manage_choices_11_desc: "The interval between warn message"
-antispam_manage_choices_12_label: "Threshold before warning"
-antispam_manage_choices_12_desc: "The threshold before warning message"
+antispam_manage_choices_12_label: "Threshold before punishment"
+antispam_manage_choices_12_desc: "The maximum threshold before punishment"
 antispam_manage_select_menu_punish_mute_label: "Mute Members"
 antispam_manage_modal_title: "AntiSpam Modal"
 antispam_manage_button_label: "Save config"
+antispam_manage_preset_level1_name: "Chill Mode"
+antispam_manage_preset_level2_name: "Guard Mode"
+antispam_manage_preset_level3_name: "Extreme Protection Mode"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "All of the roles bellow can bypass the antispam module"

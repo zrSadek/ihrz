@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -28,8 +28,17 @@ const config: ConfigData = {
         token: "The bot token",
         // The Discord Bot Token
 
-        phonePresence: false
+        phonePresence: false,
         // If the bot have Phone Bot Activity Presence
+
+        messageCommandsMention: true,
+        /* If is in true, the message commands (prefix commands) are trigerable with @Bot-Mention,
+            else, change propriety defaultMessageCommandsPrefix bellow for your default-prefix
+        */
+
+        defaultMessageCommandsPrefix: "?"
+        // The message commands prefix if your choose to use prefix instead of bot mention as prefix
+
     },
 
     lavalink: {
@@ -110,6 +119,9 @@ const config: ConfigData = {
         * They can't be blacklisted by owner who are in the Database.
         * They can't be banned by owner who are in the Database.
         */
+
+        owners: ["User id", "User id"]
+        // OPTIONAL CONFIG FIELD
 
     },
 

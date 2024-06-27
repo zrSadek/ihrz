@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -26,7 +26,7 @@ import {
     Client,
     GuildChannel,
     PermissionsBitField,
-} from 'discord.js'
+} from 'pwss'
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
@@ -38,12 +38,15 @@ export const command: Command = {
     description_localizations: {
         "fr": "Recréation d'un canal (autorisation de clonage et toutes les configurations)"
     },
-    
+
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
             await interaction.reply({ content: data.renew_not_administrator });
@@ -53,9 +56,9 @@ export const command: Command = {
         let channel = interaction.channel as BaseGuildTextChannel;
 
         try {
-            await channel?.delete();
+            await channel.delete();
 
-            let here = await channel?.clone({
+            let here = await channel.clone({
                 name: channel.name,
                 parent: channel.parent,
                 permissionOverwrites: channel.permissionOverwrites.cache!,

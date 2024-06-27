@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { PermissionsBitField, Client, GuildMember } from 'discord.js';
+import { PermissionsBitField, Client, GuildMember } from 'pwss';
 
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';

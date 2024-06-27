@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -26,7 +26,7 @@ import {
     ApplicationCommandType,
     ChannelType,
     PermissionsBitField,
-} from 'discord.js';
+} from 'pwss';
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
@@ -44,10 +44,12 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
-        let voiceStates = interaction.guild?.voiceStates.cache;
-        let membersStates = interaction.guild?.members.cache;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
+        let voiceStates = interaction.guild.voiceStates.cache;
+        let membersStates = interaction.guild.members.cache;
 
         if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.ViewAuditLog])) {
             await interaction.reply({ content: data.renew_not_administrator });
@@ -101,7 +103,7 @@ export const command: Command = {
             )
             .setFooter(
                 {
-                    text: "iHorizon",
+                    text: await interaction.client.func.displayBotName(interaction.guildId),
                     iconURL: "attachment://icon.png"
                 }
             )
@@ -111,7 +113,7 @@ export const command: Command = {
             embeds: [embed],
             files: [
                 {
-                    attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL({ forceStatic: false })),
+                    attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL({ forceStatic: false })),
                     name: 'icon.png'
                 },
             ]

@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -29,7 +29,7 @@ import {
     EmbedBuilder,
     PermissionsBitField,
     RoleSelectMenuBuilder
-} from 'discord.js';
+} from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 import { AntiSpam } from '../../../../types/antispam';
 import { DatabaseStructure } from '../../../core/database_structure';
@@ -38,6 +38,8 @@ type AntiSpamOptionKey = keyof AntiSpam.AntiSpamOptions;
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, lang: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({ content: lang.addmoney_not_admin });
@@ -50,7 +52,7 @@ export default {
             .setColor("#6666ff")
             .setTitle(lang.antispam_manage_embed_title)
             .setDescription(lang.antispan_bypassroles_embed_desc)
-            .setThumbnail(interaction.guild?.iconURL({ forceStatic: false })!)
+            .setThumbnail(interaction.guild.iconURL({ forceStatic: false })!)
             .addFields({
                 name: lang.setjoinroles_help_embed_fields_1_name,
                 value: Array.isArray(all_roles) && all_roles.length > 0
@@ -58,7 +60,7 @@ export default {
                     : lang.setjoinroles_var_none
             })
             .setFooter({
-                text: "iHorizon",
+                text: await interaction.client.func.displayBotName(interaction.guildId),
                 iconURL: interaction.client.user.displayAvatarURL({ forceStatic: false })
             });
 

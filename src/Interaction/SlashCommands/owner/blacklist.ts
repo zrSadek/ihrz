@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -28,12 +28,13 @@ import {
     ActionRowBuilder,
     ChatInputCommandInteraction,
     GuildMember,
-    GuildMemberManager,
     ApplicationCommandType
-} from 'discord.js'
+} from 'pwss'
 
-import { Command } from '../../../../types/command';
+import { format } from '../../../core/functions/date-and-time.js';
+
 import { LanguageData } from '../../../../types/languageData';
+import { Command } from '../../../../types/command';
 
 export const command: Command = {
     name: 'blacklist',
@@ -71,8 +72,10 @@ export const command: Command = {
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let tableOwner = client.db.table('OWNER');
         let tableBlacklist = client.db.table('BLACKLIST');
 
@@ -104,7 +107,7 @@ export const command: Command = {
             for (let i = 0; i < blacklistedUsers.length; i += usersPerPage) {
                 let pageUsers = blacklistedUsers.slice(i, i + usersPerPage);
                 let pageContent = pageUsers.map(userObj => {
-                    return `<@${userObj.id}>\n\`${userObj.value.reason || data.blacklist_var_no_reason}\``;
+                    return `<@${userObj.id}>\n├─ ${userObj.value.createdAt !== undefined ? format(new Date(userObj.value.createdAt), 'MMM DD YYYY') : data.profil_unknown}\n├─ \`${userObj.value.reason || data.blacklist_var_no_reason}\`\n├─ By ${userObj.value.owner || data.profil_unknown}`
                 }).join('\n');
 
                 pages.push({
@@ -142,7 +145,7 @@ export const command: Command = {
             let messageEmbed = await interaction.reply({
                 embeds: [createEmbed()],
                 components: [row],
-                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
             });
 
             let collector = messageEmbed.createMessageComponentCollector({
@@ -173,7 +176,7 @@ export const command: Command = {
         };
 
         if (member) {
-            if (member.user.id === client.user?.id) {
+            if (member.user.id === client.user.id) {
                 await interaction.reply({ content: data.blacklist_bot_lol });
                 return;
             };
@@ -190,7 +193,9 @@ export const command: Command = {
 
             await tableBlacklist.set(`${member.user.id}`, {
                 blacklisted: true,
-                reason: reason
+                reason: reason,
+                owner: interaction.user.id,
+                createdAt: new Date().getTime()
             });
 
             member.ban({ reason: 'blacklisted !' }).then(async () => {
@@ -209,7 +214,7 @@ export const command: Command = {
 
         } else if (user) {
 
-            if (user.id === client.user?.id) {
+            if (user.id === client.user.id) {
                 await interaction.reply({ content: data.blacklist_bot_lol });
                 return;
             };
@@ -226,7 +231,9 @@ export const command: Command = {
 
             await tableBlacklist.set(`${user.id}`, {
                 blacklisted: true,
-                reason: reason
+                reason: reason,
+                owner: interaction.user.id,
+                createdAt: new Date().getTime()
             });
 
             await interaction.reply({

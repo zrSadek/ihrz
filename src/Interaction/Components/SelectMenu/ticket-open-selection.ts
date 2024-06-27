@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -20,7 +20,7 @@
 */
 
 import { CreateTicketChannel } from '../../../core/modules/ticketsManager.js';
-import { CacheType, StringSelectMenuInteraction } from 'discord.js';
+import { CacheType, StringSelectMenuInteraction } from 'pwss';
 
 export default async function (interaction: StringSelectMenuInteraction<CacheType>) {
     if (!await interaction.client.db.get(

@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -27,7 +27,7 @@ import {
     ButtonStyle,
     ChatInputCommandInteraction,
     ApplicationCommandType,
-} from 'discord.js'
+} from 'pwss'
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
@@ -44,19 +44,22 @@ export const command: Command = {
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         let button_add_me = new ButtonBuilder()
             .setStyle(ButtonStyle.Link)
             .setLabel(data.invite_embed_title)
-            .setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`)
+            .setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=8&scope=bot`)
 
         let invites = new EmbedBuilder()
             .setColor("#416fec")
             .setTitle(data.invite_embed_title)
             .setDescription(data.invite_embed_description)
-            .setURL('https://discord.com/api/oauth2/authorize?client_id=' + client.user?.id + '&permissions=8&scope=bot')
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setURL('https://discord.com/api/oauth2/authorize?client_id=' + client.user.id + '&permissions=8&scope=bot')
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setThumbnail("attachment://icon.png");
 
         let components = new ActionRowBuilder<ButtonBuilder>().addComponents(button_add_me);
@@ -64,7 +67,7 @@ export const command: Command = {
         await interaction.reply({
             embeds: [invites],
             components: [components],
-            files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

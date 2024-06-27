@@ -177,8 +177,11 @@ invites_confirmation_embed_description: "<@${member.user.id}> имеет `${inv 
 invites_confirmation_embed_title: "Статистика приглашений"
 
 # /leaderboard
-leaderboard_text_inline: "<@${i}> Имеет **${a.invites || 0}** Приглашений (**${a.regular || 0}** Обычных **${a.bonus || 0}** Бонусных **${a.leaves || 0}** Отказов)\n"
-leaderboard_default_text: "**__Таблица лидеров:__**\n"
+leaderboard_text_inline: "`${i} ` <@${index.inviter}> • Приглашения∶ **${index.invites}**\n  ┖ Обычные **${index.regular}**, Бонус∶ **${index.bonus}**, Покинули∶ **${index.leaves}**\n"
+leaderboard_default_text: "**__Таблица лидеров__**"
+leaderboard_rank_text: "🏅Вы в настоящее время занимаете `${userRank + 1}` место из `${arr.length}` с **${arr[userRank].invites}** приглашениями\n\n"
+leaderboard_rank_none: "🏅Вы в настоящее время не занесены в рейтинг.\n\n"
+leaderboard_gen_time_msg: "Таблица лидеров **${interaction.guild?.name}** сгенерирована за ${Date.now() - execTimestamp}мс.\n\n"
 
 # /removeinvites
 removeinvites_not_admin_embed_description: "Вам нужны права администратора для использования этой команды!"
@@ -779,6 +782,16 @@ too_new_account_command_work_on_enable: "${interaction.user}, новые уча�
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} отключил модуль!"
 too_new_account_command_work_on_disable: "${interaction.user}, модуль успешно отключен. Даты создания новых аккаунтов участников больше не будут проверяться."
 
+# /guildconfig set-bot footer-name
+guildconfig_setbot_footername_footer_too_long_msg: "Нижний колонтитул бота слишком длинный, его будет слишком некрасиво отображать."
+guildconfig_setbot_footername_is_good: "Успешно изменено, все встраивания iHorizon будут использовать `${footerName}` как нижний колонтитул!"
+
+# /guildconfig set-bot prefix
+guildconfig_setbot_prefix_prefix_now_mention: "Префикс бота для команд теперь упоминание! `@Ping-Me`"
+guildconfig_setbot_prefix_prefix_specify_prefix: "Вам нужно указать префикс бота."
+guildconfig_setbot_prefix_prefix_too_long: "Префикс бота слишком длинный, его будет слишком трудно использовать."
+guildconfig_setbot_prefix_prefix_is_good: "Префикс бота успешно изменен, теперь команды можно использовать с: `${formatedPrefix}`."
+
 
 # Commandes de décompte des membres
 # /setmembercount
@@ -1128,6 +1141,11 @@ embed_choose_12: "Какой цвет вы хотите включить во в
 embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | Неверный цвет! Пожалуйста, проверьте **www.color-hex.com**"
 embed_choose_13: "Цвет встраивания успешно удален!"
 embed_send_embed_work: "<@${interaction.user.id}>, **Вы успешно отправили встраивание в канал <#${message.content}>!**"
+embed_copy_bad_guild_msg: "Гильдия, где находится сообщение, не совпадает с ${interaction.guild?.name}"
+embed_copy_bad_channel_msg: "Канал, где находится сообщение, недоступен!"
+embed_copy_bad_message_msg: "Сообщение недоступно!"
+embed_copy_bad_embed_message_msg: "Сообщение не содержит встроенных данных!"
+embed_copy_bad_url_msg: "Неверный URL, пожалуйста, попробуйте снова. Правильный формат: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
 
 # /rolesaver
 rolesaver_embed_title: "Модуль RoleSaver"
@@ -1418,13 +1436,14 @@ antispam_manage_choices_9_label: "Максимальный интервал ме
 antispam_manage_choices_9_desc: "Интервал между повторяющимися сообщениями для пометки пользователя"
 antispam_manage_choices_10_label: "Максимум похожих сообщений"
 antispam_manage_choices_10_desc: "Максимальное количество похожих сообщений перед санкцией"
-antispam_manage_choices_11_label: "Интервал между предупреждениями"
-antispam_manage_choices_11_desc: "Интервал между предупреждающими сообщениями"
-antispam_manage_choices_12_label: "Порог перед предупреждением"
-antispam_manage_choices_12_desc: "Порог перед отправкой предупреждающего сообщения"
+antispam_manage_choices_12_label: "Порог перед наказанием"
+antispam_manage_choices_12_desc: "Максимальный порог перед наказанием"
 antispam_manage_select_menu_punish_mute_label: "Заглушить участников"
 antispam_manage_modal_title: "Модальное окно AntiSpam"
 antispam_manage_button_label: "Сохранить настройки"
+antispam_manage_preset_level1_name: "Режим Расслабления"
+antispam_manage_preset_level2_name: "Режим Охраны"
+antispam_manage_preset_level3_name: "Режим Экстремальной Защиты"
 
 # /antispam bypass-roles
 antispan_bypassroles_embed_desc: "Все роли ниже могут обойти модуль антиспама"

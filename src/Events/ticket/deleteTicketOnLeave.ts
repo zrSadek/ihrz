@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, GuildMember } from 'discord.js'
+import { Client, EmbedBuilder, GuildMember } from 'pwss'
 
 import { LanguageData } from '../../../types/languageData';
 import { BotEvent } from '../../../types/event';
@@ -31,7 +31,7 @@ export const event: BotEvent = {
         let fetch = await client.db.get(`${member.guild.id}.TICKET_ALL.${member.user.id}`);
 
         for (let channelId in fetch) {
-            let lang = await client.functions.getLanguageData(member.guild.id) as LanguageData;
+            let lang = await client.func.getLanguageData(member.guild.id) as LanguageData;
             let channel = member.guild.channels.cache.get(fetch[channelId].channel);
             await channel?.delete().catch(() => { });
 
@@ -47,10 +47,10 @@ export const event: BotEvent = {
                         .replace('${interaction.user}', member.user.toString())
                         .replace('${interaction.channel.name}', channel?.name!)
                     )
-                    .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                    .setFooter({ text: await client.func.displayBotName(member.guild.id), iconURL: "attachment://icon.png" })
                     .setTimestamp();
 
-                TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
+                TicketLogsChannel.send({ embeds: [embed], files: [{ attachment: await client.func.image64(client.user?.displayAvatarURL()), name: 'icon.png' }] });
             } catch (e) { };
 
             await client.db.delete(`${member.guild.id}.TICKET_ALL.${member.user.id}`)

@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, ChatInputCommandInteraction, ApplicationCommandType, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { Client, EmbedBuilder, ChatInputCommandInteraction, ApplicationCommandType, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'pwss';
 import { AnotherCommand } from '../../../types/anotherCommand';
 import { LanguageData } from '../../../types/languageData';
 
@@ -99,7 +99,7 @@ export const command: AnotherCommand = {
                 .join('');
         };
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let member = interaction.options.getUser('user') || interaction.user;
 
         async function sendMessage(user: User) {
@@ -119,7 +119,7 @@ export const command: AnotherCommand = {
             };
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: `iHorizon`, iconURL: "attachment://ihrz_logo.png" })
+                .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://ihrz_logo.png" })
                 .setThumbnail("attachment://user_icon.gif")
                 .setTimestamp()
                 .setColor('#0014a8')
@@ -154,7 +154,7 @@ export const command: AnotherCommand = {
 
             var files: { name: string; attachment: string }[] = [
                 {
-                    attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL({ forceStatic: false })),
+                    attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL({ forceStatic: false })),
                     name: 'ihrz_logo.png'
                 },
                 {
@@ -164,7 +164,7 @@ export const command: AnotherCommand = {
             ];
 
             if (banner) files.push({
-                attachment: await interaction.client.functions.image64(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`),
+                attachment: await interaction.client.func.image64(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`),
                 name: 'user_banner.gif'
             });
 

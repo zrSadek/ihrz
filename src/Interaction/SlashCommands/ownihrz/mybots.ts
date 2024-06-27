@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -24,7 +24,7 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType,
-} from 'discord.js';
+} from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
@@ -47,7 +47,7 @@ export const command: Command = {
                 "fr": "Soumettre pour la création de votre propre iHorizon"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'discord_bot_token',
@@ -81,7 +81,7 @@ export const command: Command = {
                 "fr": "Changer le token de votre propre iHorizon"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'botid',
@@ -115,7 +115,7 @@ export const command: Command = {
                 "fr": "Afficher tout vos bot(s) iHorizon personaliser"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: "manage",
@@ -125,7 +125,7 @@ export const command: Command = {
                 "fr": "Seulement pour les propriétaire d'iHorizon"
             },
 
-            type: 2,
+            type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
                 {
                     name: "accept",
@@ -135,7 +135,7 @@ export const command: Command = {
                         "fr": "Seulement pour les propriétaire d'iHorizon"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
                             name: 'id',
@@ -172,7 +172,7 @@ export const command: Command = {
                         "fr": "Seulement pour les propriétaire d'iHorizon"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
                             name: 'id',
@@ -189,7 +189,7 @@ export const command: Command = {
                 },
                 {
                     name: 'instance',
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
 
                     description: 'Only for owner',
                     description_localizations: {
@@ -265,7 +265,7 @@ export const command: Command = {
     category: 'ownihrz',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);

@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { EmbedBuilder, Client, VoiceState, BaseGuildTextChannel } from 'discord.js';
+import { EmbedBuilder, Client, VoiceState, BaseGuildTextChannel } from 'pwss';
 
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
@@ -28,7 +28,7 @@ export const event: BotEvent = {
     name: "voiceStateUpdate",
     run: async (client: Client, oldState: VoiceState, newState: VoiceState) => {
 
-        let data = await client.functions.getLanguageData(oldState.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(oldState.guild.id) as LanguageData;
 
         if (!oldState || !oldState.guild) return;
 

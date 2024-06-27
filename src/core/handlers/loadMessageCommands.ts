@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Collection } from "discord.js";
+import { Client, Collection } from 'pwss';
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 import logger from "../logger.js";
@@ -31,6 +31,10 @@ import path from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+interface CommandModule {
+    command: Command;
+}
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
@@ -80,7 +84,7 @@ async function loadCommands(client: Client, path: string = p): Promise<void> {
         if (!path.endsWith('.js')) continue;
         i++;
 
-        let { command } = await import(path); if (!command) continue;
+        let { command } = await import(path) as CommandModule; if (!command) continue;
 
         client.content.push(
             {
@@ -89,10 +93,15 @@ async function loadCommands(client: Client, path: string = p): Promise<void> {
                 desc_localized: command.description_localizations,
                 category: command.category,
                 messageCmd: true,
+                aliases: command.aliases
             }
         );
 
-        client.message_commands.set(command.name, command);
+        client.message_commands.set(command.name, command); if (!command?.aliases) continue;
+
+        for (let aliases of command.aliases) {
+            client.message_commands.set(aliases, command);
+        }
     };
 
     logger.log(`${client.config.console.emojis.OK} >> Loaded ${i} Message commands.`);

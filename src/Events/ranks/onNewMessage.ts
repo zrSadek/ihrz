@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,33 +19,28 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, PermissionsBitField, ChannelType, Message, GuildTextBasedChannel, ClientUser } from 'discord.js';
+import { Client, PermissionsBitField, ChannelType, Message, GuildTextBasedChannel, ClientUser, SnowflakeUtil } from 'pwss';
 
 import { isMessageCommand } from '../interaction/messageCommandHandler.js';
 import { LanguageData } from '../../../types/languageData';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure.js';
 
-const processedMembers = new Set<string>();
-
 export const event: BotEvent = {
     name: "messageCreate",
     run: async (client: Client, message: Message) => {
         /**
          * Why doing this?
-         * On iHorizon Production, we have some ~discord.js problems~ 👎
+         * On iHorizon Production, we have some ~problems~ 👎
          * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-         * As always, fuck discord.js
          */
-        if (processedMembers.has(message.author.id)) return;
-        processedMembers.add(message.author.id);
-        setTimeout(() => processedMembers.delete(message.author.id), 4000);
+        const nonce = SnowflakeUtil.generate().toString();
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let data = await client.functions.getLanguageData(message.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(message.guild.id) as LanguageData;
 
-        if ((await isMessageCommand(client, message.content)).s) return;
+        if ((await isMessageCommand(client, message)).s) return;
 
         if (!message.guild || message.author.bot || message.channel.type !== ChannelType.GuildText) return;
 
@@ -73,21 +68,23 @@ export const event: BotEvent = {
                 || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)) return;
 
             let xpChan = xpData?.xpchannels!;
-            let MsgChannel = message.guild.channels.cache.get(xpChan) as GuildTextBasedChannel;
+            let MsgChannel = message.guild.channels.cache.get(xpChan) as GuildTextBasedChannel | null;
 
             if (!xpChan) {
                 message.channel.send({
                     content: data.event_xp_level_earn
                         .replace("${message.author.id}", message.author.id)
-                        .replace("${newLevel}", newLevel)
+                        .replace("${newLevel}", newLevel), enforceNonce: true, nonce: nonce
                 })
                 return;
             }
 
+            if (!MsgChannel) return;
+
             MsgChannel.send({
                 content: data.event_xp_level_earn
                     .replace("${message.author.id}", message.author.id)
-                    .replace("${newLevel}", newLevel)
+                    .replace("${newLevel}", newLevel), enforceNonce: true, nonce: nonce
             });
             return;
         }

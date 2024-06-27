@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, PermissionsBitField, ChannelType, Message } from 'discord.js';
+import { Client, PermissionsBitField, ChannelType, Message } from 'pwss';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../core/database_structure';
 
@@ -74,7 +74,9 @@ export const event: BotEvent = {
                         FLAGS_FETCH = FLAGS_FETCH || 0;
 
                         await table.set(`${message.guild.id}.PUNISH_DATA.${message.author.id}`, { flags: FLAGS_FETCH + 1 });
-                        await message.delete();
+                        message.delete()
+                            .catch(() => { })
+                            .then(() => { });
                         break;
                     }
                 }

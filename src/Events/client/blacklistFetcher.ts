@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, GuildMember } from 'discord.js';
+import { Client, GuildMember } from 'pwss';
 
 import { BotEvent } from '../../../types/event';
 
@@ -30,12 +30,15 @@ export const event: BotEvent = {
         try {
             let table = client.db.table('BLACKLIST')
 
-            if (await table.get(`${member.user.id}.blacklisted`)) {
-                member.send({ content: 'You\'ve been banned, because you are blacklisted' })
+            let data = await table.get(`${member.user.id}`);
+
+            if (data.blacklisted === true) {
+                member.send({ content: "You've been banned, because you are blacklisted ! \nReason: \`" + data.reason + '\`' })
                     .catch(() => { })
-                    .then(() => {
-                        member.ban({ reason: 'blacklisted!' });
-                    });
+                    .then(() => { });
+                member.ban({ reason: `iHorizon Project Punishement - Blacklist | Reason: ${data.reason}` })
+                    .catch(() => { })
+                    .then(() => { });
             }
 
         } catch (error) {

@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -24,7 +24,7 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType,
-} from 'discord.js';
+} from 'pwss';
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
@@ -46,7 +46,7 @@ export const command: Command = {
                 "fr": "Ajoutez un membre dans votre ticket"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -69,7 +69,7 @@ export const command: Command = {
                 "fr": "Fermer un ticket"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: "delete",
@@ -79,7 +79,7 @@ export const command: Command = {
                 "fr": "Supprimer un ticket"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: "disable",
@@ -89,7 +89,7 @@ export const command: Command = {
                 "fr": "Désactiver les commande de ticket au seins du serveur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'action',
@@ -122,7 +122,7 @@ export const command: Command = {
                 "fr": "Définir un canal sur lequel iHorizon a envoyé des journaux sur les tickets"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'channel',
@@ -145,7 +145,7 @@ export const command: Command = {
                 "fr": "Re-ouvrir un ticket fermet"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: 'remove',
@@ -155,7 +155,7 @@ export const command: Command = {
                 "fr": "Enlever un membre d'un ticket"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -178,7 +178,7 @@ export const command: Command = {
                 "fr": "Créer un embed pour permettre à l'utilisateur de créer un ticket"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: "name",
@@ -212,7 +212,7 @@ export const command: Command = {
                 "fr": "Définir la catégorie dans laquelle les ticket doivent être créés"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: "category-name",
@@ -235,14 +235,14 @@ export const command: Command = {
                 "fr": "Obtenir la transcription d'un message de ticket"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
     ],
     thinking: true,
     category: 'ticket',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);

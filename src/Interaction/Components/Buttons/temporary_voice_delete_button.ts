@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, CacheType, ComponentType, Embed, EmbedBuilder, GuildMember, UserSelectMenuBuilder } from 'discord.js';
+import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, CacheType, ComponentType, Embed, EmbedBuilder, GuildMember, UserSelectMenuBuilder } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 export default async function (interaction: ButtonInteraction<CacheType>) {
@@ -29,7 +29,7 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
 
     let targetedChannel = (interaction.member as GuildMember).voice.channel;
 
-    let lang = await interaction.client.functions.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
     let member = interaction.member as GuildMember;
 
     let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
@@ -56,14 +56,14 @@ export default async function (interaction: ButtonInteraction<CacheType>) {
                     .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await interaction.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
                     .setFooter(
                         {
-                            text: "iHorizon",
+                            text: await interaction.client.func.displayBotName(interaction.guildId),
                             iconURL: 'attachment://icon.png'
                         }
                     )
             ],
             files: [
                 {
-                    attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()),
+                    attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()),
                     name: 'icon.png'
                 }
             ],

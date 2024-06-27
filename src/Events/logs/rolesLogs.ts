@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
+import { EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, GuildMember, BaseGuildTextChannel } from 'pwss';
 
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
@@ -28,7 +28,7 @@ export const event: BotEvent = {
     name: "guildMemberUpdate",
     run: async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
 
-        let data = await client.functions.getLanguageData(newMember.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(newMember.guild.id) as LanguageData;
 
         if (!newMember.guild.members.me?.permissions.has([
             PermissionsBitField.Flags.ViewAuditLog,

@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, EmbedBuilder, ChatInputCommandInteraction, User } from 'discord.js';
+import { Client, EmbedBuilder, ChatInputCommandInteraction, User } from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 import Jimp from 'jimp';
@@ -33,8 +33,11 @@ const __dirname = path.dirname(__filename);
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
         var user1 = interaction.options.getUser("user1") || interaction.user;
-        var user2 = interaction.options.getUser("user2") || interaction.guild?.members.cache.random()?.user as User;
+        var user2 = interaction.options.getUser("user2") || interaction.guild.members.cache.random()?.user as User;
 
         let profileImageSize = 512;
         let canvasWidth = profileImageSize * 3;
@@ -62,9 +65,9 @@ export default {
 
             var found = always100.find(element => {
                 if (
-                    element === `${user1?.id}x${user2?.id}`
+                    element === `${user1.id}x${user2.id}`
                     ||
-                    element === `${user2?.id}x${user1?.id}`
+                    element === `${user2.id}x${user1.id}`
                 ) {
                     return true;
                 }
@@ -84,17 +87,17 @@ export default {
                 .setImage(`attachment://love.png`)
                 .setDescription(data.love_embed_description
                     .replace('${user1.username}', user1.username)
-                    .replace('${user2.username}', user2?.username)
+                    .replace('${user2.username}', user2.username)
                     .replace('${randomNumber}', randomNumber.toString())
                 )
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
                 .setTimestamp();
 
             await interaction.editReply({
                 embeds: [embed],
                 files: [
                     { attachment: buffer, name: 'love.png' },
-                    { attachment: await client.functions.image64(client.user?.displayAvatarURL()), name: 'icon.png' },
+                    { attachment: await client.func.image64(client.user.displayAvatarURL()), name: 'icon.png' },
                 ]
             });
         } catch (error: any) {

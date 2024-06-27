@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -25,7 +25,7 @@ import logger from '../logger.js';
 
 import { MongoDriver } from 'quickmongo';
 import fs from 'node:fs';
-import { Client } from 'discord.js';
+import { Client } from 'pwss';
 
 let exec = async (driver: MongoDriver, config: ConfigData) => {
     await driver.close();
@@ -36,8 +36,8 @@ let exec = async (driver: MongoDriver, config: ConfigData) => {
 export const uncaughtExceptionHandler = (client: Client) => {
     process.on('uncaughtException', function (err) {
         if (!client.config.core.devMode) {
-            logger.err(`${client.config.console.emojis.ERROR} >> Error detected`.red());
-            logger.err(`${client.config.console.emojis.OK} >> Save in the logs`.gray());
+            logger.err(`${client.config.console.emojis.ERROR} >> Error detected`.red);
+            logger.err(`${client.config.console.emojis.OK} >> Save in the logs`.gray);
 
             let filesPath: string = `${process.cwd()}/src/files/error.log`;
             let CreateFile = fs.createWriteStream(filesPath, { flags: 'a' });

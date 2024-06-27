@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -24,7 +24,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-} from 'discord.js'
+} from 'pwss'
 
 import { Command } from '../../../../types/command';
 
@@ -35,14 +35,17 @@ export const command: Command = {
     description_localizations: {
         "fr": "Obtenez le dernier message supprimé sur ce cannal"
     },
-    
+
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId);
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel?.id}`);
+        let data = await client.func.getLanguageData(interaction.guildId);
+
+        var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`);
 
         if (!based) {
             await interaction.reply({ content: data.snipe_no_previous_message_deleted });

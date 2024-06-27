@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -26,7 +26,7 @@ import {
     EmbedBuilder,
     GuildMember,
     time,
-} from 'discord.js';
+} from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 import maskLink from '../../../core/functions/maskLink.js';
@@ -34,8 +34,10 @@ import { SearchPlatform } from 'lavalink-client';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let voiceChannel = (interaction.member as GuildMember)?.voice.channel;
+        let voiceChannel = (interaction.member as GuildMember).voice.channel;
         let check = interaction.options.getString("title");
 
         if (!voiceChannel) {
@@ -43,7 +45,7 @@ export default {
             return;
         };
 
-        if (!client.functions.isAllowedLinks(check)) {
+        if (!client.func.isAllowedLinks(check)) {
             return interaction.editReply({ content: data.p_not_allowed })
         };
 
@@ -77,7 +79,7 @@ export default {
 
         let channel = client.channels.cache.get(player.textChannelId as string);
 
-        (channel as BaseGuildTextChannel)?.send({
+        (channel as BaseGuildTextChannel).send({
             embeds: [
                 new EmbedBuilder()
                     .setColor(2829617)

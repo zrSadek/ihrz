@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -31,12 +31,14 @@ import {
     GuildMember,
     BaseGuildTextChannel,
     User,
-} from 'discord.js';
+} from 'pwss';
 
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let pause = new ButtonBuilder()
             .setCustomId('pause')
@@ -65,7 +67,7 @@ export default {
             return;
         };
 
-        let progress = client.functions.generateProgressBar(player.position, player.queue.current?.info.duration)
+        let progress = client.func.generateProgressBar(player.position, player.queue.current?.info.duration)
 
         let embed = new EmbedBuilder()
             .setTitle(data.nowplaying_message_embed_title)
@@ -137,17 +139,17 @@ export default {
                                         })
                                         .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
                                         .setColor('#cd703a')
-                                        .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" });
+                                        .setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" });
                                     i.editReply({
                                         embeds: [embed],
-                                        files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                                        files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
                                     });
                                 };
                                 break;
                             case "stop":
                                 await i.deferUpdate();
                                 player.destroy();
-                                (channel as BaseGuildTextChannel)?.send({ content: data.nowplaying_stop_buttom.replace('${interaction.user}', interaction.user.toString()) });
+                                (channel as BaseGuildTextChannel).send({ content: data.nowplaying_stop_buttom.replace('${interaction.user}', interaction.user.toString()) });
                                 break;
                         }
 
@@ -164,7 +166,7 @@ export default {
                 await response.edit({ components: [] });
             });
         } catch {
-            await interaction.channel?.send(client.iHorizon_Emojis.icon.Timer);
+            await interaction.channel.send(client.iHorizon_Emojis.icon.Timer);
             return;
         };
     }

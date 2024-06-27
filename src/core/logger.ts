@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -29,17 +29,20 @@ function getCurrentTime(): string {
 
 let logger: Logger = {
     warn(message) {
-        _(`[${getCurrentTime()} WRN]: `.red() + message);
+        _(`[${getCurrentTime()} WRN]: `.red + message);
     },
     err(message) {
-        _(`[${getCurrentTime()} ERR]: `.red() + message);
+        _(`[${getCurrentTime()} ERR]: `.red + message);
     },
     log(message) {
-        _(`[${getCurrentTime()} LOG]: `.green() + message);
+        _(`[${getCurrentTime()} LOG]: `.green + message);
     },
     legacy(message) {
         _(message);
     },
+    returnLog(message) {
+        return `[${getCurrentTime()} LOG]: `.green + message;
+    }
 };
 
 export default logger;

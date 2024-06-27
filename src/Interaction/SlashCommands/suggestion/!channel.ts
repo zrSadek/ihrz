@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -25,11 +25,13 @@ import {
     Client,
     EmbedBuilder,
     PermissionsBitField
-} from 'discord.js';
+} from 'pwss';
 import { LanguageData } from '../../../../types/languageData';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let channel = interaction.options.getChannel("channel") as BaseGuildTextChannel;
 
@@ -38,7 +40,7 @@ export default {
             return;
         };
 
-        let fetchOldChannel = await client.db.get(`${interaction.guild?.id}.SUGGEST.channel`);
+        let fetchOldChannel = await client.db.get(`${interaction.guild.id}.SUGGEST.channel`);
 
         if (fetchOldChannel === channel?.id) {
             await interaction.reply({
@@ -52,10 +54,10 @@ export default {
         let setupEmbed = new EmbedBuilder()
             .setColor('#000000')
             .setTitle(data.setsuggest_channel_embed_title)
-            .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+            .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
             .setDescription(data.setsuggest_channel_embed_desc);
 
-        await client.db.set(`${interaction.guild?.id}.SUGGEST.channel`, channel?.id);
+        await client.db.set(`${interaction.guild.id}.SUGGEST.channel`, channel?.id);
         await interaction.reply({
             content: data.setsuggest_channel_command_work
                 .replace('${interaction.user}', interaction.user.toString())
@@ -64,7 +66,7 @@ export default {
 
         (channel as BaseGuildTextChannel).send({
             embeds: [setupEmbed],
-            files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+            files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
         });
         return;
     },

@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { AttachmentBuilder, Client, EmbedBuilder, GuildMember, GuildTextBasedChannel, Message } from 'discord.js';
+import { SnowflakeUtil, Client, EmbedBuilder, GuildMember, GuildTextBasedChannel, Message } from 'pwss';
 
 import logger from "../../core/logger.js";
 import captcha from "../../core/captcha.js";
@@ -34,8 +34,9 @@ export const event: BotEvent = {
         let baseData = await client.db.get(`${member.guild.id}.SECURITY`);
         if (!baseData || baseData?.disable === true) return;
 
-        let data = await client.functions.getLanguageData(member.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(member.guild.id) as LanguageData;
         let channel = member.guild.channels.cache.get(baseData?.channel);
+        if (!channel) return;
         let generatedCaptcha = await captcha(280, 100)
 
         let sfbuff = Buffer.from((generatedCaptcha?.image).split(",")[1], "base64");
@@ -48,12 +49,19 @@ export const event: BotEvent = {
             .setDescription(data.event_security.replace('${member}', member.toString()))
             ;
 
+        /**
+         * Why doing this?
+         * On iHorizon Production, we have some ~problems~ 👎
+         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
+         */
+        const nonce = SnowflakeUtil.generate().toString();
+
         (channel as GuildTextBasedChannel).send({
             content: member.toString(),
             embeds: [embed],
             files: [
                 { name: "captcha.png", attachment: sfbuff },
-            ]
+            ], enforceNonce: true, nonce: nonce
         }).then(async (msg) => {
             let collector = msg.channel.createMessageCollector({
                 filter: (m) => m.author.id === member.id,
@@ -64,16 +72,26 @@ export const event: BotEvent = {
 
             collector.on('collect', async (m) => {
                 collector.stop();
-                await m.delete();
+                m.delete()
+                    .catch(() => { })
+                    .then(() => { });
 
                 if (generatedCaptcha.code === m.content) {
-                    member.roles.add(baseData?.role);
-                    msg.delete().catch(() => { });
+                    member.roles.add(baseData?.role)
+                        .catch(() => { })
+                        .then(() => { });
+                    msg.delete()
+                        .catch(() => { })
+                        .then(() => { });
                     passedtest = true;
                     return;
                 } else {
-                    msg.delete().catch(() => { });
-                    member.kick();
+                    msg.delete()
+                        .catch(() => { })
+                        .then(() => { });
+                    member.kick()
+                        .catch(() => { })
+                        .then(() => { });
                     return;
                 }
             });
@@ -85,7 +103,9 @@ export const event: BotEvent = {
                     member.kick();
                 }
 
-                msg.delete().catch(() => { });
+                msg.delete()
+                    .catch(() => { })
+                    .then(() => { });
             });
 
         }).catch((error: any) => {

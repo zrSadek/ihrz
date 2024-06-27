@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { REST, Routes, Client, ApplicationCommand } from "discord.js";
+import { REST, Routes, Client, ApplicationCommand } from 'pwss';
 import logger from "./logger.js";
 
 const synchronizeCommands = async (client: Client): Promise<void> => {
@@ -27,8 +27,8 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
         try {
             let rest = new REST().setToken(process.env.BOT_TOKEN || client.config.discord.token);
 
-            logger.log(`${client.config.console.emojis.LOAD} >> Currently ${client.commands?.size || 0} of application (/) commands awaiting for refreshing.`.white());
-            logger.log(`${client.config.console.emojis.LOAD} >> Currently ${client.applicationsCommands?.size || 0} of application ([]) commands awaiting for refreshing.`.white());
+            logger.log(`${client.config.console.emojis.LOAD} >> Currently ${client.commands?.size || 0} of slash (/) commands awaiting for refreshing.`.white);
+            logger.log(`${client.config.console.emojis.LOAD} >> Currently ${client.applicationsCommands?.size || 0} of application ([]) commands awaiting for refreshing.`.white);
 
             let appCmds = (client.applicationsCommands || []).map((command) => ({
                 name: command.name,
@@ -51,7 +51,7 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
                 { body: allCommands }
             );
 
-            logger.log(`${client.config.console.emojis.OK} >> Currently ${(data as unknown as ApplicationCommand<{}>[]).length} of application are now synchronized.`.white());
+            logger.log(`${client.config.console.emojis.OK} >> Currently ${(data as unknown as ApplicationCommand<{}>[]).length} of application are now synchronized.`.white);
             resolve();
         } catch (error: any) {
             logger.err(error);

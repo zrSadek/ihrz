@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -24,7 +24,7 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType,
-} from 'discord.js';
+} from 'pwss';
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
@@ -39,7 +39,7 @@ export const command: Command = {
     description_localizations: {
         "fr": "Commande sous-groupé pour la catégorie d'économie"
     },
-    
+
     options: [
         {
             name: "manage",
@@ -49,7 +49,7 @@ export const command: Command = {
                 "fr": "Ajoutez / Supprimer de la monnaie des utilisateur"
             },
 
-            type: 2,
+            type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
                 {
                     name: 'add',
@@ -59,7 +59,7 @@ export const command: Command = {
                         "fr": "Ajoutez de l'argent à un utilisateur"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
                             name: 'amount',
@@ -93,7 +93,7 @@ export const command: Command = {
                         "fr": "Retirer de l'argent à un utilisateur"
                     },
 
-                    type: 1,
+                    type: ApplicationCommandOptionType.Subcommand,
                     options: [
                         {
                             name: 'amount',
@@ -129,7 +129,7 @@ export const command: Command = {
                 "fr": "Obtenir le solde d'un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'user',
@@ -162,7 +162,7 @@ export const command: Command = {
                     description_localizations: {
                         "fr": "Que voulez-vous faire ?"
                     },
-                
+
                     type: ApplicationCommandOptionType.String,
 
                     choices: [
@@ -188,7 +188,7 @@ export const command: Command = {
                 "fr": "Obtenez le classement du solde des utilisateurs du serveur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: 'deposit',
@@ -198,7 +198,7 @@ export const command: Command = {
                 "fr": "Déposez des pièces dans votre banque"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'how-much',
@@ -219,9 +219,9 @@ export const command: Command = {
             description: 'Claim a reward!',
             description_localizations: {
                 "fr": "Réclamez une récompense"
-            }, 
-            
-            type: 2,
+            },
+
+            type: ApplicationCommandOptionType.SubcommandGroup,
             options: [
                 {
                     name: 'daily',
@@ -231,7 +231,7 @@ export const command: Command = {
                         "fr": "Réclamez une récompense quotidienne"
                     },
 
-                    type: 1
+                    type: ApplicationCommandOptionType.Subcommand
                 },
                 {
                     name: 'monthly',
@@ -241,7 +241,7 @@ export const command: Command = {
                         "fr": "Réclamez une récompense mensuelle"
                     },
 
-                    type: 1
+                    type: ApplicationCommandOptionType.Subcommand
                 },
                 {
                     name: 'weekly',
@@ -251,7 +251,7 @@ export const command: Command = {
                         "fr": "Réclamez une récompense hebdomadaire"
                     },
 
-                    type: 1
+                    type: ApplicationCommandOptionType.Subcommand
                 }
             ],
         },
@@ -263,7 +263,7 @@ export const command: Command = {
                 "fr": "Payer à un utilisateur un certain montant"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'amount',
@@ -297,7 +297,7 @@ export const command: Command = {
                 "fr": "Volé de l'argent d'un utilisateur"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'member',
@@ -320,7 +320,7 @@ export const command: Command = {
                 "fr": "Retirer des pièces de votre banque"
             },
 
-            type: 1,
+            type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
                     name: 'how-much',
@@ -343,14 +343,14 @@ export const command: Command = {
                 "fr": "Réclamez une récompense de travail"
             },
 
-            type: 1
+            type: ApplicationCommandOptionType.Subcommand
         },
     ],
     thinking: false,
     category: 'economy',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let command = interaction.options.getSubcommand();
 
         const commandModule = await import(`./!${command}.js`);

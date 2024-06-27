@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -28,7 +28,7 @@ import {
     Message,
     MessageContextMenuCommandInteraction,
     time,
-} from 'discord.js';
+} from 'pwss';
 
 import { SearchResult, UnresolvedSearchResult } from 'lavalink-client/dist/types/index.js';
 import { AnotherCommand } from '../../../types/anotherCommand.js';
@@ -40,7 +40,7 @@ export const command: AnotherCommand = {
     thinking: true,
     run: async (client: Client, interaction: MessageContextMenuCommandInteraction) => {
 
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
         let voiceChannel = (interaction.member as GuildMember)?.voice.channel;
 
         let msg = interaction.options.getMessage("message") as Message;
@@ -57,7 +57,7 @@ export const command: AnotherCommand = {
             return;
         };
 
-        if (client.functions.isAllowedLinks(msg?.content)) {
+        if (!client.func.isAllowedLinks(msg?.content)) {
             return interaction.editReply({ content: data.p_not_allowed })
         };
 

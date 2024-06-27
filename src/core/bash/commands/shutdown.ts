@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -23,14 +23,14 @@ import wait from '../../functions/wait.js';
 import logger from '../../logger.js';
 
 export default async function () {
-    logger.legacy(`* Closed session...`.gray().bgBlack());
+    logger.legacy(`* Closed session...`.gray.bgBlack);
 
     await wait(1000);
-    logger.legacy(`\n* Unload all script...`.gray().bgBlack());
+    logger.legacy(`\n* Unload all script...`.gray.bgBlack);
 
     await wait(1000);
-    logger.legacy(`* All are successfully unloaded`.gray().bgBlack());
+    logger.legacy(`* All are successfully unloaded`.gray.bgBlack);
 
-    logger.legacy(`* Power off...`.red().bgBlack());
+    logger.legacy(`* Power off...`.red.bgBlack);
     process.kill(0);
 };

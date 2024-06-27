@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 2.0 Generic (CC BY-NC-SA 2.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
     ・   Under the following terms:
 
@@ -28,7 +28,7 @@ import {
     Role,
     Guild,
     ApplicationCommandType
-} from 'discord.js'
+} from 'pwss'
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
@@ -79,7 +79,10 @@ export const command: Command = {
     thinking: true,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction) => {
-        let data = await client.functions.getLanguageData(interaction.guildId) as LanguageData;
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
+        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
 
         let action = interaction.options.getString("action");
         let role = interaction.options.getRole("role");
@@ -101,7 +104,7 @@ export const command: Command = {
         if (action === 'add') {
 
             try {
-                let members = await interaction.guild?.members.fetch();
+                let members = await interaction.guild.members.fetch();
                 let promises = [];
 
                 for (let [memberID, member] of members!) {
@@ -123,10 +126,10 @@ export const command: Command = {
             } catch (error) { };
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
                 .setColor('#007fff')
                 .setTimestamp()
-                .setThumbnail(interaction.guild?.iconURL() as string)
+                .setThumbnail(interaction.guild.iconURL())
                 .setDescription(data.massiverole_add_command_work
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${a}', a.toString())
@@ -137,13 +140,13 @@ export const command: Command = {
 
             await interaction.editReply({
                 embeds: [embed],
-                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await interaction.client.func.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
             });
             return;
         } else if (action === 'sub') {
 
             try {
-                let members = await interaction.guild?.members.fetch();
+                let members = await interaction.guild.members.fetch();
                 let promises = [];
 
                 for (let [memberID, member] of members!) {
@@ -165,10 +168,10 @@ export const command: Command = {
             } catch (error) { };
 
             let embed = new EmbedBuilder()
-                .setFooter({ text: 'iHorizon', iconURL: "attachment://icon.png" })
+                .setFooter({ text: await client.func.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" })
                 .setColor('#007fff')
                 .setTimestamp()
-                .setThumbnail(interaction.guild?.iconURL() as string)
+                .setThumbnail(interaction.guild.iconURL())
                 .setDescription(data.massiverole_sub_command_work
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${a}', a.toString())
@@ -179,7 +182,7 @@ export const command: Command = {
 
             await interaction.editReply({
                 embeds: [embed],
-                files: [{ attachment: await interaction.client.functions.image64(interaction.client.user?.displayAvatarURL()), name: 'icon.png' }]
+                files: [{ attachment: await interaction.client.func.image64(interaction.client.user.displayAvatarURL()), name: 'icon.png' }]
             });
             return;
         };
